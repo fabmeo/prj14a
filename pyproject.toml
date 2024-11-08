@@ -1,0 +1,19 @@
+[project]
+name = "pw14a"
+version = "0.1.0"
+description = "Prenotazioni Online AD"
+authors = [
+    {name = "fabmeo", email = "164397533+fabmeo@users.noreply.github.com"},
+]
+dependencies = ["django>=5.1.3"]
+requires-python = ">=3.13"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
