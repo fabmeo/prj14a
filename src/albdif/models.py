@@ -16,6 +16,9 @@ class Visitatore(User):
         verbose_name = "Visitatore"
         verbose_name_plural = "Visitatori"
 
+    def __str__(self):
+        return f"{self.last_name} {self.first_name}"
+
 
 class Host(User):
     """
@@ -27,6 +30,9 @@ class Host(User):
     class Meta():
         verbose_name = "Host"
         verbose_name_plural = "Host"
+
+    def __str__(self):
+        return f"{self.last_name} {self.first_name}"
 
 
 class Proprieta(models.Model):
@@ -41,6 +47,9 @@ class Proprieta(models.Model):
         verbose_name = "Proprietà"
         verbose_name_plural = "Proprietà"
 
+    def __str__(self):
+        return f"{self.host} {self.descrizione}"
+
 
 class Camera(models.Model):
     """
@@ -53,6 +62,9 @@ class Camera(models.Model):
     class Meta():
         verbose_name = "Camera"
         verbose_name_plural = "Camere"
+
+    def __str__(self):
+        return f"{self.proprieta} {self.descrizione}"
 
 
 class Foto(models.Model):
@@ -68,6 +80,12 @@ class Foto(models.Model):
     class Meta():
         verbose_name = "Foto"
         verbose_name_plural = "Foto"
+
+    def __str__(self):
+        if self.camera:
+            return f"{self.descrizione} {self.camera}"
+        else:
+            return f"{self.descrizione} {self.proprieta}"
 
 
 class Prenotazione(models.Model):
@@ -100,6 +118,9 @@ class Prenotazione(models.Model):
         verbose_name = "Prenotazione"
         verbose_name_plural = "Prenotazioni"
 
+    def __str__(self):
+        return f"{self.visitatore} {self.camera} {self.stato_prenotazione}"
+
 
 class CalendarioPrenotazione(models.Model):
     """
@@ -113,6 +134,9 @@ class CalendarioPrenotazione(models.Model):
     class Meta():
         verbose_name = "Periodo di prenotazione"
         verbose_name_plural = "Periodi di prenotazione"
+
+    def __str__(self):
+        return f"{self.prenotazione} {self.data_inizio} {self.data_fine}"
 
 
 class Stagione(models.Model):
@@ -128,6 +152,9 @@ class Stagione(models.Model):
         verbose_name = "Stagione"
         verbose_name_plural = "Stagioni"
 
+    def __str__(self):
+        return f"{self.stagione} {self.data_inizio} {self.data_fine}"
+
 
 class PrezzoCamera(models.Model):
     """
@@ -141,3 +168,6 @@ class PrezzoCamera(models.Model):
     class Meta():
         verbose_name = "Prezzo della camera"
         verbose_name_plural = "Prezzo della camere"
+
+    def __str__(self):
+        return f"{self.camera} {self.stagione} {self.prezzo}"
