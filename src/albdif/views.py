@@ -2,7 +2,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
 
-from .models import Stagione, Camera, Proprieta, Prenotazione
+from .models import Stagione, Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione
 
 
 def index(request):
@@ -33,6 +33,17 @@ def camere_list(request):
     return render(request, "albdif/camere_list.html", context)
 
 
+def prezzo_camera_detail(request, prezzocamera_id):
+    response = "Questa è il prezzo della camera %s."
+    return HttpResponse(response % prezzocamera_id)
+
+
+def prezzi_camera_list(request):
+    w_prezzi_camera_list = PrezzoCamera.objects.order_by("camera")
+    context = {"prezzi_camera_list": w_prezzi_camera_list}
+    return render(request, "albdif/prezzi_camera_list.html", context)
+
+
 # STAGIONI
 def stagione_detail(request, stagione_id):
     s = get_object_or_404(Stagione, pk=stagione_id)
@@ -55,3 +66,14 @@ def prenotazioni_list(request):
     w_prenotazioni_list = Prenotazione.objects.order_by("-data_prenotazione")[:5]
     context = {"prenotazioni_list": w_prenotazioni_list}
     return render(request, "albdif/prenotazioni_list.html", context)
+
+
+def calendario_prenotazione_detail(request, calendario_prenotazione_id):
+    s = get_object_or_404(CalendarioPrenotazione, pk=calendario_prenotazione_id)
+    return render(request, "albdif/calendario_prenotazione_detail.html", {"calendario_prenotazione": s})
+
+
+def calendario_prenotazioni_list(request):
+    w_calendario_prenotazioni_list = CalendarioPrenotazione.objects.order_by("data_inizio")
+    context = {"calendario_prenotazioni_list": w_calendario_prenotazioni_list}
+    return render(request, "albdif/calendario_prenotazioni_list.html", context)

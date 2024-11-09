@@ -20,9 +20,19 @@ urlpatterns = [
     # ex: /camera/1/
     path("camera/<int:camera_id>/", views.camera_detail, name="camera_detail"),
 
+    # ex: /prezzi_camera/
+    path("prezzi_camera/", views.prezzi_camera_list, name="prezzi_camera_list"),
+    # ex: /prezzo_camera/1/
+    path("prezzo_camera/<int:prezzocamera_id>/", views.prezzo_camera_detail, name="prezzo_camera_detail"),
+
     # ex: /prenotazioni/
     path("prenotazioni/", views.prenotazioni_list, name="prenotazioni_list"),
     # ex: /prenotazione/1/
     path("prenotazione/<int:prenotazione_id>/", views.prenotazione_detail, name="prenotazione_detail"),
+
+    # ex: /calendario_prenotazioni/
+    path("calendario_prenotazioni/", views.calendario_prenotazioni_list, name="calendario_prenotazioni_list"),
+    # ex: /calendario_prenotazione/1/
+    path("calendario_prenotazione/<int:calendario_prenotazione_id>/", views.calendario_prenotazione_detail, name="calendario_prenotazione_detail"),
 
 ]
