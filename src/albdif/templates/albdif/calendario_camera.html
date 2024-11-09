@@ -12,7 +12,13 @@
 <body>
 <div class="container mt-5">
     <h2>Seleziona una Data</h2>
-    <input type="text" id="datepicker" class="form-control">
+<!--    <input type="text" id="datepicker" class="form-control">-->
+</div>
+
+<div class="input-group input-daterange">
+    <input type="text" class="form-control">
+    <div class="input-group-addon">to</div>
+    <input type="text" class="form-control">
 </div>
 
 <!-- jQuery -->
@@ -25,11 +31,15 @@
     $(document).ready(function(){
         var disabledDates = {{ disabled_dates|safe }};
 
-        $('#datepicker').datepicker({
+        $('.input-daterange').datepicker({
             format: 'yyyy-mm-dd',
+            startDate: '-1d',
+            autoclose: true,
+            todayHighlight: true,
             datesDisabled: disabledDates
         });
     });
+
 </script>
 </body>
 </html>
