@@ -1,8 +1,14 @@
+from datetime import datetime
+from threading import get_ident
+
+from django.core.servers.basehttp import get_internal_wsgi_application
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
-from django.template import loader
+from django.utils.dateformat import format
+import json
 
 from .models import Stagione, Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione
+from .utils import date_range
 
 
 def index(request):
@@ -23,8 +29,20 @@ def proprieta_list(request):
 
 # CAMERE
 def camera_detail(request, camera_id):
-    response = "Questa è la camera %s."
-    return HttpResponse(response % camera_id)
+    camera = get_object_or_404(Camera, pk=camera_id)
+
+    gia_prenotate = []
+    prenotazioni = Prenotazione.objects.filter(camera=camera_id)
+    for p in prenotazioni:
+        # estraggo solo i periodi che comprendono la data corrente e i futuri
+        periodi = CalendarioPrenotazione.objects.filter(prenotazione=p.id, data_fine__gte=datetime.today())
+        for periodo in periodi:
+            for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
+                gia_prenotate.append(d)
+
+    print('gia_prenotate: ', gia_prenotate)
+    context = {"camera": camera, 'disabled_dates': json.dumps(gia_prenotate)}
+    return render(request, "albdif/camera_detail.html", context)
 
 
 def camere_list(request):
@@ -77,3 +95,17 @@ def calendario_prenotazioni_list(request):
     w_calendario_prenotazioni_list = CalendarioPrenotazione.objects.order_by("data_inizio")
     context = {"calendario_prenotazioni_list": w_calendario_prenotazioni_list}
     return render(request, "albdif/calendario_prenotazioni_list.html", context)
+
+
+def calendario_camera(request, camera_id=None):
+    # Lista delle date già prenotate (formato "yyyy-mm-dd")
+    gia_prenotate = [
+        '2024-12-10',
+        '2024-12-15',
+        '2024-12-20'
+    ]
+    gia_prenotate = Camera.objects.filter(pk=camera_id).values_list('data_prenotazione', flat=True)
+    context = {
+        'disabled_dates': json.dumps(gia_prenotate)
+    }
+    return render(request, "albdif/calendario_camera.html", context)
