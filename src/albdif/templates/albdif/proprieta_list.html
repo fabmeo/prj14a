@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Proprietà</title>
+</head>
+<body>
+{% if proprieta_list %}
+    <ul>
+    {% for p in proprieta_list %}
+        <li><a href="{% url 'proprieta_detail' p.id %}">{{ p }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Nessuna proprieta disponibile</p>
+{% endif %}
+</body>
+</html>
