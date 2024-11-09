@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% if stagioni_list %}
+    <ul>
+    {% for s in stagioni_list %}
+        <li><a href="/albdif/stagione/{{ s.id }}/">{{ s.stagione }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Nessuna stagione disponibile</p>
+{% endif %}
+</body>
+</html>

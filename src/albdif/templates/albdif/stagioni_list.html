@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stagioni</title>
+</head>
+<body>
+{% if stagioni_list %}
+    <ul>
+    {% for s in stagioni_list %}
+        <li><a href="{% url 'stagione_detail' s.id %}">{{ s }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Nessuna stagione disponibile</p>
+{% endif %}
+</body>
+</html>
