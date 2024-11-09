@@ -35,4 +35,5 @@ urlpatterns = [
     # ex: /calendario_prenotazione/1/
     path("calendario_prenotazione/<int:calendario_prenotazione_id>/", views.calendario_prenotazione_detail, name="calendario_prenotazione_detail"),
 
+    path('calendar/', views.calendario_camera, name='calendar'),
 ]
