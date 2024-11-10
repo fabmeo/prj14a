@@ -17,14 +17,14 @@ urlpatterns = [
     path("proprieta/<int:pk>/", views.proprieta_detail.as_view(), name="proprieta_detail"),
 
     # ex: /camere/
-    path("camere/", views.camere_list, name="camere_list"),
+    path("camere/", views.camere_list.as_view(), name="camere_list"),
     # ex: /camera/1/
-    path("camera/<int:camera_id>/", views.camera_detail, name="camera_detail"),
+    path("camera/<int:pk>/", views.camera_detail.as_view(), name="camera_detail"),
 
     # ex: /prezzi_camera/
-    path("prezzi_camera/", views.prezzi_camera_list, name="prezzi_camera_list"),
+    path("prezzi_camera/", views.prezzi_camera_list.as_view(), name="prezzi_camera_list"),
     # ex: /prezzo_camera/1/
-    path("prezzo_camera/<int:prezzocamera_id>/", views.prezzo_camera_detail, name="prezzo_camera_detail"),
+    path("prezzo_camera/<int:pk>/", views.prezzo_camera_detail.as_view(), name="prezzo_camera_detail"),
 
     # ex: /prenotazioni/
     path("prenotazioni/", views.prenotazioni_list, name="prenotazioni_list"),

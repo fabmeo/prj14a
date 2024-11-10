@@ -47,37 +47,47 @@ class proprieta_list(generic.ListView):
 
 
 # CAMERE
-def camera_detail(request, camera_id):
-    camera = get_object_or_404(Camera, pk=camera_id)
+class camera_detail(generic.DetailView):
+    model = Camera
+    template_name = "albdif/camera_detail.html"
 
-    gia_prenotate = []
-    prenotazioni = Prenotazione.objects.filter(camera=camera_id)
-    for p in prenotazioni:
-        # estraggo solo i periodi che comprendono la data corrente e i futuri
-        periodi = CalendarioPrenotazione.objects.filter(prenotazione=p.id, data_fine__gte=datetime.today())
-        for periodo in periodi:
-            for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
-                gia_prenotate.append(d)
+    def get_context_data(self, **kwargs):
+        context = super(camera_detail, self).get_context_data(**kwargs)
 
-    context = {"camera": camera, 'disabled_dates': json.dumps(gia_prenotate)}
-    return render(request, "albdif/camera_detail.html", context)
+        gia_prenotate = []
+        prenotazioni = Prenotazione.objects.filter(camera=self.object.pk)
+        for p in prenotazioni:
+            # estraggo solo i periodi che comprendono la data corrente e i futuri
+            periodi = CalendarioPrenotazione.objects.filter(prenotazione=p.id, data_fine__gte=datetime.today())
+            for periodo in periodi:
+                for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
+                    gia_prenotate.append(d)
 
-
-def camere_list(request):
-    w_camere_list = Camera.objects.order_by("descrizione")[:5]
-    context = {"camere_list": w_camere_list}
-    return render(request, "albdif/camere_list.html", context)
+        context['disabled_dates'] = json.dumps(gia_prenotate)
+        return context
 
 
-def prezzo_camera_detail(request, prezzocamera_id):
-    response = "Questa è il prezzo della camera %s."
-    return HttpResponse(response % prezzocamera_id)
+class camere_list(generic.ListView):
+    template_name = "albdif/camere_list.html"
+    context_object_name = "camere_list"
+
+    def get_queryset(self):
+        """Ritorna la lista delle camere ordinata per descrizione"""
+        return Camera.objects.order_by("descrizione")
 
 
-def prezzi_camera_list(request):
-    w_prezzi_camera_list = PrezzoCamera.objects.order_by("camera")
-    context = {"prezzi_camera_list": w_prezzi_camera_list}
-    return render(request, "albdif/prezzi_camera_list.html", context)
+class prezzo_camera_detail(generic.DetailView):
+    model = PrezzoCamera
+    template_name = "albdif/prezzo_camera_detail.html"
+
+
+class prezzi_camera_list(generic.ListView):
+    template_name = "albdif/prezzi_camera_list.html"
+    context_object_name = "prezzi_camera_list"
+
+    def get_queryset(self):
+        """Ritorna la lista delle camere ordinata per descrizione"""
+        return PrezzoCamera.objects.order_by("camera")
 
 
 # PRENOTAZIONI
