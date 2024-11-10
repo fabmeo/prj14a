@@ -12,9 +12,9 @@ urlpatterns = [
     path("stagione/<int:pk>/", views.stagione_detail.as_view(), name="stagione_detail"),
 
     # ex: /proprieta/
-    path("proprieta/", views.proprieta_list, name="proprieta_list"),
+    path("proprieta/", views.proprieta_list.as_view(), name="proprieta_list"),
     # ex: /proprieta/1/
-    path("proprieta/<int:proprieta_id>/", views.proprieta_detail, name="proprieta_detail"),
+    path("proprieta/<int:pk>/", views.proprieta_detail.as_view(), name="proprieta_detail"),
 
     # ex: /camere/
     path("camere/", views.camere_list, name="camere_list"),

@@ -16,16 +16,34 @@ def home(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
 
+# STAGIONI
+class stagione_detail(generic.DetailView):
+    model = Stagione
+    template_name = "albdif/stagione_detail.html"
+
+
+class stagioni_list(generic.ListView):
+    template_name = "albdif/stagioni_list.html"
+    context_object_name = "stagioni_list"
+
+    def get_queryset(self):
+        """Return the last five published questions."""
+        return Stagione.objects.order_by("-data_inizio")[:5]
+
+
 # PROPRIETA'
-def proprieta_detail(request, proprieta_id):
-    response = "Questa è la proprieta %s."
-    return HttpResponse(response % proprieta_id)
+class proprieta_detail(generic.DetailView):
+    model = Proprieta
+    template_name = "albdif/proprieta_detail.html"
 
 
-def proprieta_list(request):
-    w_proprieta_list = Proprieta.objects.order_by("descrizione")[:5]
-    context = {"proprieta_list": w_proprieta_list}
-    return render(request, "albdif/proprieta_list.html", context)
+class proprieta_list(generic.ListView):
+    template_name = "albdif/proprieta_list.html"
+    context_object_name = "proprieta_list"
+
+    def get_queryset(self):
+        """Ritorna le prime 5 proprietà presenti"""
+        return Proprieta.objects.order_by("descrizione")[:5]
 
 
 # CAMERE
@@ -60,31 +78,6 @@ def prezzi_camera_list(request):
     w_prezzi_camera_list = PrezzoCamera.objects.order_by("camera")
     context = {"prezzi_camera_list": w_prezzi_camera_list}
     return render(request, "albdif/prezzi_camera_list.html", context)
-
-
-# STAGIONI
-class stagione_detail(generic.DetailView):
-    model = Stagione
-    template_name = "albdif/stagione_detail.html"
-
-
-class stagioni_list(generic.ListView):
-    template_name = "albdif/stagioni_list.html"
-    context_object_name = "stagioni_list"
-
-    def get_queryset(self):
-        """Return the last five published questions."""
-        return Stagione.objects.order_by("-data_inizio")[:5]
-
-# def stagione_detail(request, stagione_id):
-#     s = get_object_or_404(Stagione, pk=stagione_id)
-#     return render(request, "albdif/stagione_detail.html", {"stagione": s})
-#
-#
-# def stagioni_list(request):
-#     w_stagioni_list = Stagione.objects.order_by("-data_inizio")[:5]
-#     context = {"stagioni_list": w_stagioni_list}
-#     return render(request, "albdif/stagioni_list.html", context)
 
 
 # PRENOTAZIONI
