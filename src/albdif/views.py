@@ -4,6 +4,7 @@ from threading import get_ident
 from django.core.servers.basehttp import get_internal_wsgi_application
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
+from django.views import generic
 from django.utils.dateformat import format
 import json
 
@@ -11,7 +12,7 @@ from .models import Stagione, Camera, Proprieta, Prenotazione, PrezzoCamera, Cal
 from .utils import date_range
 
 
-def index(request):
+def home(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
 
@@ -40,7 +41,6 @@ def camera_detail(request, camera_id):
             for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
                 gia_prenotate.append(d)
 
-    print('gia_prenotate: ', gia_prenotate)
     context = {"camera": camera, 'disabled_dates': json.dumps(gia_prenotate)}
     return render(request, "albdif/camera_detail.html", context)
 
@@ -63,15 +63,28 @@ def prezzi_camera_list(request):
 
 
 # STAGIONI
-def stagione_detail(request, stagione_id):
-    s = get_object_or_404(Stagione, pk=stagione_id)
-    return render(request, "albdif/stagione_detail.html", {"stagione": s})
+class stagione_detail(generic.DetailView):
+    model = Stagione
+    template_name = "albdif/stagione_detail.html"
 
 
-def stagioni_list(request):
-    w_stagioni_list = Stagione.objects.order_by("-data_inizio")[:5]
-    context = {"stagioni_list": w_stagioni_list}
-    return render(request, "albdif/stagioni_list.html", context)
+class stagioni_list(generic.ListView):
+    template_name = "albdif/stagioni_list.html"
+    context_object_name = "stagioni_list"
+
+    def get_queryset(self):
+        """Return the last five published questions."""
+        return Stagione.objects.order_by("-data_inizio")[:5]
+
+# def stagione_detail(request, stagione_id):
+#     s = get_object_or_404(Stagione, pk=stagione_id)
+#     return render(request, "albdif/stagione_detail.html", {"stagione": s})
+#
+#
+# def stagioni_list(request):
+#     w_stagioni_list = Stagione.objects.order_by("-data_inizio")[:5]
+#     context = {"stagioni_list": w_stagioni_list}
+#     return render(request, "albdif/stagioni_list.html", context)
 
 
 # PRENOTAZIONI

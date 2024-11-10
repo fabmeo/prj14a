@@ -2,13 +2,14 @@ from django.urls import path
 
 from . import views
 
+app_name = "albdif"
 urlpatterns = [
-    path("", views.index, name="index"),
+    path("", views.home, name="index"),
 
     # ex: /stagioni/
-    path("stagioni/", views.stagioni_list, name="stagioni_list"),
+    path("stagioni/", views.stagioni_list.as_view(), name="stagioni_list"),
     # ex: /stagione/5/
-    path("stagione/<int:stagione_id>/", views.stagione_detail, name="stagione_detail"),
+    path("stagione/<int:pk>/", views.stagione_detail.as_view(), name="stagione_detail"),
 
     # ex: /proprieta/
     path("proprieta/", views.proprieta_list, name="proprieta_list"),
@@ -35,5 +36,5 @@ urlpatterns = [
     # ex: /calendario_prenotazione/1/
     path("calendario_prenotazione/<int:calendario_prenotazione_id>/", views.calendario_prenotazione_detail, name="calendario_prenotazione_detail"),
 
-    path('calendar/', views.calendario_camera, name='calendar'),
+    path('calendario_camera/', views.calendario_camera, name='calendario_camera'),
 ]
