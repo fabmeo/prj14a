@@ -133,14 +133,12 @@ class calendario_prenotazioni_list(generic.ListView):
 
 
 def calendario_camera(request, camera_id=None):
-    # Lista delle date già prenotate (formato "yyyy-mm-dd")
-    # gia_prenotate = [
-    #     '2024-12-10',
-    #     '2024-12-15',
-    #     '2024-12-20'
-    # ]
+    # Lista delle date già prenotate di una camera (formato "yyyy-mm-dd")
     gia_prenotate = Camera.objects.filter(pk=camera_id).values_list('data_prenotazione', flat=True)
+    # @TODO Estrai le date del calendario_prenotazione
     context = {
         'disabled_dates': json.dumps(gia_prenotate)
     }
     return render(request, "albdif/calendario_camera.html", context)
+
+
