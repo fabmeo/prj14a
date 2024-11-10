@@ -30,6 +30,8 @@ urlpatterns = [
     path("prenotazioni/", views.prenotazioni_list.as_view(), name="prenotazioni_list"),
     # ex: /prenotazione/1/
     path("prenotazione/<int:pk>/", views.prenotazione_detail.as_view(), name="prenotazione_detail"),
+    # ex: /prenotazione_utente/1/
+    path("prenotazioni_utente/<int:pk>/", views.prenotazioni_utente_list.as_view(), name="prenotazioni_utente_list"),
 
     # ex: /calendario_prenotazioni/
     path("calendario_prenotazioni/", views.calendario_prenotazioni_list.as_view(), name="calendario_prenotazioni_list"),
