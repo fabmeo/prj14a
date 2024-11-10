@@ -27,14 +27,14 @@ urlpatterns = [
     path("prezzo_camera/<int:pk>/", views.prezzo_camera_detail.as_view(), name="prezzo_camera_detail"),
 
     # ex: /prenotazioni/
-    path("prenotazioni/", views.prenotazioni_list, name="prenotazioni_list"),
+    path("prenotazioni/", views.prenotazioni_list.as_view(), name="prenotazioni_list"),
     # ex: /prenotazione/1/
-    path("prenotazione/<int:prenotazione_id>/", views.prenotazione_detail, name="prenotazione_detail"),
+    path("prenotazione/<int:pk>/", views.prenotazione_detail.as_view(), name="prenotazione_detail"),
 
     # ex: /calendario_prenotazioni/
-    path("calendario_prenotazioni/", views.calendario_prenotazioni_list, name="calendario_prenotazioni_list"),
+    path("calendario_prenotazioni/", views.calendario_prenotazioni_list.as_view(), name="calendario_prenotazioni_list"),
     # ex: /calendario_prenotazione/1/
-    path("calendario_prenotazione/<int:calendario_prenotazione_id>/", views.calendario_prenotazione_detail, name="calendario_prenotazione_detail"),
+    path("calendario_prenotazione/<int:pk>/", views.calendario_prenotazione_detail.as_view(), name="calendario_prenotazione_detail"),
 
     path('calendario_camera/', views.calendario_camera, name='calendario_camera'),
 ]

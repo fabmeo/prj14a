@@ -132,8 +132,8 @@ class CalendarioPrenotazione(models.Model):
     data_fine = models.DateField()
 
     class Meta():
-        verbose_name = "Periodo di prenotazione"
-        verbose_name_plural = "Periodi di prenotazione"
+        verbose_name = "Calendario della prenotazione"
+        verbose_name_plural = "Calendario della prenotazione"
 
     def __str__(self):
         return f"{self.prenotazione} {self.data_inizio} {self.data_fine}"

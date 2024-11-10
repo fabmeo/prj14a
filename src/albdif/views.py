@@ -91,35 +91,54 @@ class prezzi_camera_list(generic.ListView):
 
 
 # PRENOTAZIONI
-def prenotazione_detail(request, prenotazione_id):
-    s = get_object_or_404(Prenotazione, pk=prenotazione_id)
-    return render(request, "albdif/prenotazione_detail.html", {"prenotazione": s})
+class prenotazione_detail(generic.DetailView):
+    model = Prenotazione
+    template_name = "albdif/prenotazione_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(prenotazione_detail, self).get_context_data(**kwargs)
+
+        gia_prenotate = []
+        # estraggo solo i periodi che comprendono la data corrente e i futuri
+        periodi = CalendarioPrenotazione.objects.filter(prenotazione=self.object.pk, data_fine__gte=datetime.today())
+        for periodo in periodi:
+            for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
+                gia_prenotate.append(d)
+
+        context['disabled_dates'] = json.dumps(gia_prenotate)
+        return context
 
 
-def prenotazioni_list(request):
-    w_prenotazioni_list = Prenotazione.objects.order_by("-data_prenotazione")[:5]
-    context = {"prenotazioni_list": w_prenotazioni_list}
-    return render(request, "albdif/prenotazioni_list.html", context)
+class prenotazioni_list(generic.ListView):
+    template_name = "albdif/prenotazioni_list.html"
+    context_object_name = "prenotazioni_list"
+
+    def get_queryset(self):
+        """Ritorna la lista delle prenotazioni ordinata per data più reente"""
+        return Prenotazione.objects.order_by("-data_prenotazione")
 
 
-def calendario_prenotazione_detail(request, calendario_prenotazione_id):
-    s = get_object_or_404(CalendarioPrenotazione, pk=calendario_prenotazione_id)
-    return render(request, "albdif/calendario_prenotazione_detail.html", {"calendario_prenotazione": s})
+class calendario_prenotazione_detail(generic.DetailView):
+    model = CalendarioPrenotazione
+    template_name = "albdif/calendario_prenotazione_detail.html"
 
 
-def calendario_prenotazioni_list(request):
-    w_calendario_prenotazioni_list = CalendarioPrenotazione.objects.order_by("data_inizio")
-    context = {"calendario_prenotazioni_list": w_calendario_prenotazioni_list}
-    return render(request, "albdif/calendario_prenotazioni_list.html", context)
+class calendario_prenotazioni_list(generic.ListView):
+    template_name = "albdif/calendario_prenotazioni_list.html"
+    context_object_name = "calendario_prenotazioni_list"
+
+    def get_queryset(self):
+        """Ritorna la lista delle date di prenotazione ordinata per data"""
+        return CalendarioPrenotazione.objects.order_by("data_inizio")
 
 
 def calendario_camera(request, camera_id=None):
     # Lista delle date già prenotate (formato "yyyy-mm-dd")
-    gia_prenotate = [
-        '2024-12-10',
-        '2024-12-15',
-        '2024-12-20'
-    ]
+    # gia_prenotate = [
+    #     '2024-12-10',
+    #     '2024-12-15',
+    #     '2024-12-20'
+    # ]
     gia_prenotate = Camera.objects.filter(pk=camera_id).values_list('data_prenotazione', flat=True)
     context = {
         'disabled_dates': json.dumps(gia_prenotate)
