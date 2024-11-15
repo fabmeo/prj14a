@@ -27,8 +27,8 @@ class stagioni_list(generic.ListView):
     context_object_name = "stagioni_list"
 
     def get_queryset(self):
-        """Return the last five published questions."""
-        return Stagione.objects.order_by("-data_inizio")[:5]
+        """Ritorna le stagioni presenti"""
+        return Stagione.objects.order_by("-data_inizio") #[:5]
 
 
 # PROPRIETA'
@@ -42,8 +42,8 @@ class proprieta_list(generic.ListView):
     context_object_name = "proprieta_list"
 
     def get_queryset(self):
-        """Ritorna le prime 5 proprietà presenti"""
-        return Proprieta.objects.order_by("descrizione")[:5]
+        """Ritorna le proprietà presenti"""
+        return Proprieta.objects.order_by("descrizione")
 
 
 # CAMERE
@@ -87,7 +87,7 @@ class prezzi_camera_list(generic.ListView):
 
     def get_queryset(self):
         """Ritorna la lista delle camere ordinata per descrizione"""
-        return PrezzoCamera.objects.order_by("camera")
+        return PrezzoCamera.objects.order_by("camera.descrizione")
 
 
 # PRENOTAZIONI
@@ -146,13 +146,13 @@ class calendario_prenotazioni_list(generic.ListView):
         return CalendarioPrenotazione.objects.order_by("data_inizio")
 
 
-def calendario_camera(request, camera_id=None):
-    # Lista delle date già prenotate di una camera (formato "yyyy-mm-dd")
-    gia_prenotate = Camera.objects.filter(pk=camera_id).values_list('data_prenotazione', flat=True)
-    # @TODO Estrai le date del calendario_prenotazione
-    context = {
-        'disabled_dates': json.dumps(gia_prenotate)
-    }
-    return render(request, "albdif/calendario_camera.html", context)
+# def calendario_camera(request, camera_id=None):
+#     # Lista delle date già prenotate di una camera (formato "yyyy-mm-dd")
+#     gia_prenotate = Camera.objects.filter(pk=camera_id).values_list('data_prenotazione', flat=True)
+#     # @TODO Estrai le date del calendario_prenotazione
+#     context = {
+#         'disabled_dates': json.dumps(gia_prenotate)
+#     }
+#     return render(request, "albdif/calendario_camera.html", context)
 
 
