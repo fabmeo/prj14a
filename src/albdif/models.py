@@ -75,11 +75,11 @@ class Foto(models.Model):
     descrizione = CharField(max_length=100)
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE, null=True, blank=True)
     proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE, null=True, blank=True)
-    file = models.BinaryField()
+    file = models.FileField(blank=True, upload_to='foto_camera')
 
     class Meta():
-        verbose_name = "Foto"
-        verbose_name_plural = "Foto"
+        verbose_name = "Foto camera"
+        verbose_name_plural = "Foto camere"
 
     def __str__(self):
         if self.camera:

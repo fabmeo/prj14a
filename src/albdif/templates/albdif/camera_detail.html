@@ -3,12 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Camera</title>
+    {% load static %}
 </head>
 <body>
 {{ camera }}
 
 <hr>
 {% include 'albdif/calendario_camera.html' %}
+
+{% for f in foto %}
+    <div>
+        <img src="{{ MEDIA_URL }} {{ f.file.name }}" alt="foto camera">
+    </div>
+{% endfor %}
 
 </body>
 </html>

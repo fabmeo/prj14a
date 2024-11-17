@@ -2,13 +2,13 @@ from datetime import datetime
 from threading import get_ident
 
 from django.core.servers.basehttp import get_internal_wsgi_application
-from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
-from django.views import generic
 from django.utils.dateformat import format
+from django.http import HttpResponse, Http404
+from django.views import generic
 import json
 
-from .models import Stagione, Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione
+from .models import Stagione, Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto
 from .utils import date_range
 
 
@@ -63,7 +63,10 @@ class camera_detail(generic.DetailView):
                 for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
                     gia_prenotate.append(d)
 
+        foto = Foto.objects.filter(camera=self.object.pk)
+
         context['disabled_dates'] = json.dumps(gia_prenotate)
+        context['foto'] = foto
         return context
 
 
