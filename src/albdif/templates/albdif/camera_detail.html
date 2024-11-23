@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Camera</title>
-    {% load static %}
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
+<h1> Questa è il dettaglio di una camera </h1>
+
 {{ camera }}
 
 <hr>
@@ -17,5 +14,4 @@
     </div>
 {% endfor %}
 
-</body>
-</html>
+{% endblock content %}

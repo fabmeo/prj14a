@@ -4,7 +4,7 @@ from . import views
 
 app_name = "albdif"
 urlpatterns = [
-    path("", views.home, name="index"),
+    path("", views.home, name="home"),
 
     # ex: /stagioni/
     path("stagioni/", views.stagioni_list.as_view(), name="stagioni_list"),

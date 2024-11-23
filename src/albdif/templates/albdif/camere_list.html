@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Camere di tutte le proprietà</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
+<h1> Questa è la vetrina del sito: le nostre camere </h1>
+
 {% if camere_list %}
     <ul>
     {% for c in camere_list %}
@@ -14,5 +12,5 @@
 {% else %}
     <p>Nessuna camera disponibile</p>
 {% endif %}
-</body>
-</html>
+
+{% endblock content %}

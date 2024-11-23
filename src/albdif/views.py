@@ -1,20 +1,18 @@
 from datetime import datetime
-from threading import get_ident
 
-from django.core.servers.basehttp import get_internal_wsgi_application
-from django.shortcuts import render, get_object_or_404
-from django.utils.dateformat import format
-from django.http import HttpResponse, Http404
+from django.shortcuts import render
+from django.http import HttpResponse, HttpRequest
 from django.views import generic
+
 import json
 
 from .models import Stagione, Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto
 from .utils import date_range
 
 
-def home(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
-
+def home(request: HttpRequest) -> HttpResponse:
+    template_name = "albdif/home.html"
+    return render(request, template_name)
 
 # STAGIONI
 class stagione_detail(generic.DetailView):
