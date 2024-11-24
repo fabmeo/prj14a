@@ -79,14 +79,14 @@ class Foto(models.Model):
     file = models.FileField(blank=True, upload_to='foto_camera')
 
     class Meta():
-        verbose_name = "Foto camera"
-        verbose_name_plural = "Foto camere"
+        verbose_name = "Foto"
+        verbose_name_plural = "Foto"
 
     def __str__(self):
         if self.camera:
-            return f"{self.descrizione} {self.camera}"
+            return f"Camera: {self.descrizione} di {self.camera}"
         else:
-            return f"{self.descrizione} {self.proprieta}"
+            return f"Proprietà: {self.descrizione} di {self.proprieta}"
 
 
 class Prenotazione(models.Model):

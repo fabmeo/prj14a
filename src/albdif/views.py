@@ -37,8 +37,20 @@ class proprieta_list_oth(generic.ListView):
     context_object_name = "proprieta_list"
 
     def get_queryset(self):
-        """Ritorna la lista dei partner ordinata per descrizione"""
-        return Proprieta.objects.filter(principale=False).order_by("descrizione")
+        """Ritorna la lista dei partner con le foto della proprietà """
+
+    #    return Proprieta.objects.filter(principale=False).prefetch_related('foto_set')
+        return Proprieta.objects.filter(principale=False)
+
+    def get_context_data(self, **kwargs):
+        context = super(proprieta_list_oth, self).get_context_data(**kwargs)
+        prop_e_foto = []
+        for p in self.get_queryset():
+            prop = {'prop': p, 'foto': Foto.objects.filter(proprieta__id=p.id)}
+            prop_e_foto.append(prop)
+        context['prop_e_foto'] = prop_e_foto
+        context['proprieta_list'] = self.get_queryset()
+        return context
 
 
 # CAMERE

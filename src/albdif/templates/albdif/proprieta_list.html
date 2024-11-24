@@ -3,27 +3,23 @@
 {% block content %}
 <h1> I nostri partner ... </h1>
 
-{% if proprieta_list %}
-    <ul>
-    {% for p in proprieta_list %}
-        <li><a href="{% url 'albdif:proprieta_detail' p.pk %}">{{ p }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>Nessuna proprieta disponibile</p>
-{% endif %}
+<hr>
 
 {% if proprieta_list %}
     <ul>
-    {% for p in proprieta_list %}
+    {% for p in prop_e_foto %}
         <div style="display: flex;">
             <div style="flex: 1;"></div>
             <div style="flex: 5; text-align: center;">
-                <img src="../static/img/background1.jpg" alt="Descrizione immagine" style="width: 100%; height: auto;">
+                {% for f in p.foto %}
+                <a href="{% url 'albdif:proprieta_detail' p.prop.pk %}">{{ p.prop }}
+                    <img src="{{ f.file.url }}" alt="Immagine di {{ p.prop }}" style="width: 100%; height: auto;">
+                </a>
+                {% endfor %}
             </div>
             <div style="flex: 1;"></div>
             <div style="flex: 4; display: flex; align-items: center; justify-content: center;">
-                <p>p.descrizione</p>
+                <p>{{ p.prop.descrizione }}</p>
             </div>
             <div style="flex: 1;"></div>
         </div>
@@ -32,7 +28,5 @@
 {% else %}
     <p>Nessuna proprieta disponibile</p>
 {% endif %}
-
-
 
 {% endblock content %}
