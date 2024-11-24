@@ -1,8 +1,14 @@
 from datetime import datetime
+
+from django.urls import reverse_lazy
+from django.views.generic import FormView
+from django.contrib.auth import authenticate, login as auth_login
+
+from .forms import LoginForm
 from .utils import date_range
 
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views import generic
 import json
 
@@ -12,6 +18,28 @@ from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPre
 def home(request: HttpRequest) -> HttpResponse:
     template_name = "albdif/home.html"
     return render(request, template_name)
+
+
+class login(FormView):
+    template_name = "albdif/login.html"
+    form_class = LoginForm
+    success_url = reverse_lazy('albdif:home')
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            if user.is_active:
+                auth_login(self.request, user)
+                return HttpResponseRedirect(self.get_success_url())
+            else:
+                form.add_error(None, "L'account non è attivo!")
+        else:
+            form.add_error(None, "Username o password errate!")
+
+        return self.form_invalid(form)
 
 
 # PROPRIETA'
