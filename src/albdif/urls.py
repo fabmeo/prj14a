@@ -4,6 +4,10 @@ from . import views
 app_name = "albdif"
 urlpatterns = [
     path("", views.home, name="home"),
+    # ex: /login/
+    #path("login/", views.login.as_view(), name="login"),
+    # ex: /register/
+    #path("register/", views.register.as_view(), name="register"),
 
     # ex: /partner/   -> le proprietà dei partener
     path("partner/", views.proprieta_partner.as_view(), name="proprieta_partner"),

@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpRequest
 from django.views import generic
 import json
 
-from .models import Stagione, Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto
+from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto
 
 
 def home(request: HttpRequest) -> HttpResponse:

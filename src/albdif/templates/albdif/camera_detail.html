@@ -4,9 +4,8 @@
 {% endblock head %}
 
 {% block content %}
-<h1> Questa è il dettaglio di una camera </h1>
+<h2> Dettaglio della camera {{ camera }} </h2>
 
-{{ camera }}
 <hr>
 
 <div id="myCarousel" class="carousel slide" data-ride="carousel">
@@ -24,7 +23,7 @@
     {% for f in foto %}
       {% if f.file %}
         <div {% if forloop.first %} class="carousel-item active" {% else %} class="carousel-item" {% endif %}>
-          <img src="{{ f.file.url }}" alt=" {{f.file.name}} ">
+          <img src="{{ f.file.url }}" alt="{{ f.file.name }}" width="400" height="200">
         </div>
       {% endif %}
     {% endfor %}
