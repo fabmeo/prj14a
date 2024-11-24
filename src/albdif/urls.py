@@ -1,22 +1,17 @@
 from django.urls import path
-
 from . import views
 
 app_name = "albdif"
 urlpatterns = [
     path("", views.home, name="home"),
 
-    # ex: /proprieta/       -> solo l'AD principale
-    #path("proprieta/", views.proprieta_list.as_view(), name="proprieta_list"),
-    # ex: /partner/   -> tutte le altre
-    path("partner/", views.proprieta_list_oth.as_view(), name="proprieta_list_oth"),
+    # ex: /partner/   -> le proprietà dei partener
+    path("partner/", views.proprieta_partner.as_view(), name="proprieta_partner"),
     # ex: /proprieta/1/
     path("proprieta/<int:pk>/", views.proprieta_detail.as_view(), name="proprieta_detail"),
 
     # ex: /camere/     -> solo quelle dell'AD principale
     path("camere/", views.camere_list.as_view(), name="camere_list"),
-    # ex: /camere_oth/1
-    #path("camere_oth/<int:pk>/", views.camere_list_oth.as_view(), name="camere_list_oth"),
     # ex: /camera/1/
     path("camera/<int:pk>/", views.camera_detail.as_view(), name="camera_detail"),
 

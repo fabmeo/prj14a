@@ -1,88 +1,91 @@
 from datetime import datetime
+from .utils import date_range
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.views import generic
-
 import json
 
 from .models import Stagione, Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto
-from .utils import date_range
 
 
 def home(request: HttpRequest) -> HttpResponse:
     template_name = "albdif/home.html"
     return render(request, template_name)
 
+
 # PROPRIETA'
 class proprieta_detail(generic.ListView):
+    """
+    Ritorna la lista delle camere dell'AD selezionato ordinata per descrizione
+    """
     template_name = "albdif/proprieta_detail.html"
     context_object_name = "camere_list"
 
     def get_queryset(self):
-        """Ritorna la lista delle camere dell'AD selezionato ordinata per descrizione"""
         prop = self.kwargs.get('pk')
         return Camera.objects.filter(proprieta__id=prop).order_by("descrizione")
 
     def get_context_data(self, **kwargs):
         context = super(proprieta_detail, self).get_context_data(**kwargs)
         prop = get_object_or_404(Proprieta, pk=self.kwargs.get('pk'))
-        context['proprieta'] = prop
-        context['camere_list'] = self.get_queryset()
+        context['proprieta'] = prop                  # la proprietà (Albergo Diffuso X)
+        context['camere_list'] = self.get_queryset() # le sue camere
         return context
 
 
-class proprieta_list_oth(generic.ListView):
+class proprieta_partner(generic.ListView):
+    """
+    Ritorna la lista dei partner con le foto della proprietà
+    """
     template_name = "albdif/proprieta_list.html"
     context_object_name = "proprieta_list"
 
     def get_queryset(self):
-        """Ritorna la lista dei partner con le foto della proprietà """
-
-    #    return Proprieta.objects.filter(principale=False).prefetch_related('foto_set')
         return Proprieta.objects.filter(principale=False)
 
     def get_context_data(self, **kwargs):
-        context = super(proprieta_list_oth, self).get_context_data(**kwargs)
+        context = super(proprieta_partner, self).get_context_data(**kwargs)
         prop_e_foto = []
         for p in self.get_queryset():
             prop = {'prop': p, 'foto': Foto.objects.filter(proprieta__id=p.id)}
             prop_e_foto.append(prop)
-        context['prop_e_foto'] = prop_e_foto
-        context['proprieta_list'] = self.get_queryset()
+        context['prop_e_foto'] = prop_e_foto      # ogni proprietà con le sue foto
         return context
 
 
 # CAMERE
 class camera_detail(generic.DetailView):
+    """
+    # estraggo solo i periodi di prenotazione che comprendono la data corrente e i futuri
+    """
     model = Camera
     template_name = "albdif/camera_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super(camera_detail, self).get_context_data(**kwargs)
-
         gia_prenotate = []
         prenotazioni = Prenotazione.objects.filter(camera=self.object.pk)
         for p in prenotazioni:
-            # estraggo solo i periodi che comprendono la data corrente e i futuri
             periodi = CalendarioPrenotazione.objects.filter(prenotazione=p.id, data_fine__gte=datetime.today())
             for periodo in periodi:
                 for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
                     gia_prenotate.append(d)
 
         foto = Foto.objects.filter(camera=self.object.pk)
-
         context['disabled_dates'] = json.dumps(gia_prenotate)
         context['foto'] = foto
         return context
 
 
 class camere_list(generic.ListView):
+    """
+    Ritorna la lista delle camere dell'AD principale ordinata per descrizione
+    """
     template_name = "albdif/camere_list.html"
     context_object_name = "camere_list"
 
     def get_queryset(self):
-        """Ritorna la lista delle camere dell'AD principale ordinata per descrizione"""
         return Camera.objects.filter(proprieta__principale=True).order_by("descrizione")
 
 
@@ -92,11 +95,14 @@ class prezzo_camera_detail(generic.DetailView):
 
 
 class prezzi_camera_list(generic.ListView):
+    """
+    Ritorna la lista dei prezzi di una camera
+    @TODO modificare per accettare parametro ed elencare solo i prezzi di  una camera
+    """
     template_name = "albdif/prezzi_camera_list.html"
     context_object_name = "prezzi_camera_list"
 
     def get_queryset(self):
-        """Ritorna la lista delle camere ordinata per descrizione"""
         return PrezzoCamera.objects.order_by("camera.descrizione")
 
 
