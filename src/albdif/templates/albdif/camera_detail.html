@@ -13,16 +13,20 @@
   <!-- Indicators -->
   <ol class="carousel-indicators">
     {% for f in foto %}
+      {% if f.file %}
        <li data-target="#myCarousel" data-slide-to="{{f.pk}}" {% if forloop.first %} class="active" {% endif %}></li>
+      {% endif %}
     {% endfor %}
   </ol>
 
   <!-- Wrapper for slides -->
   <div class="carousel-inner">
     {% for f in foto %}
+      {% if f.file %}
         <div {% if forloop.first %} class="carousel-item active" {% else %} class="carousel-item" {% endif %}>
           <img src="{{ f.file.url }}" alt=" {{f.file.name}} ">
         </div>
+      {% endif %}
     {% endfor %}
   </div>
 

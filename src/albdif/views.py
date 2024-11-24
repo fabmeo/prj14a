@@ -14,34 +14,24 @@ def home(request: HttpRequest) -> HttpResponse:
     template_name = "albdif/home.html"
     return render(request, template_name)
 
-# STAGIONI
-class stagione_detail(generic.DetailView):
-    model = Stagione
-    template_name = "albdif/stagione_detail.html"
-
-
-class stagioni_list(generic.ListView):
-    template_name = "albdif/stagioni_list.html"
-    context_object_name = "stagioni_list"
+# PROPRIETA'
+class proprieta_detail(generic.ListView):
+    template_name = "albdif/proprieta_detail.html"
+    context_object_name = "camere_list"
 
     def get_queryset(self):
-        """Ritorna le stagioni presenti"""
-        return Stagione.objects.order_by("-data_inizio") #[:5]
+        """Ritorna la lista delle camere dell'AD selezionato ordinata per descrizione"""
+        prop = self.kwargs.get('pk')
+        return Camera.objects.filter(proprieta__id=prop).order_by("descrizione")
 
 
-# PROPRIETA'
-class proprieta_detail(generic.DetailView):
-    model = Proprieta
-    template_name = "albdif/proprieta_detail.html"
-
-
-class proprieta_list(generic.ListView):
+class proprieta_list_oth(generic.ListView):
     template_name = "albdif/proprieta_list.html"
     context_object_name = "proprieta_list"
 
     def get_queryset(self):
-        """Ritorna le proprietà presenti"""
-        return Proprieta.objects.order_by("descrizione")
+        """Ritorna la lista delle camere dell'AD selezionato ordinata per descrizione"""
+        return Proprieta.objects.filter(principale=False).order_by("descrizione")
 
 
 # CAMERE
@@ -73,8 +63,8 @@ class camere_list(generic.ListView):
     context_object_name = "camere_list"
 
     def get_queryset(self):
-        """Ritorna la lista delle camere ordinata per descrizione"""
-        return Camera.objects.order_by("descrizione")
+        """Ritorna la lista delle camere dell'AD principale ordinata per descrizione"""
+        return Camera.objects.filter(proprieta__principale=True).order_by("descrizione")
 
 
 class prezzo_camera_detail(generic.DetailView):

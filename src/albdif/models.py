@@ -42,6 +42,7 @@ class Proprieta(models.Model):
     """
     host = models.ForeignKey(Host, on_delete=models.CASCADE)
     descrizione = models.CharField(max_length=200)
+    principale = models.BooleanField(default=False, help_text="Indica se è l'AD principale")
 
     class Meta():
         verbose_name = "Proprietà"

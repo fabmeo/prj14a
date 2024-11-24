@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Proprietà</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
+<h1> I nostri partner ... </h1>
+
 {% if proprieta_list %}
     <ul>
     {% for p in proprieta_list %}
@@ -14,5 +12,5 @@
 {% else %}
     <p>Nessuna proprieta disponibile</p>
 {% endif %}
-</body>
-</html>
+
+{% endblock content %}

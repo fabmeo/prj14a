@@ -6,18 +6,17 @@ app_name = "albdif"
 urlpatterns = [
     path("", views.home, name="home"),
 
-    # ex: /stagioni/
-    path("stagioni/", views.stagioni_list.as_view(), name="stagioni_list"),
-    # ex: /stagione/5/
-    path("stagione/<int:pk>/", views.stagione_detail.as_view(), name="stagione_detail"),
-
-    # ex: /proprieta/
-    path("proprieta/", views.proprieta_list.as_view(), name="proprieta_list"),
+    # ex: /proprieta/       -> solo l'AD principale
+    #path("proprieta/", views.proprieta_list.as_view(), name="proprieta_list"),
+    # ex: /proprieta_oth/   -> tutte le altre
+    path("proprieta_oth/", views.proprieta_list_oth.as_view(), name="proprieta_list_oth"),
     # ex: /proprieta/1/
     path("proprieta/<int:pk>/", views.proprieta_detail.as_view(), name="proprieta_detail"),
 
-    # ex: /camere/
+    # ex: /camere/     -> solo quelle dell'AD principale
     path("camere/", views.camere_list.as_view(), name="camere_list"),
+    # ex: /camere_oth/1
+    #path("camere_oth/<int:pk>/", views.camere_list_oth.as_view(), name="camere_list_oth"),
     # ex: /camera/1/
     path("camera/<int:pk>/", views.camera_detail.as_view(), name="camera_detail"),
 
