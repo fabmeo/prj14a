@@ -8,8 +8,8 @@ urlpatterns = [
 
     # ex: /proprieta/       -> solo l'AD principale
     #path("proprieta/", views.proprieta_list.as_view(), name="proprieta_list"),
-    # ex: /proprieta_oth/   -> tutte le altre
-    path("proprieta_oth/", views.proprieta_list_oth.as_view(), name="proprieta_list_oth"),
+    # ex: /partner/   -> tutte le altre
+    path("partner/", views.proprieta_list_oth.as_view(), name="proprieta_list_oth"),
     # ex: /proprieta/1/
     path("proprieta/<int:pk>/", views.proprieta_detail.as_view(), name="proprieta_detail"),
 

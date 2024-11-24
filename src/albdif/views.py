@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.views import generic
 
@@ -24,13 +24,20 @@ class proprieta_detail(generic.ListView):
         prop = self.kwargs.get('pk')
         return Camera.objects.filter(proprieta__id=prop).order_by("descrizione")
 
+    def get_context_data(self, **kwargs):
+        context = super(proprieta_detail, self).get_context_data(**kwargs)
+        prop = get_object_or_404(Proprieta, pk=self.kwargs.get('pk'))
+        context['proprieta'] = prop
+        context['camere_list'] = self.get_queryset()
+        return context
+
 
 class proprieta_list_oth(generic.ListView):
     template_name = "albdif/proprieta_list.html"
     context_object_name = "proprieta_list"
 
     def get_queryset(self):
-        """Ritorna la lista delle camere dell'AD selezionato ordinata per descrizione"""
+        """Ritorna la lista dei partner ordinata per descrizione"""
         return Proprieta.objects.filter(principale=False).order_by("descrizione")
 
 
