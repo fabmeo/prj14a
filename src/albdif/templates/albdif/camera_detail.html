@@ -45,11 +45,20 @@
 <p>{{camera.descrizione}}</p>
 
 
-<ul>
-  {% for key, value in camera.services.items %}
-  <li>{{ key }} {% if value %} &#10003; {% endif %}</li>
-  {% endfor %}
-</ul>
+<div class="row">
+  <div class="col-md-6">
+    <!-- First column content -->
+    <ul>
+      {% for key, value in camera.services.items %}
+      <li>{{ key }} {% if value %} &#10003; {% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="col-md-6">
+    <!-- Second column content -->
+    {% include 'albdif/calendario_camera_incluso.html' %}
+  </div>
+</div>
 
 <hr>
 <!--{% include 'albdif/calendario_camera.html' %}
