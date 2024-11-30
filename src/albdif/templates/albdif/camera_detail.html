@@ -4,7 +4,7 @@
 {% endblock head %}
 
 {% block content %}
-<h2> Dettaglio della camera {{ camera }} </h2>
+<h2> {{ camera.nome }} </h2>
 
 <hr>
 
@@ -41,6 +41,18 @@
 </div>
 
 <hr>
-{% include 'albdif/calendario_camera.html' %}
+
+<p>{{camera.descrizione}}</p>
+
+
+<ul>
+  {% for key, value in camera.services.items %}
+  <li>{{ key }} {% if value %} &#10003; {% endif %}</li>
+  {% endfor %}
+</ul>
+
+<hr>
+<!--{% include 'albdif/calendario_camera.html' %}
+-->
 
 {% endblock content %}

@@ -58,14 +58,22 @@ class Camera(models.Model):
     ogni camera fa parte di una proprietà
     """
     proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE)
-    descrizione = models.CharField(max_length=100)
+    nome =  models.CharField(max_length=100, default="... inserire un nickname")
+    descrizione = models.CharField(max_length=1000)
+    services = models.JSONField(default={
+            "toilette": True,
+            "wifi": True,
+            "tv": True,
+            "aria_condizionata": True,
+            "minibar": False
+        }, help_text="Servizi offerti nella camera, ad esempio: toilette, wifi, phon, etc.")
 
     class Meta():
         verbose_name = "Camera"
         verbose_name_plural = "Camere"
 
     def __str__(self):
-        return f"{self.proprieta} {self.descrizione}"
+        return f"{self.proprieta} {self.nome}"
 
 
 class Foto(models.Model):
