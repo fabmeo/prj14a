@@ -1,18 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Camere di tutte le proprietà</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
+<h2> La vetrina del sito: le nostre camere </h2>
+
 {% if camere_list %}
     <ul>
     {% for c in camere_list %}
-        <li><a href="{% url 'camera_detail' c.id %}">{{ c }}</a></li>
+        <li><a href="{% url 'albdif:camera_detail' c.id %}">{{ c }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
     <p>Nessuna camera disponibile</p>
 {% endif %}
-</body>
-</html>
+
+{% endblock content %}

@@ -8,7 +8,7 @@
 {% if calendario_prenotazioni_list %}
     <ul>
     {% for s in calendario_prenotazioni_list %}
-        <li><a href="{% url 'calendario_prenotazione_detail' s.id %}">{{ s }}</a></li>
+        <li><a href="{% url 'albdif:calendario_prenotazione_detail' s.id %}">{{ s }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
