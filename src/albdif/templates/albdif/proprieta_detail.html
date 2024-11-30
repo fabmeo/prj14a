@@ -1,13 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Proprietà</title>
-</head>
-<body>
-{{ proprieta }}
+{% extends "base.html" %}
 
-{% include 'albdif/camere_list.html' %}
+{% block content %}
+<h1> Le camere del nostro partner: {{ camere_list.0.proprieta }} </h1>
 
-</body>
-</html>
+{% if camere_list %}
+    <ul>
+    {% for c in camere_list %}
+        <li><a href="{% url 'albdif:camera_detail' c.id %}">{{ c }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Nessuna camera disponibile</p>
+{% endif %}
+
+{% endblock content %}

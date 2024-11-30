@@ -42,6 +42,7 @@ class Proprieta(models.Model):
     """
     host = models.ForeignKey(Host, on_delete=models.CASCADE)
     descrizione = models.CharField(max_length=200)
+    principale = models.BooleanField(default=False, help_text="Indica se è l'AD principale")
 
     class Meta():
         verbose_name = "Proprietà"
@@ -57,14 +58,22 @@ class Camera(models.Model):
     ogni camera fa parte di una proprietà
     """
     proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE)
-    descrizione = models.CharField(max_length=100)
+    nome =  models.CharField(max_length=100, default="... inserire un nickname")
+    descrizione = models.CharField(max_length=1000)
+    services = models.JSONField(default={
+            "toilette": True,
+            "wifi": True,
+            "tv": True,
+            "aria_condizionata": True,
+            "minibar": False
+        }, help_text="Servizi offerti nella camera, ad esempio: toilette, wifi, phon, etc.")
 
     class Meta():
         verbose_name = "Camera"
         verbose_name_plural = "Camere"
 
     def __str__(self):
-        return f"{self.proprieta} {self.descrizione}"
+        return f"{self.proprieta} {self.nome}"
 
 
 class Foto(models.Model):
@@ -78,14 +87,14 @@ class Foto(models.Model):
     file = models.FileField(blank=True, upload_to='foto_camera')
 
     class Meta():
-        verbose_name = "Foto camera"
-        verbose_name_plural = "Foto camere"
+        verbose_name = "Foto"
+        verbose_name_plural = "Foto"
 
     def __str__(self):
         if self.camera:
-            return f"{self.descrizione} {self.camera}"
+            return f"Camera: {self.descrizione} di {self.camera}"
         else:
-            return f"{self.descrizione} {self.proprieta}"
+            return f"Proprietà: {self.descrizione} di {self.proprieta}"
 
 
 class Prenotazione(models.Model):
