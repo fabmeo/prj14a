@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.views.generic import FormView
@@ -55,13 +56,29 @@ class login(FormView):
 
 
 # PROFILO UTENTE VISITATORE
-class profilo(generic.DetailView):
+class profilo(LoginRequiredMixin, generic.DetailView):
     """
     # pagina dell'utente visitatore
-    @TODO PROTEGGERE LA VIEW IN MODO CHE OGNI UTENTE POSSA ACCEDERE SOLO AL PROPRIO PROFILO
     """
     model = Visitatore
     template_name = "albdif/profilo.html"
+    login_url = "/albdif/login/"
+
+    def dispatch(self, request, *args, **kwargs):
+        """ La pagina del profilo può essere acceduta solo dal suo utente """
+        if self.get_object().user_ptr != request.user:
+            raise PermissionDenied("Accesso ad altre pagine profilo non consentito")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """Ritorna la lista delle prenotazioni di un utente"""
+        context = super(profilo, self).get_context_data(**kwargs)
+        utente_id = self.kwargs.get('pk')
+        #@TODO filtra quelle in corso e future
+        prenotazioni = Prenotazione.objects.filter(visitatore=utente_id).order_by("-data_prenotazione")
+        context['prenotazioni_list'] = prenotazioni
+        #@TODO aggiungi altre lista delle prenotazioni passate
+        return context
 
 
 # PROPRIETA'
@@ -187,6 +204,13 @@ class prenotazioni_list(generic.ListView):
 class prenotazioni_utente_list(generic.ListView):
     template_name = "albdif/prenotazioni_list.html"
     context_object_name = "prenotazioni_list"
+
+    def dispatch(self, request, *args, **kwargs):
+        """ La pagina del profilo può essere acceduta solo dal suo utente """
+        utente = Visitatore.objects.get(pk=self.kwargs.get('pk'))
+        if utente != request.user:
+            raise PermissionDenied("Accesso ad altre prenotazioni non consentito")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         """Ritorna la lista delle prenotazioni di un utente"""
