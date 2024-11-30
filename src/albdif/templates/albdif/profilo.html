@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2> Profilo dell'utente: {{ user }} </h2>
+
+<hr>
+
+{% if user.is_authenticate %}
+    <form action="/albdif/profilo/" method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <table class="visitatore">
+            {{ form }}
+        </table>
+        <input type="submit" class="button primary" name="save" value="Salva">
+    </form>
+<!--{% else %}-->
+<!--    <h3>Utente: {{ user }} </h3>-->
+{% endif %}
+
+{% endblock content %}

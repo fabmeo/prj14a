@@ -12,7 +12,7 @@ from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views import generic
 import json
 
-from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto
+from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -40,6 +40,15 @@ class login(FormView):
             form.add_error(None, "Username o password errate!")
 
         return self.form_invalid(form)
+
+
+# PROFILO UTENTE VISITATORE
+class profilo(generic.DetailView):
+    """
+    # pagina dell'utente visitatore
+    """
+    model = Visitatore
+    template_name = "albdif/profilo.html"
 
 
 # PROPRIETA'
