@@ -6,7 +6,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h3>Disponibilità</h3>
+        <h5>Disponibilità</h5>
     </div>
     <div class="col-md-6">
         <div id="datepicker"></div>
@@ -42,38 +42,9 @@
             startview: 2,
             autoclose: false,
             todayHighlight: false,
-            datesDisabled: disabledDates
+            datesDisabled: disabledDates,
+            multidate: true,
         }).datepicker('setDate', new Date(new Date().setMonth(new Date().getMonth() + 1)));
     });
 </script>
 
-
-<!--<script>-->
-<!--    $(document).ready(function(){-->
-<!--        var disabledDates = {{ disabled_dates|safe }};-->
-<!--        $('#datepicker').datepicker({-->
-<!--            format: 'yyyy-mm-dd',-->
-<!--            startDate: '-0d',-->
-<!--            autoclose: false,-->
-<!--            todayHighlight: true,-->
-<!--            datesDisabled: disabledDates,-->
-<!--            multidate: true,-->
-<!--            language: 'it-IT',-->
-<!--            viewMode: 'months', // Ensures that it displays the calendar for months-->
-<!--            minViewMode: 'months', // Starts in months view-->
-<!--            maxViewMode: 'months' // Stops in months view-->
-<!--        }).datepicker('setDate', new Date());-->
-
-<!--        $('#datepicker_next').datepicker({-->
-<!--            format: 'yyyy-mm-dd',-->
-<!--            startDate: '+1m',-->
-<!--            startView: 1, // Start view as the month after the current month-->
-<!--            autoclose: false,-->
-<!--            todayHighlight: false,-->
-<!--            datesDisabled: disabledDates,-->
-<!--            viewMode: 'months',-->
-<!--            minViewMode: 'months',-->
-<!--            maxViewMode: 'months'-->
-<!--        }).datepicker('setDate', new Date(new Date().setMonth(new Date().getMonth() + 1)));-->
-<!--    });-->
-<!--</script>-->
