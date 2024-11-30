@@ -1,8 +1,11 @@
 from datetime import datetime
 
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from .forms import LoginForm
 from .utils import date_range
@@ -13,6 +16,15 @@ from django.views import generic
 import json
 
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore
+
+
+@method_decorator(login_required, name='dispatch')
+def get_object(self):
+    # Assumendo che `Visitatore` abbia un campo `user` che è una ForeignKey per l'utente Django
+    obj = super().get_object()
+    if obj.user != self.request.user:
+        raise PermissionDenied("Non puoi accedere a questo profilo.")
+    return obj
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -46,6 +58,7 @@ class login(FormView):
 class profilo(generic.DetailView):
     """
     # pagina dell'utente visitatore
+    @TODO PROTEGGERE LA VIEW IN MODO CHE OGNI UTENTE POSSA ACCEDERE SOLO AL PROPRIO PROFILO
     """
     model = Visitatore
     template_name = "albdif/profilo.html"
