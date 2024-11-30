@@ -3,14 +3,47 @@
 {% block content %}
 <h2> La vetrina del sito: le nostre camere </h2>
 
-{% if camere_list %}
-    <ul>
+<!--{% if camere_list %}-->
+<!--    <ul>-->
+<!--    {% for c in camere_list %}-->
+<!--        <li><a href="{% url 'albdif:camera_detail' c.id %}">{{ c }}</a></li>-->
+<!--    {% endfor %}-->
+<!--    </ul>-->
+<!--{% else %}-->
+<!--    <p>Nessuna camera disponibile</p>-->
+<!--{% endif %}-->
+
+
+<div class="container">
+    {% if camere_list %}
     {% for c in camere_list %}
-        <li><a href="{% url 'albdif:camera_detail' c.id %}">{{ c }}</a></li>
+    <div class="row" style="display: flex; align-items: center; margin-bottom: 20px;">
+        {% if forloop.counter0|divisibleby:2 %}
+        <div class="column" style="flex: 1; text-align: right;">
+            <a href="{% url 'albdif:camera_detail' c.id %}">{{ c }}
+            <img src="{{ c.image.url }}" alt="{{ c.name }}" style="width: 80%;">
+            </a>
+        </div>
+        <div class="column" style="flex: 1;">
+            <h3>{{ c.nome }}</h3>
+            <p>{{ c.descrizione }}</p>
+        </div>
+        {% else %}
+        <div class="column" style="flex: 1;">
+            <h3>{{ c.nome }}</h3>
+            <p>{{ c.descrizione }}</p>
+        </div>
+        <div class="column" style="flex: 1;">
+            <a href="{% url 'albdif:camera_detail' c.id %}">{{ c }}
+            <img src="{{ c.image.url }}" alt="{{ c.name }}" style="width: 80%;">
+            </a>
+        </div>
+        {% endif %}
+    </div>
     {% endfor %}
-    </ul>
-{% else %}
+    {% else %}
     <p>Nessuna camera disponibile</p>
-{% endif %}
+    {% endif %}
+</div>
 
 {% endblock content %}

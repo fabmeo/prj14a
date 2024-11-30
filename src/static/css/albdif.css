@@ -3,3 +3,7 @@ body {
  background-image: url("../img/background2.jpg");
  background-color: rgba(206, 87, 87, 0.6);
 }
+
+h2, h3 {
+    font-family: "Arial", Times, serif;
+}
