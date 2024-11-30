@@ -1,5 +1,21 @@
 body {
  /* @TODO cercare un'immagine free */
  background-image: url("../img/background2.jpg");
- background-color: rgba(206, 87, 87, 0.6);
+ background-color: rgba(206, 184, 87, 0.6);
+}
+
+h2, h3 {
+    font-family: "Arial", Times, serif;
+}
+
+ /* @TODO solo con la classe non funziona: correggere */
+p, #descrizione {
+    font-size: 16px;
+    color: #333;
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #462a2a;
+    background-color: rgba(164, 49, 49, 0.67);
+    text-align: justify;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.9);
 }

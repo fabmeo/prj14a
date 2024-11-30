@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2> Profilo dell'utente: {{ user }} </h2>
+
+<hr>
+
+{% if user.is_authenticated %}
+    <form action="/albdif/profilo/" method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <table class="visitatore">
+            {{ form }}
+        </table>
+        <input type="submit" class="button primary" name="save" value="Salva">
+    </form>
+    <hr>
+
+    <h3>Le tue prenotazioni</h3>
+
+    {% include 'albdif/prenotazioni_list.html' %}
+
+    <hr>
+
+    <h3>Storico</h3>
+
+<!--{% else %}-->
+<!--    <h3>Utente: {{ user }} </h3>-->
+{% endif %}
+
+{% endblock content %}

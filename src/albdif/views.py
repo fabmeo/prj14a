@@ -1,8 +1,12 @@
 from datetime import datetime
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from .forms import LoginForm
 from .utils import date_range
@@ -12,7 +16,16 @@ from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views import generic
 import json
 
-from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto
+from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore
+
+
+@method_decorator(login_required, name='dispatch')
+def get_object(self):
+    # Assumendo che `Visitatore` abbia un campo `user` che è una ForeignKey per l'utente Django
+    obj = super().get_object()
+    if obj.user != self.request.user:
+        raise PermissionDenied("Non puoi accedere a questo profilo.")
+    return obj
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -40,6 +53,32 @@ class login(FormView):
             form.add_error(None, "Username o password errate!")
 
         return self.form_invalid(form)
+
+
+# PROFILO UTENTE VISITATORE
+class profilo(LoginRequiredMixin, generic.DetailView):
+    """
+    # pagina dell'utente visitatore
+    """
+    model = Visitatore
+    template_name = "albdif/profilo.html"
+    login_url = "/albdif/login/"
+
+    def dispatch(self, request, *args, **kwargs):
+        """ La pagina del profilo può essere acceduta solo dal suo utente """
+        if self.get_object().user_ptr != request.user:
+            raise PermissionDenied("Accesso ad altre pagine profilo non consentito")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """Ritorna la lista delle prenotazioni di un utente"""
+        context = super(profilo, self).get_context_data(**kwargs)
+        utente_id = self.kwargs.get('pk')
+        #@TODO filtra quelle in corso e future
+        prenotazioni = Prenotazione.objects.filter(visitatore=utente_id).order_by("-data_prenotazione")
+        context['prenotazioni_list'] = prenotazioni
+        #@TODO aggiungi altre lista delle prenotazioni passate
+        return context
 
 
 # PROPRIETA'
@@ -165,6 +204,13 @@ class prenotazioni_list(generic.ListView):
 class prenotazioni_utente_list(generic.ListView):
     template_name = "albdif/prenotazioni_list.html"
     context_object_name = "prenotazioni_list"
+
+    def dispatch(self, request, *args, **kwargs):
+        """ La pagina del profilo può essere acceduta solo dal suo utente """
+        utente = Visitatore.objects.get(pk=self.kwargs.get('pk'))
+        if utente != request.user:
+            raise PermissionDenied("Accesso ad altre prenotazioni non consentito")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         """Ritorna la lista delle prenotazioni di un utente"""
