@@ -75,6 +75,10 @@ class Camera(models.Model):
     def __str__(self):
         return f"{self.proprieta} {self.nome}"
 
+    @property
+    def image(self):
+        "ritorna l'elenco delle foto della camera"
+        return Foto.objects.filter(camera=self.pk).first()
 
 class Foto(models.Model):
     """
