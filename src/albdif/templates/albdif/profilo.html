@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2> Profilo dell'utente: {{ user }} </h2>
+<h2 class="titolopagina"> Profilo dell'utente: {{ user }} </h2>
 
 <hr>
 
@@ -18,7 +18,7 @@
 
     <h3>Le tue prenotazioni</h3>
 
-    {% include 'albdif/prenotazioni_list.html' %}
+    {% include 'albdif/include/prenotazioni_list.html' %}
 
     <hr>
 
