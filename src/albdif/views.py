@@ -145,18 +145,23 @@ class camera_detail(generic.DetailView):
         return context
 
 
-class prenota_camera(generic.View):
+class prenota_camera(generic.DetailView):
     """
     Gestisce la pagina del form di prenotazione con i form Prenotazione e CalendarioPrenotazione
     """
     template_name = "albdif/form_prenotazione.html"
 
     def get(self, request, *args, **kwargs):
-        prenotazione_form = PrenotazioneForm()
-        calendario_form = CalendarioPrenotazioneForm()
+        visitatore = get_object_or_404(Visitatore, id=self.kwargs["id1"])
+        camera = get_object_or_404(Camera, id=self.kwargs["id2"])
+        prenotazione_form = PrenotazioneForm(initial={'visitatore': visitatore.id, 'camera': camera.id})
+        #calendario_form = CalendarioPrenotazioneForm(initial={'prenotazione': prenotazione_form})
+
         return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
             'prenotazione_form': prenotazione_form,
-            'calendario_form': calendario_form
+        #    'calendario_form': calendario_form
         })
 
     def post(self, request, *args, **kwargs):
