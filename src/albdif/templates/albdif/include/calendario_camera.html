@@ -12,11 +12,11 @@
         <div id="datepicker"></div>
             <input type="hidden" id="my_hidden_input">
         </div>
-    <div class="col-md-6">
-        <div id="datepicker_next"></div>
-            <input type="hidden" id="my_hidden_input_next">
-        </div>
-</div>
+<!--    <div class="col-md-6">-->
+<!--        <div id="datepicker_next"></div>-->
+<!--            <input type="hidden" id="my_hidden_input_next">-->
+<!--        </div>-->
+<!--    </div>-->
 {% endblock content %}
 
 <!-- jQuery -->
@@ -35,16 +35,17 @@
             todayHighlight: true,
             datesDisabled: disabledDates,
             multidate: true,
-        }).datepicker('setDate', new Date());
-        $('#datepicker_next').datepicker({
-            format: 'yyyy-mm-dd',
-            startDate: '-1m',
-            startview: 2,
-            autoclose: false,
-            todayHighlight: false,
-            datesDisabled: disabledDates,
-            multidate: true,
-        }).datepicker('setDate', new Date(new Date().setMonth(new Date().getMonth() + 1)));
+        });
+
+<!--        .datepicker('setDate', new Date());-->
+<!--        $('#datepicker_next').datepicker({-->
+<!--            format: 'yyyy-mm-dd',-->
+<!--            startDate: '-1m',-->
+<!--            autoclose: false,-->
+<!--            todayHighlight: false,-->
+<!--            datesDisabled: disabledDates,-->
+<!--            multidate: true,-->
+<!--        }).datepicker('setDate', new Date(new Date().setMonth(new Date().getMonth() + 1)));-->
     });
 </script>
 
