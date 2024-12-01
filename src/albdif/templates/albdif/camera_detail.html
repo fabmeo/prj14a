@@ -61,6 +61,11 @@
 <div class="row">
   <div class="col-md-6">
     {% include 'albdif/include/calendario_camera.html' %}
+<!--  </div>-->
+<!--  <div class="col-md-6">-->
+    {{user.pk}}
+    {{camera.pk}}
+    <a href="{% url 'albdif:prenota_camera' user.pk camera.pk %}" class="btn btn-primary">Prenota Camera</a>
   </div>
 </div>
 

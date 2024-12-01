@@ -6,10 +6,10 @@ from django.urls import reverse_lazy
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
 
-from .forms import LoginForm
+from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
 from .utils import date_range
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views import generic
 import json
@@ -141,6 +141,37 @@ class camera_detail(generic.DetailView):
         context['disabled_dates'] = json.dumps(gia_prenotate)
         context['foto'] = foto
         return context
+
+
+class prenota_camera(generic.View):
+    """
+    Gestisce la pagina del form di prenotazione con i form Prenotazione e CalendarioPrenotazione
+    """
+    template_name = "albdif/form_prenotazione.html"
+
+    def get(self, request, *args, **kwargs):
+        prenotazione_form = PrenotazioneForm()
+        calendario_form = CalendarioPrenotazioneForm()
+        return render(request, self.template_name, {
+            'prenotazione_form': prenotazione_form,
+            'calendario_form': calendario_form
+        })
+
+    def post(self, request, *args, **kwargs):
+        prenotazione_form = PrenotazioneForm(request.POST)
+        calendario_form = CalendarioPrenotazioneForm(request.POST)
+
+        if prenotazione_form.is_valid() and calendario_form.is_valid():
+            prenotazione = prenotazione_form.save()
+            calendario = calendario_form.save(commit=False)
+            calendario.prenotazione = prenotazione
+            calendario.save()
+            return redirect('profilo')
+
+        return render(request, self.template_name, {
+            'prenotazione_form': prenotazione_form,
+            'calendario_form': calendario_form
+        })
 
 
 class camere_list(generic.ListView):
