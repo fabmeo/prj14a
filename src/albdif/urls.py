@@ -19,6 +19,8 @@ urlpatterns = [
     path("camere/", views.camere_list.as_view(), name="camere_list"),
     # ex: /camera/1/
     path("camera/<int:pk>/", views.camera_detail.as_view(), name="camera_detail"),
+    # ex: /prenota_camera/1/2/
+    path("prenota_camera/<int:id1>/<int:id2>/", views.prenota_camera.as_view(), name="prenota_camera"),
 
     # ex: /prezzi_camera/
     path("prezzi_camera/", views.prezzi_camera_list.as_view(), name="prezzi_camera_list"),
@@ -37,5 +39,5 @@ urlpatterns = [
     # ex: /calendario_prenotazione/1/
     path("calendario_prenotazione/<int:pk>/", views.calendario_prenotazione_detail.as_view(), name="calendario_prenotazione_detail"),
 
-#    path('calendario_camera/', views.calendario_camera, name='calendario_camera'),
+    #    path('calendario_camera/', views.calendario_camera, name='calendario_camera'),
 ]

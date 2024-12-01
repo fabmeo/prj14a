@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block head %}
+{% endblock head %}
+
+{% block content %}
+<h3 class="titolopagina">Stai prenotando la camera {{ camera }}</h3>
+<hr>
+
+<form action="{% url 'albdif:prenota_camera' user.pk user.pk %}" method="post">
+    {% csrf_token %}
+    {{ prenotazione_form }}
+<!--    {{ calendario_form }}-->
+    <button type="submit">Conferma Prenotazione</button>
+</form>
+
+{% endblock content %}

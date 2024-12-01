@@ -1,5 +1,3 @@
-from tabnanny import verbose
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CharField
@@ -58,7 +56,7 @@ class Camera(models.Model):
     ogni camera fa parte di una proprietà
     """
     proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE)
-    nome =  models.CharField(max_length=100, default="... inserire un nickname")
+    nome = models.CharField(max_length=100, default="... inserire un nickname")
     descrizione = models.CharField(max_length=1000)
     services = models.JSONField(default={
             "toilette": True,
@@ -73,7 +71,7 @@ class Camera(models.Model):
         verbose_name_plural = "Camere"
 
     def __str__(self):
-        return f"{self.proprieta} {self.nome}"
+        return f"{self.nome} di {self.proprieta}"
 
     @property
     def image(self):

@@ -8,10 +8,10 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from .forms import LoginForm
+from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
 from .utils import date_range
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views import generic
 import json
@@ -145,6 +145,42 @@ class camera_detail(generic.DetailView):
         return context
 
 
+class prenota_camera(generic.DetailView):
+    """
+    Gestisce la pagina del form di prenotazione con i form Prenotazione e CalendarioPrenotazione
+    """
+    template_name = "albdif/form_prenotazione.html"
+
+    def get(self, request, *args, **kwargs):
+        visitatore = get_object_or_404(Visitatore, id=self.kwargs["id1"])
+        camera = get_object_or_404(Camera, id=self.kwargs["id2"])
+        prenotazione_form = PrenotazioneForm(initial={'visitatore': visitatore.id, 'camera': camera.id})
+        #calendario_form = CalendarioPrenotazioneForm(initial={'prenotazione': prenotazione_form})
+
+        return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
+            'prenotazione_form': prenotazione_form,
+        #    'calendario_form': calendario_form
+        })
+
+    def post(self, request, *args, **kwargs):
+        prenotazione_form = PrenotazioneForm(request.POST)
+        calendario_form = CalendarioPrenotazioneForm(request.POST)
+
+        if prenotazione_form.is_valid() and calendario_form.is_valid():
+            prenotazione = prenotazione_form.save()
+            calendario = calendario_form.save(commit=False)
+            calendario.prenotazione = prenotazione
+            calendario.save()
+            return redirect('profilo')
+
+        return render(request, self.template_name, {
+            'prenotazione_form': prenotazione_form,
+            'calendario_form': calendario_form
+        })
+
+
 class camere_list(generic.ListView):
     """
     Ritorna la lista delle camere dell'AD principale ordinata per descrizione
@@ -235,14 +271,5 @@ class calendario_prenotazioni_list(generic.ListView):
         """Ritorna la lista delle date di prenotazione ordinata per data"""
         return CalendarioPrenotazione.objects.order_by("data_inizio")
 
-
-# def calendario_camera(request, camera_id=None):
-#     # Lista delle date già prenotate di una camera (formato "yyyy-mm-dd")
-#     gia_prenotate = Camera.objects.filter(pk=camera_id).values_list('data_prenotazione', flat=True)
-#     # @TODO Estrai le date del calendario_prenotazione
-#     context = {
-#         'disabled_dates': json.dumps(gia_prenotate)
-#     }
-#     return render(request, "albdif/calendario_camera.html", context)
 
 
