@@ -9,13 +9,9 @@ class LoginForm(forms.Form):
 
 
 class PrenotazioneForm(forms.ModelForm):
-    data_prenotazione = forms.DateField(widget=forms.DateInput)
-    richiesta = forms.CharField(widget=forms.Textarea(attrs={"rows": 5, "cols": 50}))
-
     class Meta:
         model = Prenotazione
         fields = '__all__'
-        exclude = ['visitatore', 'camera', 'stato_prenotazione']
 
 
 class CalendarioPrenotazioneForm(forms.ModelForm):
