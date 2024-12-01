@@ -4,13 +4,13 @@
 {% endblock head %}
 
 {% block content %}
-<h3 class="titolopagina">Stai prenotando la camera {{ camera }}</h3>
+<h2 class="titolopagina">Prenotazione Form</h2>
 <hr>
 
 <form action="{% url 'albdif:prenota_camera' user.pk user.pk %}" method="post">
     {% csrf_token %}
-    {{ prenotazione_form }}
-<!--    {{ calendario_form }}-->
+    {{ form.as_p }}
+    {{ calendario_form.as_p }}
     <button type="submit">Conferma Prenotazione</button>
 </form>
 
