@@ -71,7 +71,7 @@ class Camera(models.Model):
         verbose_name_plural = "Camere"
 
     def __str__(self):
-        return f"{self.proprieta} {self.nome}"
+        return f"{self.nome} di {self.proprieta}"
 
     @property
     def image(self):
