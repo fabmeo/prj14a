@@ -8,8 +8,12 @@ h2, h3 {
     font-family: "Arial", Times, serif;
 }
 
- /* @TODO solo con la classe non funziona: correggere */
-p, #descrizione {
+ /* @TODO non funziona ancora */
+.camere {
+     background-color: rgba(106, 124, 87, 0.6);
+}
+
+.descrizione {
     font-size: 16px;
     color: #333;
     margin: 10px;
@@ -18,4 +22,9 @@ p, #descrizione {
     background-color: rgba(164, 49, 49, 0.67);
     text-align: justify;
     box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.9);
+}
+
+.titolopagina {
+    margin-top: 60px;
+
 }
