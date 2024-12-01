@@ -16,7 +16,7 @@
         <div class="row" style="display: flex; align-items: center; margin-bottom: 20px;">
             {% if forloop.counter0|divisibleby:2 %}
             <div class="column" style="flex: 1; text-align: left;">
-                <a href="{% url 'albdif:camera_detail' c.id %}">
+                <a href="{% url 'albdif:camera_detail' c.id %}">{{ c }}
                 <img src="{{ c.image.file.url }}" alt="{{ c.nome }}" style="width: 80%;">
                 </a>
             </div>
@@ -36,7 +36,7 @@
             <div style="border-left: 1px solid #ccc; height: 100%;"></div>
 
             <div class="column" style="flex: 1; text-align: right;" >
-                <a href="{% url 'albdif:camera_detail' c.id %}">
+                <a href="{% url 'albdif:camera_detail' c.id %}">{{ c }}
                 <img src="{{ c.image.file.url }}" alt="{{ c.nome }}" style="width: 80%;">
                 </a>
             </div>
