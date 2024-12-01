@@ -37,5 +37,5 @@ urlpatterns = [
     # ex: /calendario_prenotazione/1/
     path("calendario_prenotazione/<int:pk>/", views.calendario_prenotazione_detail.as_view(), name="calendario_prenotazione_detail"),
 
-#    path('calendario_camera/', views.calendario_camera, name='calendario_camera'),
+    #    path('calendario_camera/', views.calendario_camera, name='calendario_camera'),
 ]
