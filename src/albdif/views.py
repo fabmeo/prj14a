@@ -74,10 +74,13 @@ class profilo(LoginRequiredMixin, generic.DetailView):
         """Ritorna la lista delle prenotazioni di un utente"""
         context = super(profilo, self).get_context_data(**kwargs)
         utente_id = self.kwargs.get('pk')
-        #@TODO filtra quelle in corso e future
-        prenotazioni = Prenotazione.objects.filter(visitatore=utente_id).order_by("-data_prenotazione")
+        #prenotazioni = Prenotazione.objects.filter(visitatore=utente_id).order_by("-data_prenotazione")
+        prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=utente_id,
+                                                             data_inizio__gte=datetime.now())
+        storico = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=utente_id,
+                                                             data_inizio__lt=datetime.now())
         context['prenotazioni_list'] = prenotazioni
-        #@TODO aggiungi altre lista delle prenotazioni passate
+        context['storico_list'] = storico
         return context
 
 
