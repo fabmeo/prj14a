@@ -2,11 +2,14 @@ from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse_lazy
+from django.template.context_processors import request
+from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 
 from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
 from .utils import date_range
@@ -74,10 +77,12 @@ class profilo(LoginRequiredMixin, generic.DetailView):
         """Ritorna la lista delle prenotazioni di un utente"""
         context = super(profilo, self).get_context_data(**kwargs)
         utente_id = self.kwargs.get('pk')
-        #@TODO filtra quelle in corso e future
-        prenotazioni = Prenotazione.objects.filter(visitatore=utente_id).order_by("-data_prenotazione")
+        prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=utente_id,
+                                                             data_inizio__gte=datetime.now())
+        storico = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=utente_id,
+                                                             data_inizio__lt=datetime.now())
         context['prenotazioni_list'] = prenotazioni
-        #@TODO aggiungi altre lista delle prenotazioni passate
+        context['storico_list'] = storico
         return context
 
 
@@ -140,8 +145,13 @@ class camera_detail(generic.DetailView):
                     gia_prenotate.append(d)
 
         foto = Foto.objects.filter(camera=self.object.pk)
+        prenotazioni = []
+        if self.request.user.is_authenticated:
+            prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=self.request.user,
+                                                                 data_inizio__gte=datetime.now())
         context['disabled_dates'] = json.dumps(gia_prenotate)
         context['foto'] = foto
+        context['prenotazioni_list'] = prenotazioni
         return context
 
 
@@ -155,25 +165,33 @@ class prenota_camera(generic.DetailView):
         visitatore = get_object_or_404(Visitatore, id=self.kwargs["id1"])
         camera = get_object_or_404(Camera, id=self.kwargs["id2"])
         prenotazione_form = PrenotazioneForm(initial={'visitatore': visitatore.id, 'camera': camera.id})
-        #calendario_form = CalendarioPrenotazioneForm(initial={'prenotazione': prenotazione_form})
+        calendario_form = CalendarioPrenotazioneForm()
 
         return render(request, self.template_name, {
             'visitatore': visitatore,
             'camera': camera,
             'prenotazione_form': prenotazione_form,
-        #    'calendario_form': calendario_form
+            'calendario_form': calendario_form
         })
 
     def post(self, request, *args, **kwargs):
+        visitatore = get_object_or_404(Visitatore, id=self.kwargs["id1"])
+        camera = get_object_or_404(Camera, id=self.kwargs["id2"])
         prenotazione_form = PrenotazioneForm(request.POST)
+        prenotazione_form.instance.visitatore = visitatore
+        prenotazione_form.instance.camera = camera
+        prenotazione_form.instance.stato_prenotazione = Prenotazione.PRENOTATA
+        prenotazione_form.instance.data_prenotazione = datetime.now()
+
         calendario_form = CalendarioPrenotazioneForm(request.POST)
+        calendario_form.instance.prenotazione = prenotazione_form.instance
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
             prenotazione = prenotazione_form.save()
             calendario = calendario_form.save(commit=False)
             calendario.prenotazione = prenotazione
             calendario.save()
-            return redirect('profilo')
+            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
 
         return render(request, self.template_name, {
             'prenotazione_form': prenotazione_form,
