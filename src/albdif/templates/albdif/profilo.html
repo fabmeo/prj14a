@@ -20,8 +20,13 @@
 
     {% include 'albdif/include/prenotazioni_list.html' %}
 
-<!--{% else %}-->
-<!--    <h3>Utente: {{ user }} </h3>-->
 {% endif %}
+
+<hr>
+
+<form action="{% url 'logout' %}" method="POST" style="display:inline;">
+    {% csrf_token %}
+    <input type="submit" class="button secondary" value="Logout">
+</form>
 
 {% endblock content %}
