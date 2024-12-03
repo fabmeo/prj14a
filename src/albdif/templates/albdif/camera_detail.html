@@ -52,9 +52,13 @@
 <hr>
 
 <div class="row">
-  <div class="col-md-6">
+  <div class="col-md-4">
     {% include 'albdif/include/calendario_camera.html' %}
     <a href="{% url 'albdif:prenota_camera' user.pk camera.pk %}" class="btn btn-primary">Prenota Camera</a>
+  </div>
+  <div class="col-md-8">
+    <h5>Le tue prenotazioni</h5>
+    {% include 'albdif/include/prenotazioni_list.html' %}
   </div>
 </div>
 

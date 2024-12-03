@@ -2,10 +2,6 @@
 {% if prenotazioni_list %}
     <ul>
     {% for s in prenotazioni_list %}
-<!--        <li><a href="{% url 'albdif:prenotazione_detail' s.id %}">-->
-<!--            dal {{ s.data_inizio }} al {{ s.data_inizio }} presso {{ s.prenotazione.camera }}-->
-<!--            </a>-->
-<!--        </li>-->
         <li>dal {{ s.data_inizio|date:"d M y" }} al {{ s.data_fine|date:"d M y" }}
             presso {{ s.prenotazione.camera.proprieta }} -
             <a href="{% url 'albdif:camera_detail' s.prenotazione.camera.id %}">Camera {{ s.prenotazione.camera.nome }}</a>

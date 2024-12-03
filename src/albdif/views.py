@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.template.context_processors import request
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
@@ -74,7 +75,6 @@ class profilo(LoginRequiredMixin, generic.DetailView):
         """Ritorna la lista delle prenotazioni di un utente"""
         context = super(profilo, self).get_context_data(**kwargs)
         utente_id = self.kwargs.get('pk')
-        #prenotazioni = Prenotazione.objects.filter(visitatore=utente_id).order_by("-data_prenotazione")
         prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=utente_id,
                                                              data_inizio__gte=datetime.now())
         storico = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=utente_id,
@@ -143,8 +143,11 @@ class camera_detail(generic.DetailView):
                     gia_prenotate.append(d)
 
         foto = Foto.objects.filter(camera=self.object.pk)
+        prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=self.request.user,
+                                                             data_inizio__gte=datetime.now())
         context['disabled_dates'] = json.dumps(gia_prenotate)
         context['foto'] = foto
+        context['prenotazioni_list'] = prenotazioni
         return context
 
 

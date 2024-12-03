@@ -62,7 +62,7 @@ class Camera(models.Model):
             "toilette": True,
             "wifi": True,
             "tv": True,
-            "aria_condizionata": True,
+            "aria condizionata": True,
             "minibar": False
         }, help_text="Servizi offerti nella camera, ad esempio: toilette, wifi, phon, etc.")
 
