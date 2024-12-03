@@ -1,16 +1,9 @@
 {% extends "base.html" %}
 
-{% block head %}
-{% endblock head %}
-
 {% block content %}
-<h2 class="titolopagina"> {{ camera.nome }} </h2>
-
-<hr>
-
 <div class="row">
   <div class="col-md-6">
-
+    <h2 class="titolopagina"> </h2>
     <div id="myCarousel" class="carousel slide" data-ride="carousel">
     <!-- Indicators -->
     <ol class="carousel-indicators">
@@ -31,7 +24,13 @@
         {% endif %}
       {% endfor %}
     </div>
-
+    <div>
+      <ul>
+        {% for key, value in camera.services.items %}
+        <li>{{ key }} {% if value %} &#10003; {% endif %}</li>
+        {% endfor %}
+      </ul>
+    </div>
     <!-- Left and right controls -->
     <a class="left carousel-control" href="#myCarousel" data-slide="prev">
       <span class="glyphicon glyphicon-chevron-left"></span>
@@ -44,15 +43,9 @@
   </div>
 
   </div>
-  <div class="col-md-4">
+  <div class="col-md-6">
+    <h2 class="titolopagina"> {{ camera.nome }} </h2>
     <p class="descrizione">{{camera.descrizione}}</p>
-  </div>
-  <div class="col-md-2">
-      <ul>
-      {% for key, value in camera.services.items %}
-      <li>{{ key }} {% if value %} &#10003; {% endif %}</li>
-      {% endfor %}
-    </ul>
   </div>
 </div>
 
@@ -66,3 +59,4 @@
 </div>
 
 {% endblock content %}
+
