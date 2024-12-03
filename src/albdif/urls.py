@@ -7,7 +7,6 @@ urlpatterns = [
     # ex: /login/
     path("login/", views.login.as_view(), name="login"),
     # ex: /profilo/1/
-    
     path("profilo/<int:pk>/", views.profilo.as_view(), name="profilo"),
 
     # ex: /partner/   -> le proprietà dei partener

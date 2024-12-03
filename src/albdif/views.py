@@ -8,6 +8,8 @@ from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 
 from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
 from .utils import date_range
@@ -143,8 +145,10 @@ class camera_detail(generic.DetailView):
                     gia_prenotate.append(d)
 
         foto = Foto.objects.filter(camera=self.object.pk)
-        prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=self.request.user,
-                                                             data_inizio__gte=datetime.now())
+        prenotazioni = []
+        if self.request.user.is_authenticated:
+            prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=self.request.user,
+                                                                 data_inizio__gte=datetime.now())
         context['disabled_dates'] = json.dumps(gia_prenotate)
         context['foto'] = foto
         context['prenotazioni_list'] = prenotazioni
