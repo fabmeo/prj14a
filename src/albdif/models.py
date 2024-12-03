@@ -47,7 +47,7 @@ class Proprieta(models.Model):
         verbose_name_plural = "Proprietà"
 
     def __str__(self):
-        return f"{self.host} {self.descrizione}"
+        return f"{self.descrizione}"
 
 
 class Camera(models.Model):
@@ -94,9 +94,9 @@ class Foto(models.Model):
 
     def __str__(self):
         if self.camera:
-            return f"Camera: {self.descrizione} di {self.camera}"
+            return f"{self.descrizione} di {self.camera} - camera: "
         else:
-            return f"Proprietà: {self.descrizione} di {self.proprieta}"
+            return f"{self.descrizione} di {self.proprieta} - proprietà: "
 
 
 class Prenotazione(models.Model):
@@ -130,7 +130,7 @@ class Prenotazione(models.Model):
         verbose_name_plural = "Prenotazioni"
 
     def __str__(self):
-        return f"{self.visitatore} {self.camera} {self.stato_prenotazione}"
+        return f"{self.visitatore} {self.stato_prenotazione} {self.camera}"
 
 
 class CalendarioPrenotazione(models.Model):
