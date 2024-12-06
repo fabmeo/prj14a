@@ -1,0 +1,24 @@
+services:
+  todo-app:
+    build:
+      context: ./src
+    depends_on:
+      - database
+    environment:
+      NODE_ENV: production
+    ports:
+      - 8000:8000
+    develop:
+      watch:
+        - path: ./src
+          action: rebuild
+        - path: ./app
+          target: /usr/src/app
+          action: sync
+
+  database:
+    volumes:
+      - database:c:/prj/db
+
+volumes:
+  database:
