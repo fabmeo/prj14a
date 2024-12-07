@@ -1,24 +1,11 @@
 services:
-  todo-app:
-    build:
-      context: ./src
-    depends_on:
-      - database
-    environment:
-      NODE_ENV: production
-    ports:
-      - 8000:8000
-    develop:
-      watch:
-        - path: ./src
-          action: rebuild
-        - path: ./app
-          target: /usr/src/app
-          action: sync
-
-  database:
+  frontend:
+    image: pw14a:latest
     volumes:
-      - database:c:/prj/db
-
+      - dbdata:/prj/pw14a/src/
 volumes:
-  database:
+  dbdata:
+    name: ${PEGASO_DATABASE_URL}
+    labels:
+      descrizione: "Database del progetto PW14A"
+      tipo: "SQLITE"

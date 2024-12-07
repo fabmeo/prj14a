@@ -47,7 +47,7 @@ ENV PYTHONPATH=/src/__pypackages__/3.13/lib/:/src/ \
 #CMD ["python", "manage.py", "showmigrations"]
 
 # Expose the port on which Django will run
-#EXPOSE 8000
+EXPOSE 8000
 
 # Run the application
 CMD ["django-admin", "runserver", "0.0.0.0:8000"]
