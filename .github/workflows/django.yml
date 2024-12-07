@@ -28,8 +28,8 @@ jobs:
 #        pdm install
     - name: Run Tests
       env:
-        DJANGO_SETTINGS_MODULE: siteprj.settings
-        PYTHONPATH: /src/__pypackages__/${{ matrix.python-version }}/lib/:/src/
+        PYTHONPATH: .
         PATH: /src/:__pypackages__/${{ matrix.python-version }}/bin/:$PATH
+        DJANGO_SETTINGS_MODULE: src.siteprj.settings
       run: |
         pytest tests
