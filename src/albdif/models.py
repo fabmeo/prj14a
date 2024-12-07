@@ -1,5 +1,3 @@
-from tabnanny import verbose
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CharField
@@ -49,7 +47,7 @@ class Proprieta(models.Model):
         verbose_name_plural = "Proprietà"
 
     def __str__(self):
-        return f"{self.host} {self.descrizione}"
+        return f"{self.descrizione}"
 
 
 class Camera(models.Model):
@@ -58,13 +56,13 @@ class Camera(models.Model):
     ogni camera fa parte di una proprietà
     """
     proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE)
-    nome =  models.CharField(max_length=100, default="... inserire un nickname")
+    nome = models.CharField(max_length=100, default="... inserire un nickname")
     descrizione = models.CharField(max_length=1000)
     services = models.JSONField(default={
             "toilette": True,
             "wifi": True,
             "tv": True,
-            "aria_condizionata": True,
+            "aria condizionata": True,
             "minibar": False
         }, help_text="Servizi offerti nella camera, ad esempio: toilette, wifi, phon, etc.")
 
@@ -73,8 +71,12 @@ class Camera(models.Model):
         verbose_name_plural = "Camere"
 
     def __str__(self):
-        return f"{self.proprieta} {self.nome}"
+        return f"{self.nome} di {self.proprieta}"
 
+    @property
+    def image(self):
+        "ritorna l'elenco delle foto della camera"
+        return Foto.objects.filter(camera=self.pk).first()
 
 class Foto(models.Model):
     """
@@ -92,9 +94,9 @@ class Foto(models.Model):
 
     def __str__(self):
         if self.camera:
-            return f"Camera: {self.descrizione} di {self.camera}"
+            return f"{self.descrizione} di {self.camera} - camera: "
         else:
-            return f"Proprietà: {self.descrizione} di {self.proprieta}"
+            return f"{self.descrizione} di {self.proprieta} - proprietà: "
 
 
 class Prenotazione(models.Model):
@@ -128,7 +130,7 @@ class Prenotazione(models.Model):
         verbose_name_plural = "Prenotazioni"
 
     def __str__(self):
-        return f"{self.visitatore} {self.camera} {self.stato_prenotazione}"
+        return f"{self.visitatore} {self.stato_prenotazione} {self.camera}"
 
 
 class CalendarioPrenotazione(models.Model):

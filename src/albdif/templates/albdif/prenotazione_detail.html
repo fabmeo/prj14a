@@ -1,14 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Prenotazione</title>
-</head>
-<body>
-{{ prenotazione }}
+{% extends "base.html" %}
+
+{% block head %}
+{% endblock head %}
+
+{% block content %}
+<h2 class="titolopagina"> {{ prenotazione }} </h2>
 
 <hr>
-{% include 'albdif/calendario_prenotazione.html' %}
 
-</body>
-</html>
+<div class="col-md-6">
+{% include 'albdif/include/form_prenotazione.html' %}
+</div>
+<div class="col-md-6">
+</div>
+
+{% endblock content %}
