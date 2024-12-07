@@ -1,11 +1,21 @@
 services:
-  frontend:
-    image: pw14a:latest
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8000"
     volumes:
-      - dbdata:/prj/pw14a/src/
+      # path esterno: path sul container
+      - ./src/db.sqlite3:/src/db.sqlite3     # Volume per il database
+      - ./media:/src/media                   # Volume per i media files
+    environment:
+      - PEGASO_MEDIA_URL=/media/
+      - PEGASO_MEDIA_ROOT=/src/media/
+      - DJANGO_SETTINGS_MODULE=siteprj.settings
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
 volumes:
   dbdata:
-    name: ${PEGASO_DATABASE_URL}
-    labels:
-      descrizione: "Database del progetto PW14A"
-      tipo: "SQLITE"
+    driver: local
