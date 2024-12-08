@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.messages import ERROR
+from django.core.exceptions import ValidationError
 
 from .models import Prenotazione, CalendarioPrenotazione
 
@@ -22,3 +24,17 @@ class CalendarioPrenotazioneForm(forms.ModelForm):
         model = CalendarioPrenotazione
         fields = '__all__'
         exclude = ['prenotazione']
+
+    def clean(self):
+        cleaned_data = super(CalendarioPrenotazioneForm, self).clean()
+        di = cleaned_data.get("data_inizio")
+        df = cleaned_data.get("data_fine")
+        gia_prenotata = CalendarioPrenotazione.objects.filter(
+            prenotazione__camera=self.instance.prenotazione.camera,
+            data_fine__gte=di, data_inizio__lte=df).count()
+        if gia_prenotata > 0:
+            message = "Spiacenti: la camera è stata già prenotata"
+            message_level = ERROR
+            raise ValidationError(message, params={'value': message_level})
+        else:
+            return cleaned_data

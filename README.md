@@ -45,4 +45,9 @@ Prima di codificare lo yaml
 
 Dopo la codifica dello yaml
 > docker-compose up --build
+
+bash
+docker stop <container_id>
+docker run -d -p 8080:8080 hello-world-go
+docker exec -it <container_id> bash
  

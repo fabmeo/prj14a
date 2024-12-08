@@ -10,6 +10,9 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth import logout
 from django.shortcuts import redirect
+from django.views import View
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 
 from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
 from .utils import date_range
@@ -58,6 +61,13 @@ class login(FormView):
         return self.form_invalid(form)
 
 
+class logout(View):
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('albdif:home')
+
+    
 # PROFILO UTENTE VISITATORE
 class profilo(LoginRequiredMixin, generic.DetailView):
     """
@@ -194,6 +204,8 @@ class prenota_camera(generic.DetailView):
             return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
 
         return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
             'prenotazione_form': prenotazione_form,
             'calendario_form': calendario_form
         })

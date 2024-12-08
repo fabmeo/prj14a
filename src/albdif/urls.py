@@ -6,6 +6,8 @@ urlpatterns = [
     path("", views.home, name="home"),
     # ex: /login/
     path("login/", views.login.as_view(), name="login"),
+    # ex: /logout/
+    path("logout/", views.logout.as_view(), name="logout"),
     # ex: /profilo/1/
     path("profilo/<int:pk>/", views.profilo.as_view(), name="profilo"),
 
