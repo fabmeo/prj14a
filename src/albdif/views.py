@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.template.context_processors import request
@@ -202,6 +203,8 @@ class prenota_camera(generic.DetailView):
             calendario = calendario_form.save(commit=False)
             calendario.prenotazione = prenotazione
             calendario.save()
+            messages.success(request, 'Prenotazione avvenuta con successo')
+            #@TODO invio email all'utente
             return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
 
         return render(request, self.template_name, {
