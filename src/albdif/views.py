@@ -158,6 +158,7 @@ class camera_detail(generic.DetailView):
         prenotazioni = []
         if self.request.user.is_authenticated:
             prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=self.request.user,
+                                                                 prenotazione__camera=self.object,
                                                                  data_inizio__gte=datetime.now())
         context['disabled_dates'] = json.dumps(gia_prenotate)
         context['foto'] = foto
