@@ -22,6 +22,8 @@ urlpatterns = [
     path("camera/<int:pk>/", views.camera_detail.as_view(), name="camera_detail"),
     # ex: /prenota_camera/1/2/
     path("prenota_camera/<int:id1>/<int:id2>/", views.prenota_camera.as_view(), name="prenota_camera"),
+    # ex: /prenota_modifica/1/
+    path("prenota_modifica/<int:id1>/", views.prenota_modifica.as_view(), name="prenota_modifica"),
 
     # ex: /prezzi_camera/
     path("prezzi_camera/", views.prezzi_camera_list.as_view(), name="prezzi_camera_list"),

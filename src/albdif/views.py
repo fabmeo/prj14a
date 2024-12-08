@@ -215,6 +215,28 @@ class prenota_camera(generic.DetailView):
         })
 
 
+class prenota_modifica(prenota_camera):
+    """
+    Gestisce la modifica di una prenotazione
+    """
+    template_name = "albdif/form_prenotazione.html"
+
+    def get(self, request, *args, **kwargs):
+        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        calendario = get_object_or_404(CalendarioPrenotazione, id=prenotazione.id)
+        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        camera = get_object_or_404(Camera, id=prenotazione.camera.id)
+        prenotazione_form = PrenotazioneForm(instance=prenotazione)
+        calendario_form = CalendarioPrenotazioneForm(instance=calendario)
+
+        return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
+            'prenotazione_form': prenotazione_form,
+            'calendario_form': calendario_form
+        })
+
+
 class camere_list(generic.ListView):
     """
     Ritorna la lista delle camere dell'AD principale ordinata per descrizione
