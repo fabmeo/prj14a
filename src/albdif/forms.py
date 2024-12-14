@@ -1,4 +1,7 @@
+import datetime
+
 from django import forms
+from django.core.exceptions import ValidationError
 
 from .models import Prenotazione, CalendarioPrenotazione
 
@@ -13,12 +16,28 @@ class PrenotazioneForm(forms.ModelForm):
 
     class Meta:
         model = Prenotazione
-        fields = '__all__'
+        #fields = '__all__'
         exclude = ['visitatore', 'camera', 'stato_prenotazione', 'data_prenotazione']
 
 
 class CalendarioPrenotazioneForm(forms.ModelForm):
     class Meta:
         model = CalendarioPrenotazione
-        fields = '__all__'
+        #fields = '__all__'
         exclude = ['prenotazione']
+
+    def clean(self):
+        cleaned_data = super(CalendarioPrenotazioneForm, self).clean()
+        di = cleaned_data.get("data_inizio")
+        df = cleaned_data.get("data_fine")
+        if df < di:
+            raise ValidationError("La data fine non può essere antecedente alla data inizio")
+        if di <= datetime.datetime.now().date():
+            raise ValidationError("La data inizio deve essere futura")
+        gia_prenotata = CalendarioPrenotazione.objects.filter(
+            prenotazione__camera=self.instance.prenotazione.camera,
+            data_fine__gte=di, data_inizio__lte=df).count()
+        if gia_prenotata > 0:
+            raise ValidationError("Spiacenti: la camera è stata già prenotata")
+        else:
+            return cleaned_data

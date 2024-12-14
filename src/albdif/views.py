@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.template.context_processors import request
@@ -8,6 +9,9 @@ from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from django.views import View
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 
@@ -58,6 +62,13 @@ class login(FormView):
         return self.form_invalid(form)
 
 
+class logout(View):
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('albdif:home')
+
+    
 # PROFILO UTENTE VISITATORE
 class profilo(LoginRequiredMixin, generic.DetailView):
     """
@@ -148,6 +159,7 @@ class camera_detail(generic.DetailView):
         prenotazioni = []
         if self.request.user.is_authenticated:
             prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=self.request.user,
+                                                                 prenotazione__camera=self.object,
                                                                  data_inizio__gte=datetime.now())
         context['disabled_dates'] = json.dumps(gia_prenotate)
         context['foto'] = foto
@@ -191,9 +203,35 @@ class prenota_camera(generic.DetailView):
             calendario = calendario_form.save(commit=False)
             calendario.prenotazione = prenotazione
             calendario.save()
+            messages.success(request, 'Prenotazione avvenuta con successo')
+            #@TODO invio email all'utente
             return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
 
         return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
+            'prenotazione_form': prenotazione_form,
+            'calendario_form': calendario_form
+        })
+
+
+class prenota_modifica(prenota_camera):
+    """
+    Gestisce la modifica di una prenotazione
+    """
+    template_name = "albdif/form_prenotazione.html"
+
+    def get(self, request, *args, **kwargs):
+        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        calendario = get_object_or_404(CalendarioPrenotazione, id=prenotazione.id)
+        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        camera = get_object_or_404(Camera, id=prenotazione.camera.id)
+        prenotazione_form = PrenotazioneForm(instance=prenotazione)
+        calendario_form = CalendarioPrenotazioneForm(instance=calendario)
+
+        return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
             'prenotazione_form': prenotazione_form,
             'calendario_form': calendario_form
         })
