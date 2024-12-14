@@ -24,7 +24,7 @@
 
 <hr>
 
-<form action="{% url 'logout' %}" method="POST" style="display:inline;">
+<form action="{% url 'albdif:logout' %}" method="POST" style="display:inline;">
     {% csrf_token %}
     <input type="submit" class="button secondary" value="Logout">
 </form>
