@@ -12,29 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
-      matrix:
-        python-version: [3.12, 3.13]
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.13
       uses: actions/setup-python@v3
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.13
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install --no-cache-dir -r requirements-test.txt
 #        pdm install
-    - name: Debug Project Structure
-      run: |
-        pwd
-        ls -R
-        tree
     - name: Run Tests
       env:
         PYTHONPATH: ./src
-        PATH: /src/:__pypackages__/${{ matrix.python-version }}/bin/:$PATH
         DJANGO_SETTINGS_MODULE: siteprj.settings
       run: |
         pytest tests
