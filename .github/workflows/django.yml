@@ -30,6 +30,6 @@ jobs:
       env:
         PYTHONPATH: /src/
         PATH: /src/:__pypackages__/${{ matrix.python-version }}/bin/:$PATH
-        DJANGO_SETTINGS_MODULE: siteprj.settings
+        DJANGO_SETTINGS_MODULE: src.siteprj.settings
       run: |
         pytest tests
