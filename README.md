@@ -28,7 +28,9 @@ VARIABILI AMBIENTE DA IMPOSTARE:
 1. avviare il virtualenv
 > .venv\scripts\activate
 2. Dalla directory: (pw14a-3.13) C:\prj\pw14a digitare il comando sotto
->pytest tests
+> pytest tests
+3. test con il coverage
+> pytest -vvv -s --disable-warnings --cov-report=html --cov=src/albdif tests
 
 ---
 
@@ -44,7 +46,7 @@ Prima di codificare lo yaml
 > docker run --env-file .envdkc -p 8000:8000 pw14a
 
 Dopo la codifica dello yaml
-> docker-compose up --build
+> docker-compose up --build -d
 
 bash
 docker stop <container_id>
