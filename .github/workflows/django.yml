@@ -27,5 +27,6 @@ jobs:
     - name: Run Tests
       env:
         PYTHONPATH: ./src
+        DJANGO_SETTINGS_MODULE: siteprj.settings
       run: |
         pytest tests
