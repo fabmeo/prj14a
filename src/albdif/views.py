@@ -236,6 +236,34 @@ class prenota_modifica(prenota_camera):
             'calendario_form': calendario_form
         })
 
+    def post(self, request, *args, **kwargs):
+        visitatore = get_object_or_404(Visitatore, id=self.kwargs["id1"])
+        camera = get_object_or_404(Camera, id=self.kwargs["id2"])
+        prenotazione_form = PrenotazioneForm(request.POST)
+        #prenotazione_form.instance.visitatore = visitatore
+        #prenotazione_form.instance.camera = camera
+        #prenotazione_form.instance.stato_prenotazione = Prenotazione.PRENOTATA
+        prenotazione_form.instance.data_prenotazione = datetime.now()
+
+        calendario_form = CalendarioPrenotazioneForm(request.POST)
+        calendario_form.instance.prenotazione = prenotazione_form.instance
+
+        if prenotazione_form.is_valid() and calendario_form.is_valid():
+            prenotazione = prenotazione_form.save()
+            calendario = calendario_form.save(commit=False)
+            calendario.prenotazione = prenotazione
+            calendario.save()
+            messages.success(request, 'Prenotazione modificata con successo')
+            #@TODO invio email all'utente
+            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
+
+        return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
+            'prenotazione_form': prenotazione_form,
+            'calendario_form': calendario_form
+        })
+
 
 class camere_list(generic.ListView):
     """

@@ -2,6 +2,7 @@ import datetime
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from .models import Prenotazione, CalendarioPrenotazione
 
@@ -35,8 +36,9 @@ class CalendarioPrenotazioneForm(forms.ModelForm):
         if di <= datetime.datetime.now().date():
             raise ValidationError("La data inizio deve essere futura")
         gia_prenotata = CalendarioPrenotazione.objects.filter(
-            prenotazione__camera=self.instance.prenotazione.camera,
-            data_fine__gte=di, data_inizio__lte=df).count()
+            Q(prenotazione__camera=self.instance.prenotazione.camera),
+            Q(data_fine__gte=di), Q(data_inizio__lte=df),
+            ~Q(prenotazione__visitatore=self.instance.prenotazione.visitatore)).count()
         if gia_prenotata > 0:
             raise ValidationError("Spiacenti: la camera è stata già prenotata")
         else:
