@@ -20,3 +20,4 @@ class TestMyView:
         assert response.status_code == 200
         assert 'albdif/proprieta_list.html' in [t.name for t in response.templates]
         assert 'Lista dei Partner' in response.content.decode()
+
