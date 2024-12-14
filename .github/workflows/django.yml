@@ -30,6 +30,7 @@ jobs:
       run: |
         pwd
         ls -R
+        tree
     - name: Run Tests
       env:
         PYTHONPATH: ./src
