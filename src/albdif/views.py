@@ -221,9 +221,16 @@ class prenota_modifica(generic.DetailView):
     """
     template_name = "albdif/form_prenotazione_modifica.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        """ La pagina della prenotazione può essere acceduta solo dal suo utente """
+        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        if prenotazione.visitatore.id != request.user.id:
+            raise PermissionDenied("Accesso ad altre pagine prenotazione non consentito")
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
-        calendario = get_object_or_404(CalendarioPrenotazione, id=prenotazione.id)
+        calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
         visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         prenotazione_form = PrenotazioneForm(instance=prenotazione)
@@ -238,7 +245,7 @@ class prenota_modifica(generic.DetailView):
 
     def post(self, request, *args, **kwargs):
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
-        calendario = get_object_or_404(CalendarioPrenotazione, id=prenotazione.id)
+        calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
         visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         prenotazione_form = PrenotazioneForm(request.POST, instance=prenotazione)

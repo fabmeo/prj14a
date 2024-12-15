@@ -41,5 +41,12 @@ class CalendarioPrenotazioneForm(forms.ModelForm):
             ~Q(prenotazione__visitatore=self.instance.prenotazione.visitatore)).count()
         if gia_prenotata > 0:
             raise ValidationError("Spiacenti: la camera è stata già prenotata")
-        else:
-            return cleaned_data
+        gia_prenotata = CalendarioPrenotazione.objects.filter(
+            Q(prenotazione__camera=self.instance.prenotazione.camera),
+            Q(data_fine__gte=di), Q(data_inizio__lte=df),
+            ~Q(prenotazione__id=self.instance.prenotazione.id),
+            Q(prenotazione__visitatore=self.instance.prenotazione.visitatore)).count()
+        if gia_prenotata > 0:
+            raise ValidationError("Spiacenti: le date si sovrappongono ad un'altra tua prenotazione")
+
+        return cleaned_data
