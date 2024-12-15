@@ -215,11 +215,11 @@ class prenota_camera(generic.DetailView):
         })
 
 
-class prenota_modifica(prenota_camera):
+class prenota_modifica(generic.DetailView):
     """
     Gestisce la modifica di una prenotazione
     """
-    template_name = "albdif/form_prenotazione.html"
+    template_name = "albdif/form_prenotazione_modifica.html"
 
     def get(self, request, *args, **kwargs):
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
@@ -237,22 +237,18 @@ class prenota_modifica(prenota_camera):
         })
 
     def post(self, request, *args, **kwargs):
-        visitatore = get_object_or_404(Visitatore, id=self.kwargs["id1"])
-        camera = get_object_or_404(Camera, id=self.kwargs["id2"])
-        prenotazione_form = PrenotazioneForm(request.POST)
-        #prenotazione_form.instance.visitatore = visitatore
-        #prenotazione_form.instance.camera = camera
-        #prenotazione_form.instance.stato_prenotazione = Prenotazione.PRENOTATA
-        prenotazione_form.instance.data_prenotazione = datetime.now()
-
-        calendario_form = CalendarioPrenotazioneForm(request.POST)
-        calendario_form.instance.prenotazione = prenotazione_form.instance
+        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        calendario = get_object_or_404(CalendarioPrenotazione, id=prenotazione.id)
+        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        camera = get_object_or_404(Camera, id=prenotazione.camera.id)
+        prenotazione_form = PrenotazioneForm(request.POST, instance=prenotazione)
+        calendario_form = CalendarioPrenotazioneForm(request.POST, instance=calendario)
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
             prenotazione = prenotazione_form.save()
-            calendario = calendario_form.save(commit=False)
-            calendario.prenotazione = prenotazione
-            calendario.save()
+            calendario = calendario_form.save()
+            #calendario.prenotazione = prenotazione
+            #calendario.save()
             messages.success(request, 'Prenotazione modificata con successo')
             #@TODO invio email all'utente
             return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
