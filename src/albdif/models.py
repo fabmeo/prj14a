@@ -109,14 +109,12 @@ class Prenotazione(models.Model):
     SCADUTA = "SC"
     CANCELLATA = "CA"
     PAGATA = "PG"
-    INCORSO = "IC"
 
     STATO_PRENOTAZIONE = {
         PRENOTATA: "Prenotata",
         SCADUTA: "Scaduta",
         CANCELLATA: "Cancellata",
         PAGATA: "Pagata",
-        INCORSO: "In Corso",
     }
 
     visitatore = models.ForeignKey(Visitatore, on_delete=models.CASCADE)
