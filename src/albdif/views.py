@@ -54,11 +54,8 @@ class login(FormView):
             if user.is_active:
                 auth_login(self.request, user)
                 return HttpResponseRedirect(self.get_success_url())
-            else:
-                form.add_error(None, "L'account non è attivo!")
-        else:
-            form.add_error(None, "Username o password errate!")
 
+        form.add_error(None, "Username o password errate!")
         return self.form_invalid(form)
 
 

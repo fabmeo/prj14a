@@ -9,7 +9,8 @@ def create_visitatori(db):
     """Fixture Visitatori e Host"""
     return [
         Visitatore.objects.create(
-            username="alimeo", first_name="Anna", last_name="Rossi", email="a@a.it", registrazione=date(2024, 11, 1)
+            username="alimeo", first_name="Anna", last_name="Rossi", email="a@a.it", registrazione=date(2024, 11, 1),
+            password="A12345678."
         ),
         Visitatore.objects.create(
             username="elimeo", first_name="Elsa", last_name="Verdi", email="b@b.it", registrazione=date(2024, 11, 2)
