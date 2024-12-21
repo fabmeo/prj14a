@@ -3,34 +3,36 @@ from django.db import models
 from django.db.models import CharField
 
 
-class Visitatore(User):
+class Visitatore(models.Model):
     """
     Visitatore:
     persona che effettua la registrazione al sito per effettuare la prenotazione
     """
     registrazione = models.DateTimeField("data registrazione")
+    utente = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta():
         verbose_name = "Visitatore"
         verbose_name_plural = "Visitatori"
 
     def __str__(self):
-        return f"{self.last_name} {self.first_name}"
+        return f"{self.utente.last_name} {self.utente.first_name}"
 
 
-class Host(User):
+class Host(models.Model):
     """
     Host:
     persona o azienda che effettua la registrazione per accedere ai servizi hosting dell'AD
     """
     registrazione = models.DateTimeField("data registrazione")
+    utente = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta():
         verbose_name = "Host"
         verbose_name_plural = "Host"
 
     def __str__(self):
-        return f"{self.last_name} {self.first_name}"
+        return f"{self.utente.last_name} {self.utente.first_name}"
 
 
 class Proprieta(models.Model):
