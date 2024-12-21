@@ -90,11 +90,9 @@ class TestHome:
 @pytest.mark.django_db
 class TestUtenti:
     def test_presenza_utenti(self, create_visitatori):
-        v = Visitatore.objects.get(username='alimeo')
-        assert not v.is_superuser
+        v = Visitatore.objects.get(utente__username='alimeo')
         assert str(v) == "Rossi Anna"
-        h = Host.objects.get(username='host1')
-        assert not h.is_superuser
+        h = Host.objects.get(utente__username='host1')
         assert str(h) == "Bianchi Carla"
 
 

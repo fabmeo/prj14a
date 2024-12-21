@@ -7,8 +7,8 @@ from albdif.models import Visitatore, Camera
 
 @pytest.mark.django_db
 class TestFormPrenotazione:
-    def test_calendario_prenotazione_futura(self, create_visitatori, create_proprieta, create_camere, create_prenotazioni, create_calendario_prenotazioni):
-        v = Visitatore.objects.get(id=1)
+    def test_calendario_prenotazione_futura(self, create_utenti, create_visitatori, create_proprieta, create_camere, create_prenotazioni, create_calendario_prenotazioni):
+        v = Visitatore.objects.get(utente__id=1)
         c = Camera.objects.get(id=1)
         form_prenotazione_data = {
             'richiesta': "bla bla",
@@ -46,8 +46,8 @@ class TestFormPrenotazione:
         assert not form_cal.is_valid(), f"Form errors: {form_cal.errors}"
         assert "Spiacenti: le date si sovrappongono ad un'altra tua prenotazione" in form_cal.errors['__all__']
 
-    def test_calendario_prenotazione_sovrapposizione(self, create_visitatori, create_proprieta, create_camere, create_prenotazioni, create_calendario_prenotazioni):
-        v = Visitatore.objects.get(id=2)
+    def test_calendario_prenotazione_sovrapposizione(self, create_utenti, create_visitatori, create_proprieta, create_camere, create_prenotazioni, create_calendario_prenotazioni):
+        v = Visitatore.objects.get(utente__id=2)
         c = Camera.objects.get(id=1)
         form_prenotazione_data = {
             'richiesta': "bla bla",
@@ -69,8 +69,8 @@ class TestFormPrenotazione:
         assert not form_cal.is_valid(), f"Form errors: {form_cal.errors}"
         assert "Spiacenti: la camera è stata già prenotata" in form_cal.errors['__all__']
 
-    def test_calendario_prenotazione_ok(self, create_visitatori, create_proprieta, create_camere, create_prenotazioni, create_calendario_prenotazioni):
-        v = Visitatore.objects.get(id=2)
+    def test_calendario_prenotazione_ok(self, create_utenti, create_visitatori, create_proprieta, create_camere, create_prenotazioni, create_calendario_prenotazioni):
+        v = Visitatore.objects.get(utente__id=2)
         c = Camera.objects.get(id=2)
         form_prenotazione_data = {
             'richiesta': "bla bla",

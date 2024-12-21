@@ -77,7 +77,7 @@ class profilo(LoginRequiredMixin, generic.DetailView):
 
     def dispatch(self, request, *args, **kwargs):
         """ La pagina del profilo può essere acceduta solo dal suo utente """
-        if self.get_object().user_ptr != request.user:
+        if self.get_object().utente != request.user:
             raise PermissionDenied("Accesso ad altre pagine profilo non consentito")
         return super().dispatch(request, *args, **kwargs)
 
