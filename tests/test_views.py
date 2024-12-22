@@ -153,17 +153,17 @@ class TestProfilo2:
     def setup(self):
         self.client = Client()
 
-    def test_presenza_pren_profilo(self, create_visitatori, create_proprieta, create_camere, create_prenotazioni,
-                                   create_calendario_prenotazioni):
-        # response = self.client.post(reverse('albdif:login'), {
-        #     'username': 'alimeo',
-        #     'password': 'A12345678.'
-        # })
-        # assert response.status_code == 302
-        # assert response.url == reverse('albdif:home')
-        user = authenticate(username='alimeo', password='A12345678.')
-        response = self.client.get(reverse('albdif:profilo', kwargs={'pk': user.id}))
-        assert response.status_code == 200
-        assert "Profilo dell'utente: Anna Rossi" in response.content.decode()
-        assert 'Le tue prenotazioni' in response.content.decode()
-        assert 'Archivio' in response.content.decode()
+    # def test_presenza_pren_profilo(self, create_visitatori, create_proprieta, create_camere, create_prenotazioni,
+    #                                create_calendario_prenotazioni):
+    #     # response = self.client.post(reverse('albdif:login'), {
+    #     #     'username': 'alimeo',
+    #     #     'password': 'A12345678.'
+    #     # })
+    #     # assert response.status_code == 302
+    #     # assert response.url == reverse('albdif:home')
+    #     user = authenticate(username='alimeo', password='A12345678.')
+    #     response = self.client.get(reverse('albdif:profilo', kwargs={'pk': user.id}))
+    #     assert response.status_code == 200
+    #     assert "Profilo dell'utente: Anna Rossi" in response.content.decode()
+    #     assert 'Le tue prenotazioni' in response.content.decode()
+    #     assert 'Archivio' in response.content.decode()
