@@ -1,39 +1,22 @@
 from datetime import datetime
+import json
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.template.context_processors import request
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.contrib.auth import logout
-from django.shortcuts import redirect
 from django.views import View
-from django.contrib.auth import logout
-from django.shortcuts import redirect
-
-from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
-from .utils import date_range
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views import generic
-import json
+from django.contrib.auth import logout as auth_logout
 
+from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
+from .utils import date_range
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore
-
-
-@method_decorator(login_required, name='dispatch')
-def get_object(self):
-    # Assumendo che `Visitatore` abbia un campo `user` che è una ForeignKey per l'utente Django
-    obj = super().get_object()
-    if obj.user != self.request.user:
-        raise PermissionDenied("Non puoi accedere a questo profilo.")
-    return obj
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -61,12 +44,14 @@ class login(FormView):
 
 
 class logout(View):
-
-    def get(self, request, *args, **kwargs):
-        logout(request)
+    """
+    Esegue il logout dell'utente e ritorna ad home
+    """
+    def post(self, request, *args, **kwargs):
+        auth_logout(request)
         return redirect('albdif:home')
 
-    
+
 # PROFILO UTENTE VISITATORE
 class profilo(LoginRequiredMixin, generic.DetailView):
     """
