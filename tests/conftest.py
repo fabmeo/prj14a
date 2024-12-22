@@ -95,16 +95,28 @@ def create_prenotazioni(db):
             stato_prenotazione=Prenotazione.PRENOTATA,
             richiesta="bla bla"
         ),
+        Prenotazione.objects.create(
+            visitatore=v, camera=c,
+            data_prenotazione=date(2024, 10, 1),
+            stato_prenotazione=Prenotazione.PAGATA,
+            richiesta="blo blo"
+        ),
     ]
 
 @pytest.fixture()
 def create_calendario_prenotazioni(db):
     """Fixture CalendarioPrenotazione"""
     p = Prenotazione.objects.get(id=1)
+    p2 = Prenotazione.objects.get(id=2)
     return [
         CalendarioPrenotazione.objects.create(
             prenotazione=p,
             data_inizio=date(2026, 1, 1),
             data_fine=date(2026, 1, 10),
+        ),
+        CalendarioPrenotazione.objects.create(
+            prenotazione=p2,
+            data_inizio=date(2024, 1, 1),
+            data_fine=date(2024, 1, 10),
         ),
     ]
