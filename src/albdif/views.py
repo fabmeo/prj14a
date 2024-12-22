@@ -54,11 +54,8 @@ class login(FormView):
             if user.is_active:
                 auth_login(self.request, user)
                 return HttpResponseRedirect(self.get_success_url())
-            else:
-                form.add_error(None, "L'account non è attivo!")
-        else:
-            form.add_error(None, "Username o password errate!")
 
+        form.add_error(None, "Username o password errate!")
         return self.form_invalid(form)
 
 
@@ -215,19 +212,50 @@ class prenota_camera(generic.DetailView):
         })
 
 
-class prenota_modifica(prenota_camera):
+class prenota_modifica(generic.DetailView):
     """
     Gestisce la modifica di una prenotazione
     """
-    template_name = "albdif/form_prenotazione.html"
+    template_name = "albdif/form_prenotazione_modifica.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        """ La pagina della prenotazione può essere acceduta solo dal suo utente """
+        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        if prenotazione.visitatore.id != request.user.id:
+            raise PermissionDenied("Accesso ad altre pagine prenotazione non consentito")
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
-        calendario = get_object_or_404(CalendarioPrenotazione, id=prenotazione.id)
+        calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
         visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         prenotazione_form = PrenotazioneForm(instance=prenotazione)
         calendario_form = CalendarioPrenotazioneForm(instance=calendario)
+
+        return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
+            'prenotazione_form': prenotazione_form,
+            'calendario_form': calendario_form
+        })
+
+    def post(self, request, *args, **kwargs):
+        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
+        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        camera = get_object_or_404(Camera, id=prenotazione.camera.id)
+        prenotazione_form = PrenotazioneForm(request.POST, instance=prenotazione)
+        calendario_form = CalendarioPrenotazioneForm(request.POST, instance=calendario)
+
+        if prenotazione_form.is_valid() and calendario_form.is_valid():
+            prenotazione = prenotazione_form.save()
+            calendario = calendario_form.save()
+            #calendario.prenotazione = prenotazione
+            #calendario.save()
+            messages.success(request, 'Prenotazione modificata con successo')
+            #@TODO invio email all'utente
+            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
 
         return render(request, self.template_name, {
             'visitatore': visitatore,
