@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import authenticate
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.test import Client
@@ -38,9 +39,18 @@ class TestLogin:
             'password': 'testpassword'
         })
         assert response.status_code == 200
-        #assert "L'account non è attivo!" in response.content.decode()
         assert "Username o password errate!" in response.content.decode()
 
+    def test_logout(self):
+        response = self.client.post(reverse('albdif:login'), {
+            'username': 'testuser',
+            'password': 'testpassword'
+        })
+        assert response.status_code == 302
+        assert response.url == reverse('albdif:home')
+        response = self.client.post(reverse('albdif:logout'))
+        assert response.status_code == 302
+        assert response.url == reverse('albdif:home')
 
 @pytest.mark.django_db
 class TestProfilo:
@@ -55,6 +65,8 @@ class TestProfilo:
         })
         assert response.status_code == 302
         assert response.url == reverse('albdif:home')
+        response = self.client.get(reverse('albdif:profilo', kwargs={'pk': self.user.id}))
+        assert response.status_code == 200
 
     def test_profilo_ko(self, create_visitatori):
         response = self.client.post(reverse('albdif:login'), {
@@ -90,11 +102,9 @@ class TestHome:
 @pytest.mark.django_db
 class TestUtenti:
     def test_presenza_utenti(self, create_visitatori):
-        v = Visitatore.objects.get(username='alimeo')
-        assert not v.is_superuser
+        v = Visitatore.objects.get(utente__username='alimeo')
         assert str(v) == "Rossi Anna"
-        h = Host.objects.get(username='host1')
-        assert not h.is_superuser
+        h = Host.objects.get(utente__username='host1')
         assert str(h) == "Bianchi Carla"
 
 
@@ -124,6 +134,7 @@ class TestCamere:
 
 @pytest.mark.django_db
 class TestPrenotazione:
+
     def test_presenza_prenotazione(self, create_visitatori, create_proprieta, create_camere, create_prenotazioni, create_calendario_prenotazioni):
         p = Prenotazione.objects.get(id=1)
         assert p.stato_prenotazione == Prenotazione.PRENOTATA
@@ -134,3 +145,25 @@ class TestPrenotazione:
         assert c > 0
         c = CalendarioPrenotazione.objects.get(id=1)
         assert str(c) == "Rossi Anna PR camera 1 di host principale 2026-01-01 2026-01-10"
+
+@pytest.mark.django_db
+class TestProfilo2:
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.client = Client()
+
+    # def test_presenza_pren_profilo(self, create_visitatori, create_proprieta, create_camere, create_prenotazioni,
+    #                                create_calendario_prenotazioni):
+    #     # response = self.client.post(reverse('albdif:login'), {
+    #     #     'username': 'alimeo',
+    #     #     'password': 'A12345678.'
+    #     # })
+    #     # assert response.status_code == 302
+    #     # assert response.url == reverse('albdif:home')
+    #     user = authenticate(username='alimeo', password='A12345678.')
+    #     response = self.client.get(reverse('albdif:profilo', kwargs={'pk': user.id}))
+    #     assert response.status_code == 200
+    #     assert "Profilo dell'utente: Anna Rossi" in response.content.decode()
+    #     assert 'Le tue prenotazioni' in response.content.decode()
+    #     assert 'Archivio' in response.content.decode()
