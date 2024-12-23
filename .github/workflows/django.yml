@@ -27,6 +27,6 @@ jobs:
     - name: Run Tests
       env:
         PYTHONPATH: ./src
-        DJANGO_SETTINGS_MODULE: siteprj.settings
+        DJANGO_SETTINGS_MODULE: albdif.config.settings
       run: |
         pytest tests

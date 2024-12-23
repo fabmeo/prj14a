@@ -15,7 +15,7 @@ from django.views import generic
 from django.contrib.auth import logout as auth_logout
 
 from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
-from .utils import date_range
+from .utils.utility import date_range
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore
 
 
