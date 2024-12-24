@@ -64,7 +64,9 @@ class profilo(LoginRequiredMixin, generic.DetailView):
     def dispatch(self, request, *args, **kwargs):
         """ La pagina del profilo può essere acceduta solo dal suo utente """
         if self.get_object() != request.user:
-            raise PermissionDenied("Accesso ad altre pagine profilo non consentito")
+            messages.warning(request, 'Accesso ad altre pagine profilo non consentito!')
+            return redirect('albdif:home')
+            #raise PermissionDenied("Accesso ad altre pagine profilo non consentito")
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -208,7 +210,9 @@ class prenota_modifica(generic.DetailView):
         """ La pagina della prenotazione può essere acceduta solo dal suo utente """
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
         if prenotazione.visitatore.utente.id != request.user.id:
-            raise PermissionDenied("Accesso ad altre pagine prenotazione non consentito")
+            messages.warning(request, 'Accesso ad altre pagine prenotazione non consentito!')
+            return redirect('albdif:home')
+            #raise PermissionDenied("Accesso ad altre pagine prenotazione non consentito")
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -315,7 +319,9 @@ class prenotazioni_utente_list(generic.ListView):
         """ La pagina del profilo può essere acceduta solo dal suo utente """
         utente = Visitatore.objects.get(utente__pk=self.kwargs.get('pk'))
         if utente != request.user:
-            raise PermissionDenied("Accesso ad altre prenotazioni non consentito")
+            messages.warning(request, 'Accesso ad altre prenotazioni non consentito!')
+            return redirect('albdif:home')
+            #raise PermissionDenied("Accesso ad altre prenotazioni non consentito")
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):

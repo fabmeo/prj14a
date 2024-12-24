@@ -12,14 +12,14 @@ if TYPE_CHECKING:
     from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione
 
 here = Path(__file__).parent
-#sys.path.insert(0, str(here / "../src"))
+sys.path.insert(0, str(here / "../src"))
 
 
-# @pytest.fixture
-# def user(db):
-#     from albdif.utils.fixtures import UserFactory
-#
-#     return UserFactory()
+@pytest.fixture
+def user(db):
+    from albdif.utils.fixtures import UserFactory
+
+    return UserFactory()
 
 
 @pytest.fixture
@@ -55,10 +55,10 @@ def calendario_prenotazione(request: SubRequest, prenotazione: "Prenotazione"):
 
 
 @pytest.fixture()
-def app(django_app_factory: "MixinWithInstanceVariables", visitatore: "Visitatore") -> "DjangoTestApp":
+def app(django_app_factory: "MixinWithInstanceVariables", user: "User") -> "DjangoTestApp":
     django_app = django_app_factory(csrf_checks=False)
-    django_app.set_user(visitatore)
-    django_app._user = visitatore
+    django_app.set_user(user)
+    django_app._user = user
     return django_app
 
 
