@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, date
 from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,8 +8,8 @@ from django.utils import timezone
 import pytest
 from django_webtest import DjangoTestApp
 
-from albdif.utils.fixtures import UserFactory, VisitatoreFactory, HostFactory
-from albdif.models import User
+from albdif.utils.fixtures import UserFactory, VisitatoreFactory, HostFactory, CalendarioPrenotazioneFactory, \
+    PrenotazioneFactory, CameraFactory, ProprietaFactory
 
 if TYPE_CHECKING:
     from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione
@@ -67,6 +67,7 @@ def test_profilo_ok(app: "DjangoTestApp", user):
     assert response.status_code == 200
     assert 'Le tue prenotazioni' in response.content.decode()
 
+
 def test_logout(app: "DjangoTestApp"):
     url = reverse("albdif:logout")
     response = app.post(url)
@@ -81,9 +82,31 @@ def test_profilo_denied(app: "DjangoTestApp", user):
     assert response.status_code == 302
     assert not 'Le tue prenotazioni' in response.content.decode()
 
+
 def test_proprieta_partner_view(app: "DjangoTestApp"):
     url = reverse('albdif:proprieta_partner')
     response = app.get(url)
     assert response.status_code == 200
     assert 'albdif/proprieta_list.html' in [t.name for t in response.templates]
     assert 'Lista dei Partner' in response.content.decode()
+
+
+def test_calendario_passato(app: "DjangoTestApp", user):
+    pr1 = ProprietaFactory()
+    v1 = VisitatoreFactory(utente=user)
+    c1 = CameraFactory(proprieta=pr1)
+    p1 = PrenotazioneFactory(
+        visitatore=v1,
+        camera=c1,
+        data_prenotazione=date(2023, 12, 1),
+        stato_prenotazione="PG"
+    )
+    CalendarioPrenotazioneFactory(
+        prenotazione=p1,
+        data_inizio=date(2024, 1, 1),
+        data_fine=date(2024, 1, 2))
+
+    url = reverse("albdif:profilo", kwargs={'pk': user.pk})
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'Storico' in response.content.decode()

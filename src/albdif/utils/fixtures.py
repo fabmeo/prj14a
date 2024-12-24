@@ -15,6 +15,8 @@ from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, Cal
 
 class UserFactory(DjangoModelFactory):
     username = factory.Sequence(lambda n: f"test-{n}")
+    first_name = factory.Faker('first_name')
+    last_name = factory.Faker('last_name')
     email = factory.Sequence(lambda n: f"test-{n}@adpegaso.it")
     password = "password"  # noqa
 
@@ -47,9 +49,18 @@ class HostFactory(DjangoModelFactory):
         model = Host
 
 
+class ProprietaPrincFactory(DjangoModelFactory):
+    host = factory.SubFactory(HostFactory)
+    descrizione = factory.Faker('name')
+    principale = True # solo uno a True, gli altri a False
+
+    class Meta:
+        model = Proprieta
+
+
 class ProprietaFactory(DjangoModelFactory):
     host = factory.SubFactory(HostFactory)
-    descrizione = "todo"
+    descrizione = factory.Faker('name')
     principale = False # solo uno a True, gli altri a False
 
     class Meta:
@@ -58,9 +69,9 @@ class ProprietaFactory(DjangoModelFactory):
 
 class CameraFactory(DjangoModelFactory):
     proprieta = factory.SubFactory(ProprietaFactory)
-    nome = "todo"
-    descrizione = "todo"
-    services = dict
+    nome = factory.Faker('name')
+    descrizione = factory.Faker('name')
+    #services = dict
 
     class Meta:
         model = Camera
@@ -73,7 +84,7 @@ class PrenotazioneFactory(DjangoModelFactory):
     camera = factory.SubFactory(CameraFactory)
     data_prenotazione = factory.fuzzy.FuzzyDate(date(2024, 1, 1), date(2024, 12, 31))
     stato_prenotazione = factory.Iterator(STATI)
-    richiesta = "todo"
+    richiesta = factory.Faker('name')
 
     class Meta:
         model = Prenotazione
