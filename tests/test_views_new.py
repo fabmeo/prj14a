@@ -1,9 +1,7 @@
 from datetime import timedelta, date
 from typing import TYPE_CHECKING
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
-from django.utils import timezone
 
 import pytest
 from django_webtest import DjangoTestApp
@@ -110,3 +108,80 @@ def test_calendario_passato(app: "DjangoTestApp", user):
     response = app.get(url)
     assert response.status_code == 200
     assert 'Storico' in response.content.decode()
+
+
+def test_prenotazione_passata(app: "DjangoTestApp", user):
+    pr1 = ProprietaFactory()
+    v1 = VisitatoreFactory(utente=user)
+    c1 = CameraFactory(proprieta=pr1)
+
+    url = reverse("albdif:prenota_camera", kwargs={'id1': v1.pk, 'id2': c1.pk})
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'Stai prenotando la camera' in response.content.decode()
+
+    response.form["richiesta"] = "bla bla"
+    response.form["data_inizio"] = date(2024,1,1)
+    response.form["data_fine"] = date(2026,1,2)
+    response = response.form.submit()
+    assert 'La data inizio deve essere futura' in response.content.decode()
+
+    response.form["richiesta"] = "bla bla"
+    response.form["data_inizio"] = date(2026,1,1)
+    response.form["data_fine"] = date(2024,1,2)
+    response = response.form.submit()
+    assert 'La data fine non può essere antecedente alla data inizio' in response.content.decode()
+
+def test_prenotazione_negata(app: "DjangoTestApp", user):
+    u1 = UserFactory()
+    pr1 = ProprietaFactory()
+    v1 = VisitatoreFactory(utente=u1)
+    c1 = CameraFactory(proprieta=pr1)
+    p1 = PrenotazioneFactory(
+        visitatore=v1,
+        camera=c1,
+        data_prenotazione=date(2024, 12, 25),
+        stato_prenotazione="PR"
+    )
+    CalendarioPrenotazioneFactory(
+        prenotazione=p1,
+        data_inizio=date(2025, 2, 1),
+        data_fine=date(2025, 2, 2))
+
+    v = VisitatoreFactory(utente=user)
+    url = reverse("albdif:prenota_camera", kwargs={'id1': v.pk, 'id2': c1.pk})
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'Stai prenotando la camera' in response.content.decode()
+
+    response.form["richiesta"] = "bla bla"
+    response.form["data_inizio"] = date(2025,2,1)
+    response.form["data_fine"] = date(2025,2,1)
+    response = response.form.submit()
+    assert "Spiacenti: la camera è stata già prenotata" in response.content.decode()
+
+def test_prenotazione_sovrapposta(app: "DjangoTestApp", user):
+    pr1 = ProprietaFactory()
+    v1 = VisitatoreFactory(utente=user)
+    c1 = CameraFactory(proprieta=pr1)
+    p1 = PrenotazioneFactory(
+        visitatore=v1,
+        camera=c1,
+        data_prenotazione=date(2024, 12, 25),
+        stato_prenotazione="PR"
+    )
+    CalendarioPrenotazioneFactory(
+        prenotazione=p1,
+        data_inizio=date(2025, 2, 1),
+        data_fine=date(2025, 2, 2))
+
+    url = reverse("albdif:prenota_camera", kwargs={'id1': v1.pk, 'id2': c1.pk})
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'Stai prenotando la camera' in response.content.decode()
+
+    response.form["richiesta"] = "bla bla"
+    response.form["data_inizio"] = date(2025,2,1)
+    response.form["data_fine"] = date(2025,2,1)
+    response = response.form.submit()
+    assert "Spiacenti: le date si sovrappongono ad un" in response.content.decode()
