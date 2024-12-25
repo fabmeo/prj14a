@@ -284,22 +284,22 @@ class prezzi_camera_list(generic.ListView):
 
 
 # PRENOTAZIONI
-class prenotazione_detail(generic.DetailView):
-    model = Prenotazione
-    template_name = "albdif/prenotazione_detail.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(prenotazione_detail, self).get_context_data(**kwargs)
-
-        gia_prenotate = []
-        # estraggo solo i periodi che comprendono la data corrente e i futuri
-        periodi = CalendarioPrenotazione.objects.filter(prenotazione=self.object.pk, data_fine__gte=datetime.today())
-        for periodo in periodi:
-            for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
-                gia_prenotate.append(d)
-
-        context['disabled_dates'] = json.dumps(gia_prenotate)
-        return context
+# class prenotazione_detail(generic.DetailView):
+#     model = Prenotazione
+#     template_name = "albdif/prenotazione_detail.html"
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(prenotazione_detail, self).get_context_data(**kwargs)
+#
+#         gia_prenotate = []
+#         # estraggo solo i periodi che comprendono la data corrente e i futuri
+#         periodi = CalendarioPrenotazione.objects.filter(prenotazione=self.object.pk, data_fine__gte=datetime.today())
+#         for periodo in periodi:
+#             for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
+#                 gia_prenotate.append(d)
+#
+#         context['disabled_dates'] = json.dumps(gia_prenotate)
+#         return context
 
 
 class prenotazioni_list(generic.ListView):

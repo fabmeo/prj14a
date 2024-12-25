@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 import factory.fuzzy
 from factory.django import DjangoModelFactory
 
-from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione
+from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione, Foto
 
 
 class UserFactory(DjangoModelFactory):
@@ -97,3 +97,13 @@ class CalendarioPrenotazioneFactory(DjangoModelFactory):
 
     class Meta:
         model = CalendarioPrenotazione
+
+class FotoFactory(DjangoModelFactory):
+
+    descrizione = factory.Faker('name')
+    camera = factory.SubFactory(CameraFactory)
+    proprieta = factory.SubFactory(ProprietaFactory)
+    file = factory.django.ImageField(color='blue')
+
+    class Meta:
+        model = Foto

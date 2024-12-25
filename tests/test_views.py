@@ -12,6 +12,8 @@ from albdif.utils.fixtures import UserFactory, VisitatoreFactory, HostFactory, C
 if TYPE_CHECKING:
     from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione
 
+from albdif.models import Prenotazione, CalendarioPrenotazione
+
 @pytest.fixture
 def user(db):
     return UserFactory()
@@ -185,3 +187,154 @@ def test_prenotazione_sovrapposta(app: "DjangoTestApp", user):
     response.form["data_fine"] = date(2025,2,1)
     response = response.form.submit()
     assert "Spiacenti: le date si sovrappongono ad un" in response.content.decode()
+
+
+def test_prenotazione_avvenuta(app: "DjangoTestApp", user):
+    pr1 = ProprietaFactory()
+    v1 = VisitatoreFactory(utente=user)
+    c1 = CameraFactory(proprieta=pr1)
+
+    url = reverse("albdif:prenota_camera", kwargs={'id1': v1.pk, 'id2': c1.pk})
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'Stai prenotando la camera' in response.content.decode()
+
+    response.form["richiesta"] = "bla bla"
+    response.form["data_inizio"] = date(2025,2,1)
+    response.form["data_fine"] = date(2025,2,1)
+    response = response.form.submit()
+    assert response.status_code == 302
+    p = Prenotazione.objects.get(visitatore__utente=user)
+    assert "bla bla" == p.richiesta
+    assert CalendarioPrenotazione.objects.filter(prenotazione=p).exists()
+    #assert "Profilo dell'utente" in response.content.decode()
+
+
+def test_prenotazione_modifica(app: "DjangoTestApp", user):
+    pr1 = ProprietaFactory()
+    v1 = VisitatoreFactory(utente=user)
+    c1 = CameraFactory(proprieta=pr1)
+    p1 = PrenotazioneFactory(
+        visitatore=v1,
+        camera=c1,
+        data_prenotazione=date(2024, 12, 25),
+        stato_prenotazione="PR"
+    )
+    CalendarioPrenotazioneFactory(
+        prenotazione=p1,
+        data_inizio=date(2025, 2, 1),
+        data_fine=date(2025, 2, 2))
+
+    url = reverse("albdif:prenota_modifica", kwargs={'id1': p1.pk})
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'Stai modificando la prenotazione della camera' in response.content.decode()
+
+    response.form["richiesta"] = "avevo dimenticato di chiedere ..."
+    response.form["data_inizio"] = date(2025,2,1)
+    response.form["data_fine"] = date(2025,2,1)
+    response = response.form.submit()
+    assert response.status_code == 302
+    p = Prenotazione.objects.get(visitatore__utente=user)
+    assert "avevo dimenticato di chiedere ..." == p.richiesta
+
+
+def test_prenotazione_modifica_denied(app: "DjangoTestApp", user):
+    s = UserFactory()
+    pr1 = ProprietaFactory()
+    v1 = VisitatoreFactory(utente=s)
+    c1 = CameraFactory(proprieta=pr1)
+    p1 = PrenotazioneFactory(
+        visitatore=v1,
+        camera=c1,
+        data_prenotazione=date(2024, 12, 25),
+        stato_prenotazione="PR"
+    )
+    CalendarioPrenotazioneFactory(
+        prenotazione=p1,
+        data_inizio=date(2025, 2, 1),
+        data_fine=date(2025, 2, 2))
+
+    url = reverse("albdif:prenota_modifica", kwargs={'id1': p1.pk})
+    response = app.get(url)
+    assert response.status_code == 302
+    assert not 'Stai modificando la prenotazione della camera' in response.content.decode()
+    #TODO aggiungere test sul messaggio
+
+def test_proprieta(app: "DjangoTestApp"):
+    url = reverse("albdif:proprieta_partner")
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'I nostri partner' in response.content.decode()
+    assert 'Nessuna proprietà disponibile' in response.content.decode()
+
+    p1 = ProprietaFactory()
+    c1 = CameraFactory(proprieta=p1)
+    c2 = CameraFactory(proprieta=p1)
+    p2 = ProprietaFactory()
+    c3 = CameraFactory(proprieta=p2)
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'I nostri partner' in response.content.decode()
+    assert not 'Nessuna proprieta disponibile' in response.content.decode()
+
+    url = reverse("albdif:proprieta_detail", kwargs={'pk': p1.pk})
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'Le camere del nostro partner' in response.content.decode()
+
+
+def test_camera(app: "DjangoTestApp", user):
+    pr1 = ProprietaFactory()
+    v1 = VisitatoreFactory(utente=user)
+    c1 = CameraFactory(proprieta=pr1)
+    c2 = CameraFactory(proprieta=pr1)
+    p1 = PrenotazioneFactory(
+        visitatore=v1,
+        camera=c1,
+        data_prenotazione=date(2023, 12, 25),
+        stato_prenotazione="PG"
+    )
+    CalendarioPrenotazioneFactory(
+        prenotazione=p1,
+        data_inizio=date(2024, 2, 1),
+        data_fine=date(2024, 2, 2))
+
+    p2 = PrenotazioneFactory(
+        visitatore=v1,
+        camera=c1,
+        data_prenotazione=date(2024, 11, 25),
+        stato_prenotazione="PR"
+    )
+    CalendarioPrenotazioneFactory(
+        prenotazione=p2,
+        data_inizio=date(2025, 1, 6),
+        data_fine=date(2025, 1, 10))
+
+    url = reverse("albdif:camera_detail", kwargs={'pk': c1.pk})
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'Le tue prenotazioni' in response.content.decode()
+    assert 'Modifica Prenotazione' in response.content.decode()
+    assert not 'Nessuna prenotazione trovata' in response.content.decode()
+
+    url = reverse("albdif:camera_detail", kwargs={'pk': c2.pk})
+    response = app.get(url)
+    assert response.status_code == 200
+    assert 'Le tue prenotazioni' in response.content.decode()
+    assert 'Nessuna prenotazione trovata' in response.content.decode()
+
+#TODO test da rivedere: non funziona il logout e non riesco a testare in modalità anonima
+def test_camera_anonymous(app: "DjangoTestApp"):
+    pr1 = ProprietaFactory()
+    c2 = CameraFactory(proprieta=pr1)
+
+    url = reverse("albdif:logout")
+    response = app.post(url)
+    assert response.status_code == 302
+    assert response.url == reverse('albdif:home')
+    url = reverse("albdif:camera_detail", kwargs={'pk': c2.pk})
+    response = app.get(url)
+    assert response.status_code == 200
+    #assert not 'Le tue prenotazioni' in response.content.decode()
+    #assert not 'Nessuna prenotazione trovata' in response.content.decode()

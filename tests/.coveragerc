@@ -9,6 +9,7 @@ omit =
     **/migrations/**
     **/fixtures.py
     **/.old/**
+    **/tests/**
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -34,7 +35,7 @@ exclude_lines =
     @abc.abstractmethod
     @abstractmethod
 
-fail_under=60
+fail_under=75
 precision=2
 ignore_errors = True
 
