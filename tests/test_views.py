@@ -1,4 +1,4 @@
-from datetime import timedelta, date
+from datetime import date
 from typing import TYPE_CHECKING
 
 from django.urls import reverse
@@ -10,7 +10,7 @@ from albdif.utils.fixtures import UserFactory, VisitatoreFactory, HostFactory, C
     PrenotazioneFactory, CameraFactory, ProprietaFactory
 
 if TYPE_CHECKING:
-    from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione
+    from albdif.models import Prenotazione, CalendarioPrenotazione
 
 from albdif.models import Prenotazione, CalendarioPrenotazione
 
@@ -58,7 +58,7 @@ def test_login_ok(app: "DjangoTestApp", user):
     response = response.form.submit()
     assert response.status_code == 302
     assert response.url == reverse('albdif:home')
-    assert not "Username o password errate!" in response.content.decode()
+    assert "Username o password errate!" not in response.content.decode()
 
 
 def test_profilo_ok(app: "DjangoTestApp", user):
@@ -80,7 +80,7 @@ def test_profilo_denied(app: "DjangoTestApp", user):
     url = reverse("albdif:profilo", kwargs={'pk': s.pk})
     response = app.get(url)
     assert response.status_code == 302
-    assert not 'Le tue prenotazioni' in response.content.decode()
+    assert 'Le tue prenotazioni' not in response.content.decode()
 
 
 def test_proprieta_partner_view(app: "DjangoTestApp"):
@@ -258,7 +258,7 @@ def test_prenotazione_modifica_denied(app: "DjangoTestApp", user):
     url = reverse("albdif:prenota_modifica", kwargs={'id1': p1.pk})
     response = app.get(url)
     assert response.status_code == 302
-    assert not 'Stai modificando la prenotazione della camera' in response.content.decode()
+    assert 'Stai modificando la prenotazione della camera' not in response.content.decode()
     #TODO aggiungere test sul messaggio
 
 def test_proprieta(app: "DjangoTestApp"):
@@ -269,14 +269,14 @@ def test_proprieta(app: "DjangoTestApp"):
     assert 'Nessuna proprietà disponibile' in response.content.decode()
 
     p1 = ProprietaFactory()
-    c1 = CameraFactory(proprieta=p1)
-    c2 = CameraFactory(proprieta=p1)
+    CameraFactory(proprieta=p1)
+    CameraFactory(proprieta=p1)
     p2 = ProprietaFactory()
-    c3 = CameraFactory(proprieta=p2)
+    CameraFactory(proprieta=p2)
     response = app.get(url)
     assert response.status_code == 200
     assert 'I nostri partner' in response.content.decode()
-    assert not 'Nessuna proprieta disponibile' in response.content.decode()
+    assert 'Nessuna proprieta disponibile' not in response.content.decode()
 
     url = reverse("albdif:proprieta_detail", kwargs={'pk': p1.pk})
     response = app.get(url)
@@ -316,7 +316,7 @@ def test_camera(app: "DjangoTestApp", user):
     assert response.status_code == 200
     assert 'Le tue prenotazioni' in response.content.decode()
     assert 'Modifica Prenotazione' in response.content.decode()
-    assert not 'Nessuna prenotazione trovata' in response.content.decode()
+    assert 'Nessuna prenotazione trovata' not in response.content.decode()
 
     url = reverse("albdif:camera_detail", kwargs={'pk': c2.pk})
     response = app.get(url)
