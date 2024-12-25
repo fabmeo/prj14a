@@ -1,5 +1,5 @@
 """
-ASGI config for siteprj project.
+ASGI config for albdif project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'siteprj.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'albdif.config.settings')
 
 application = get_asgi_application()
