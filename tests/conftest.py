@@ -1,33 +1,59 @@
 from datetime import date
 
 import pytest
+from django.contrib.auth.models import User
+
 from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione
 
 
 @pytest.fixture()
-def create_visitatori(db):
-    """Fixture Visitatori e Host"""
+def create_utenti(db):
+    """Fixture Utenti"""
     return [
-        Visitatore.objects.create(
-            username="alimeo", first_name="Anna", last_name="Rossi", email="a@a.it", registrazione=date(2024, 11, 1),
+        User.objects.create(
+            username="alimeo", first_name="Anna", last_name="Rossi", email="a@a.it",
             password="A12345678."
         ),
+        User.objects.create(
+            username="elimeo", first_name="Elisa", last_name="Verdi", email="b@a.it",
+            password="A12345678."
+        ),
+        User.objects.create(
+            username="host1", first_name="Carla", last_name="Bianchi", email="c@a.it",
+            password="A12345678."
+        ),
+        User.objects.create(
+            username="host2", first_name="Antonio", last_name="Viole", email="d@a.it",
+            password="A12345678."
+        ),
+    ]
+@pytest.fixture()
+def create_visitatori(create_utenti):
+    """Fixture Visitatori e Host"""
+    u1 = User.objects.get(username="alimeo")
+    u2 = User.objects.get(username="elimeo")
+    u3 = User.objects.get(username="host1")
+    u4 = User.objects.get(username="host2")
+    return [
         Visitatore.objects.create(
-            username="elimeo", first_name="Elsa", last_name="Verdi", email="b@b.it", registrazione=date(2024, 11, 2)
+            utente=u1, registrazione=date(2024, 11, 1),
+        ),
+        Visitatore.objects.create(
+            utente=u2, registrazione=date(2024, 11, 2)
         ),
         Host.objects.create(
-            username="host1", first_name="Carla", last_name="Bianchi", email="c@c.it", registrazione=date(2024, 1, 1)
+            utente=u3, registrazione=date(2024, 1, 1)
         ),
         Host.objects.create(
-            username="host2", first_name="Antonio", last_name="Viole", email="d@d.it", registrazione=date(2024, 1, 2)
+            utente=u4, registrazione=date(2024, 1, 2)
         ),
     ]
 
 @pytest.fixture()
 def create_proprieta(db):
     """Fixture Proprieta"""
-    h1 = Host.objects.get(username='host1')
-    h2 = Host.objects.get(username='host2')
+    h1 = Host.objects.get(utente__username='host1')
+    h2 = Host.objects.get(utente__username='host2')
     return [
         Proprieta.objects.create(
             host=h1, descrizione="host principale", principale=True
@@ -69,16 +95,28 @@ def create_prenotazioni(db):
             stato_prenotazione=Prenotazione.PRENOTATA,
             richiesta="bla bla"
         ),
+        Prenotazione.objects.create(
+            visitatore=v, camera=c,
+            data_prenotazione=date(2024, 10, 1),
+            stato_prenotazione=Prenotazione.PAGATA,
+            richiesta="blo blo"
+        ),
     ]
 
 @pytest.fixture()
 def create_calendario_prenotazioni(db):
     """Fixture CalendarioPrenotazione"""
     p = Prenotazione.objects.get(id=1)
+    p2 = Prenotazione.objects.get(id=2)
     return [
         CalendarioPrenotazione.objects.create(
             prenotazione=p,
             data_inizio=date(2026, 1, 1),
             data_fine=date(2026, 1, 10),
+        ),
+        CalendarioPrenotazione.objects.create(
+            prenotazione=p2,
+            data_inizio=date(2024, 1, 1),
+            data_fine=date(2024, 1, 10),
         ),
     ]

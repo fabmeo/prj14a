@@ -1,38 +1,22 @@
 from datetime import datetime
+import json
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.template.context_processors import request
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.contrib.auth import logout
-from django.shortcuts import redirect
 from django.views import View
-from django.contrib.auth import logout
-from django.shortcuts import redirect
-
-from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
-from .utils import date_range
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views import generic
-import json
+from django.contrib.auth import logout as auth_logout
 
+from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
+from .utils import date_range
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore
-
-
-@method_decorator(login_required, name='dispatch')
-def get_object(self):
-    # Assumendo che `Visitatore` abbia un campo `user` che è una ForeignKey per l'utente Django
-    obj = super().get_object()
-    if obj.user != self.request.user:
-        raise PermissionDenied("Non puoi accedere a questo profilo.")
-    return obj
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -60,24 +44,26 @@ class login(FormView):
 
 
 class logout(View):
-
-    def get(self, request, *args, **kwargs):
-        logout(request)
+    """
+    Esegue il logout dell'utente e ritorna ad home
+    """
+    def post(self, request, *args, **kwargs):
+        auth_logout(request)
         return redirect('albdif:home')
 
-    
+
 # PROFILO UTENTE VISITATORE
 class profilo(LoginRequiredMixin, generic.DetailView):
     """
     # pagina dell'utente visitatore
     """
-    model = Visitatore
+    model = User
     template_name = "albdif/profilo.html"
     login_url = "/albdif/login/"
 
     def dispatch(self, request, *args, **kwargs):
         """ La pagina del profilo può essere acceduta solo dal suo utente """
-        if self.get_object().user_ptr != request.user:
+        if self.get_object() != request.user:
             raise PermissionDenied("Accesso ad altre pagine profilo non consentito")
         return super().dispatch(request, *args, **kwargs)
 
@@ -85,10 +71,10 @@ class profilo(LoginRequiredMixin, generic.DetailView):
         """Ritorna la lista delle prenotazioni di un utente"""
         context = super(profilo, self).get_context_data(**kwargs)
         utente_id = self.kwargs.get('pk')
-        prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=utente_id,
+        prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore__utente__id=utente_id,
                                                              data_inizio__gte=datetime.now())
-        storico = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=utente_id,
-                                                             data_inizio__lt=datetime.now())
+        storico = CalendarioPrenotazione.objects.filter(prenotazione__visitatore__utente__id=utente_id,
+                                                        data_inizio__lt=datetime.now())
         context['prenotazioni_list'] = prenotazioni
         context['storico_list'] = storico
         return context
@@ -155,7 +141,7 @@ class camera_detail(generic.DetailView):
         foto = Foto.objects.filter(camera=self.object.pk)
         prenotazioni = []
         if self.request.user.is_authenticated:
-            prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore=self.request.user,
+            prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore__utente=self.request.user,
                                                                  prenotazione__camera=self.object,
                                                                  data_inizio__gte=datetime.now())
         context['disabled_dates'] = json.dumps(gia_prenotate)
@@ -171,7 +157,7 @@ class prenota_camera(generic.DetailView):
     template_name = "albdif/form_prenotazione.html"
 
     def get(self, request, *args, **kwargs):
-        visitatore = get_object_or_404(Visitatore, id=self.kwargs["id1"])
+        visitatore = Visitatore.objects.get(utente__id=self.kwargs["id1"])
         camera = get_object_or_404(Camera, id=self.kwargs["id2"])
         prenotazione_form = PrenotazioneForm(initial={'visitatore': visitatore.id, 'camera': camera.id})
         calendario_form = CalendarioPrenotazioneForm()
@@ -184,7 +170,7 @@ class prenota_camera(generic.DetailView):
         })
 
     def post(self, request, *args, **kwargs):
-        visitatore = get_object_or_404(Visitatore, id=self.kwargs["id1"])
+        visitatore = Visitatore.objects.get(utente__id=self.kwargs["id1"])
         camera = get_object_or_404(Camera, id=self.kwargs["id2"])
         prenotazione_form = PrenotazioneForm(request.POST)
         prenotazione_form.instance.visitatore = visitatore
@@ -202,7 +188,7 @@ class prenota_camera(generic.DetailView):
             calendario.save()
             messages.success(request, 'Prenotazione avvenuta con successo')
             #@TODO invio email all'utente
-            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
+            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
 
         return render(request, self.template_name, {
             'visitatore': visitatore,
@@ -221,7 +207,7 @@ class prenota_modifica(generic.DetailView):
     def dispatch(self, request, *args, **kwargs):
         """ La pagina della prenotazione può essere acceduta solo dal suo utente """
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
-        if prenotazione.visitatore.id != request.user.id:
+        if prenotazione.visitatore.utente.id != request.user.id:
             raise PermissionDenied("Accesso ad altre pagine prenotazione non consentito")
         return super().dispatch(request, *args, **kwargs)
 
@@ -255,7 +241,7 @@ class prenota_modifica(generic.DetailView):
             #calendario.save()
             messages.success(request, 'Prenotazione modificata con successo')
             #@TODO invio email all'utente
-            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
+            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
 
         return render(request, self.template_name, {
             'visitatore': visitatore,
@@ -327,7 +313,7 @@ class prenotazioni_utente_list(generic.ListView):
 
     def dispatch(self, request, *args, **kwargs):
         """ La pagina del profilo può essere acceduta solo dal suo utente """
-        utente = Visitatore.objects.get(pk=self.kwargs.get('pk'))
+        utente = Visitatore.objects.get(utente__pk=self.kwargs.get('pk'))
         if utente != request.user:
             raise PermissionDenied("Accesso ad altre prenotazioni non consentito")
         return super().dispatch(request, *args, **kwargs)
@@ -335,7 +321,7 @@ class prenotazioni_utente_list(generic.ListView):
     def get_queryset(self):
         """Ritorna la lista delle prenotazioni di un utente"""
         utente_id = self.kwargs.get('pk')
-        return Prenotazione.objects.filter(visitatore=utente_id).order_by("-data_prenotazione")
+        return Prenotazione.objects.filter(visitatore__utente__id=utente_id).order_by("-data_prenotazione")
 
     def get_context_data(self, **kwargs):
         context = super(prenotazioni_utente_list, self).get_context_data(**kwargs)
@@ -354,6 +340,4 @@ class calendario_prenotazioni_list(generic.ListView):
     def get_queryset(self):
         """Ritorna la lista delle date di prenotazione ordinata per data"""
         return CalendarioPrenotazione.objects.order_by("data_inizio")
-
-
 
