@@ -212,6 +212,21 @@ class prenota_modifica(generic.DetailView):
             messages.warning(request, 'Accesso ad altre pagine prenotazione non consentito!')
             return redirect('albdif:home')
             #raise PermissionDenied("Accesso ad altre pagine prenotazione non consentito")
+
+        """ Non è possibile modificare una prenotazione già pagata"""
+        p = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        if p.stato_prenotazione != "PR":
+            messages.warning(request, 'Non è possibile modificare una prenotazione già pagata!')
+            return redirect('albdif:home')
+            #raise PermissionDenied("Non è possibile modificare una prenotazione già pagata")
+
+        """ Non è possibile modificare una prenotazione passata"""
+        cp = CalendarioPrenotazione.objects.filter(prenotazione__id=self.kwargs["id1"]).order_by("data_inizio").first()
+        if cp.data_inizio < datetime.today().date():
+            messages.warning(request, 'Non è possibile modificare una prenotazione passata!')
+            return redirect('albdif:home')
+            #raise PermissionDenied("Non è possibile modificare una prenotazione passata")
+
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):

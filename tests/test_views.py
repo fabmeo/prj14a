@@ -261,6 +261,38 @@ def test_prenotazione_modifica_denied(app: "DjangoTestApp", user):
     assert 'Stai modificando la prenotazione della camera' not in response.content.decode()
     #TODO aggiungere test sul messaggio
 
+
+def test_prenotazione_modifica_denied(app: "DjangoTestApp", user):
+    s = UserFactory()
+    pr1 = ProprietaFactory()
+    v1 = VisitatoreFactory(utente=s)
+    c1 = CameraFactory(proprieta=pr1)
+    p1 = PrenotazioneFactory(
+        visitatore=v1,
+        camera=c1,
+        data_prenotazione=date(2023, 1, 1),
+        stato_prenotazione="PR"
+    )
+    cp = CalendarioPrenotazioneFactory(
+        prenotazione=p1,
+        data_inizio=date(2023, 2, 1),
+        data_fine=date(2023, 2, 2))
+
+    url = reverse("albdif:prenota_modifica", kwargs={'id1': p1.pk})
+    response = app.get(url)
+    assert response.status_code == 302
+    #assert 'Non è possibile modificare una prenotazione passata!' in response.content.decode()
+
+    p1.stato_prenotazione = "PG"
+    cp.data_inizio = date(2025, 2, 2)
+    cp.data_inizio = date(2025, 2, 3)
+    url = reverse("albdif:prenota_modifica", kwargs={'id1': p1.pk})
+    response = app.get(url)
+    assert response.status_code == 302
+    #assert 'Non è possibile modificare una prenotazione già pagata!' in response.content.decode()
+    #TODO aggiungere test sul messaggio
+
+
 def test_proprieta(app: "DjangoTestApp"):
     url = reverse("albdif:proprieta_partner")
     response = app.get(url)
