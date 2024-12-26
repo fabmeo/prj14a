@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from django_webtest import DjangoTestApp
     from django_webtest.pytest_plugin import MixinWithInstanceVariables
 
-    from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione
+    from albdif.models import Camera, Prenotazione
 
 here = Path(__file__).parent
 sys.path.insert(0, str(here / "../src"))

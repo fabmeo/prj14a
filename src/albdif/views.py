@@ -4,7 +4,6 @@ import json
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
@@ -213,6 +212,21 @@ class prenota_modifica(generic.DetailView):
             messages.warning(request, 'Accesso ad altre pagine prenotazione non consentito!')
             return redirect('albdif:home')
             #raise PermissionDenied("Accesso ad altre pagine prenotazione non consentito")
+
+        """ Non è possibile modificare una prenotazione già pagata"""
+        p = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        if p.stato_prenotazione != "PR":
+            messages.warning(request, 'Non è possibile modificare una prenotazione già pagata!')
+            return redirect('albdif:home')
+            #raise PermissionDenied("Non è possibile modificare una prenotazione già pagata")
+
+        """ Non è possibile modificare una prenotazione passata"""
+        cp = CalendarioPrenotazione.objects.filter(prenotazione__id=self.kwargs["id1"]).order_by("data_inizio").first()
+        if cp.data_inizio < datetime.today().date():
+            messages.warning(request, 'Non è possibile modificare una prenotazione passata!')
+            return redirect('albdif:home')
+            #raise PermissionDenied("Non è possibile modificare una prenotazione passata")
+
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -284,22 +298,22 @@ class prezzi_camera_list(generic.ListView):
 
 
 # PRENOTAZIONI
-class prenotazione_detail(generic.DetailView):
-    model = Prenotazione
-    template_name = "albdif/prenotazione_detail.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(prenotazione_detail, self).get_context_data(**kwargs)
-
-        gia_prenotate = []
-        # estraggo solo i periodi che comprendono la data corrente e i futuri
-        periodi = CalendarioPrenotazione.objects.filter(prenotazione=self.object.pk, data_fine__gte=datetime.today())
-        for periodo in periodi:
-            for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
-                gia_prenotate.append(d)
-
-        context['disabled_dates'] = json.dumps(gia_prenotate)
-        return context
+# class prenotazione_detail(generic.DetailView):
+#     model = Prenotazione
+#     template_name = "albdif/prenotazione_detail.html"
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(prenotazione_detail, self).get_context_data(**kwargs)
+#
+#         gia_prenotate = []
+#         # estraggo solo i periodi che comprendono la data corrente e i futuri
+#         periodi = CalendarioPrenotazione.objects.filter(prenotazione=self.object.pk, data_fine__gte=datetime.today())
+#         for periodo in periodi:
+#             for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
+#                 gia_prenotate.append(d)
+#
+#         context['disabled_dates'] = json.dumps(gia_prenotate)
+#         return context
 
 
 class prenotazioni_list(generic.ListView):
