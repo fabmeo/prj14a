@@ -117,13 +117,11 @@ class Prenotazione(models.Model):
     """
 
     PRENOTATA = "PR"
-    SCADUTA = "SC"
     CANCELLATA = "CA"
     PAGATA = "PG"
 
     STATO_PRENOTAZIONE = {
         PRENOTATA: "Prenotata",
-        SCADUTA: "Scaduta",
         CANCELLATA: "Cancellata",
         PAGATA: "Pagata",
     }
