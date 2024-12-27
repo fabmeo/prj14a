@@ -11,6 +11,8 @@
         </thead>
         <tbody>
         {% for s in prenotazioni_list %}
+            {% if s.prenotazione.stato_prenotazione == "CA" and not storico_list %}
+            {% else %}
             <tr>
                 <td>dal {{ s.data_inizio|date:"d M y" }} al {{ s.data_fine|date:"d M y" }}</td>
                 <td>{{ s.prenotazione.camera.proprieta }}</td>
@@ -22,6 +24,7 @@
                 </td>
                 <td>{{ s.prenotazione.get_stato_prenotazione_display }}</td>
             </tr>
+            {% endif %}
         {% endfor %}
         </tbody>
     </table>
