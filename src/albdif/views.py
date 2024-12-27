@@ -277,16 +277,19 @@ class prenota_cancella(generic.DetailView):
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
         if prenotazione.visitatore.utente.id != request.user.id:
             messages.error(request, 'Accesso ad altre pagine prenotazione non consentito!')
+            return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
 
         """ Non è possibile cancellare una prenotazione già pagata"""
         p = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
         if p.stato_prenotazione == "PG":
             messages.warning(request, 'Non è possibile cancellare una prenotazione già pagata!')
+            return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
 
         """ Non è possibile cancellare una prenotazione passata"""
         cp = CalendarioPrenotazione.objects.filter(prenotazione__id=self.kwargs["id1"]).order_by("data_inizio").first()
         if cp.data_inizio < datetime.today().date():
             messages.warning(request, 'Non è possibile cancellare una prenotazione passata!')
+            return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
 
         return super().dispatch(request, *args, **kwargs)
 
