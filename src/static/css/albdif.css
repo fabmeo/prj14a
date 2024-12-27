@@ -1,16 +1,20 @@
 body {
  /* @TODO cercare un'immagine free */
- background-image: url("../img/background2.jpg");
+/* background-image: url("../img/background2.jpg"); */
  background-color: rgba(156, 229, 99, 0.6);
 }
 
 h2, h3 {
-    font-family: "Arial", Times, serif;
+    font-family: Times, serif, "Arial";
 }
 
 .col-md-2, .col-md-4, .col-md-6 {
     margin: 0px;
     padding: 0px;
+}
+
+.messages {
+    margin: 50px;
 }
 
 .camere_partner {

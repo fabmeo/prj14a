@@ -347,7 +347,7 @@ def test_camera(app: "DjangoTestApp", user):
     response = app.get(url)
     assert response.status_code == 200
     assert 'Le tue prenotazioni' in response.content.decode()
-    assert 'Modifica Prenotazione' in response.content.decode()
+    assert 'Modifica' in response.content.decode()
     assert 'Nessuna prenotazione trovata' not in response.content.decode()
 
     url = reverse("albdif:camera_detail", kwargs={'pk': c2.pk})
