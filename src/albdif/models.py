@@ -120,11 +120,11 @@ class Prenotazione(models.Model):
     CANCELLATA = "CA"
     PAGATA = "PG"
 
-    STATO_PRENOTAZIONE = {
-        PRENOTATA: "Prenotata",
-        CANCELLATA: "Cancellata",
-        PAGATA: "Pagata",
-    }
+    STATO_PRENOTAZIONE = [
+        (PRENOTATA, "Prenotata"),
+        (CANCELLATA, "Cancellata"),
+        (PAGATA, "Pagata"),
+    ]
 
     visitatore = models.ForeignKey(Visitatore, on_delete=models.CASCADE)
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE)
