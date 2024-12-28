@@ -427,27 +427,27 @@ class prenotazioni_list(generic.ListView):
         return Prenotazione.objects.order_by("-data_prenotazione")
 
 
-class prenotazioni_utente_list(generic.ListView):
-    template_name = "albdif/prenotazioni_list.html"
-    context_object_name = "prenotazioni_list"
-
-    def dispatch(self, request, *args, **kwargs):
-        """ La pagina del profilo può essere acceduta solo dal suo utente """
-        utente = Visitatore.objects.get(utente__pk=self.kwargs.get('pk'))
-        if utente != request.user:
-            messages.warning(request, 'Accesso ad altre prenotazioni non consentito!')
-            return redirect('albdif:home')
-            #raise PermissionDenied("Accesso ad altre prenotazioni non consentito")
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_queryset(self):
-        """Ritorna la lista delle prenotazioni di un utente"""
-        utente_id = self.kwargs.get('pk')
-        return Prenotazione.objects.filter(visitatore__utente__id=utente_id).order_by("-data_prenotazione")
-
-    def get_context_data(self, **kwargs):
-        context = super(prenotazioni_utente_list, self).get_context_data(**kwargs)
-        return context
+# class prenotazioni_utente_list(generic.ListView):
+#     template_name = "albdif/prenotazioni_list.html"
+#     context_object_name = "prenotazioni_list"
+#
+#     def dispatch(self, request, *args, **kwargs):
+#         """ La pagina del profilo può essere acceduta solo dal suo utente """
+#         utente = Visitatore.objects.get(utente__pk=self.kwargs.get('pk'))
+#         if utente != request.user:
+#             messages.warning(request, 'Accesso ad altre prenotazioni non consentito!')
+#             return redirect('albdif:home')
+#             #raise PermissionDenied("Accesso ad altre prenotazioni non consentito")
+#         return super().dispatch(request, *args, **kwargs)
+#
+#     def get_queryset(self):
+#         """Ritorna la lista delle prenotazioni di un utente"""
+#         utente_id = self.kwargs.get('pk')
+#         return Prenotazione.objects.filter(visitatore__utente__id=utente_id).order_by("-data_prenotazione")
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(prenotazioni_utente_list, self).get_context_data(**kwargs)
+#         return context
 
 
 class calendario_prenotazione_detail(generic.DetailView):
