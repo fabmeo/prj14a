@@ -13,7 +13,7 @@ from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views import generic
 from django.contrib.auth import logout as auth_logout
 
-from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm
+from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm
 from .utils.utility import date_range
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore
 
@@ -190,6 +190,8 @@ class prenota_camera(generic.DetailView):
             messages.success(request, 'Prenotazione avvenuta con successo')
             #@TODO invio email all'utente
             return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
+        else:
+            messages.error(request, 'Sono presenti degli errori: ricontrollare i dati inseriti')
 
         return render(request, self.template_name, {
             'visitatore': visitatore,
@@ -304,6 +306,69 @@ class prenota_cancella(generic.DetailView):
         messages.success(request, 'Prenotazione cancellata con successo')
 
         return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
+
+
+class prenota_paga(generic.DetailView):
+    """
+    Gestisce il pagamento di una prenotazione
+    """
+    template_name = "albdif/form_pagamento.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        """ La pagina del pagamento della prenotazione può essere acceduta solo dal suo utente """
+        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        if prenotazione.visitatore.utente.id != request.user.id:
+            messages.warning(request, 'Accesso ad altre pagine prenotazione non consentito!')
+            return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
+
+        """ Il pagamento è stato già effettuato"""
+        p = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        if p.stato_prenotazione == "PG":
+            messages.warning(request, 'Il pagamento risulta già effettuato!')
+            return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
+
+        """ Non è possibile modificare una prenotazione passata"""
+        cp = CalendarioPrenotazione.objects.filter(prenotazione__id=self.kwargs["id1"]).order_by("data_inizio").first()
+        if cp.data_inizio < datetime.today().date():
+            messages.warning(request, 'Non è possibile modificare una prenotazione passata!')
+            return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
+        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        camera = get_object_or_404(Camera, id=prenotazione.camera.id)
+        prenotazione.costo_soggiorno = prenotazione.numero_persone * (
+                    calendario.data_fine - calendario.data_inizio).days
+        pagamento_form = PagamentoForm(instance=prenotazione)
+
+        return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
+            'pagamento_form': pagamento_form,
+        })
+
+    def post(self, request, *args, **kwargs):
+        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        camera = get_object_or_404(Camera, id=prenotazione.camera.id)
+        pagamento_form = PagamentoForm(request.POST, instance=prenotazione)
+
+        if pagamento_form.is_valid():
+            prenotazione.data_pagamento = datetime.now()
+            prenotazione.stato_prenotazione = prenotazione.PAGATA
+            pagamento = pagamento_form.save()
+            messages.success(request, 'Pagamento effettuto con successo')
+            #@TODO invio email all'utente
+            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
+
+        return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
+            'pagamento_form': pagamento_form,
+        })
 
 
 class camere_list(generic.ListView):

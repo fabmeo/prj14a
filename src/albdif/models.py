@@ -69,6 +69,7 @@ class Camera(models.Model):
     proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE)
     nome = models.CharField(max_length=100, default="... inserire un nickname")
     descrizione = models.CharField(max_length=1000)
+    numero_posti_letto = models.IntegerField(null=True, blank=True, default=2)
     services = models.JSONField(default={
             "toilette": True,
             "wifi": True,
@@ -88,6 +89,17 @@ class Camera(models.Model):
     def image(self):
         "ritorna l'elenco delle foto della camera"
         return Foto.objects.filter(camera=self.pk).first()
+
+    @property
+    def prezzo_bassa_stagione(self):
+        "ritorna il prezzo minimo della stagione 'Bassa'"
+        stagione_bassa = Stagione.objects.filter(stagione="Bassa").first()
+        if stagione_bassa:
+            prezzo_camera = PrezzoCamera.objects.filter(camera=self, stagione=stagione_bassa).order_by('prezzo').first()
+            if prezzo_camera:
+                return prezzo_camera.prezzo
+            return stagione_bassa.prezzo_deafult
+        return None
 
 class Foto(models.Model):
     """
@@ -133,6 +145,7 @@ class Prenotazione(models.Model):
     richiesta = models.CharField(max_length=1000, null=True, blank=True, help_text="richiesta aggiuntiva del cliente")
     costo_soggiorno = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     data_pagamento = models.DateTimeField(null=True, blank=True)
+    numero_persone = models.IntegerField(null=True, blank=True, default=1)
 
     class Meta():
         verbose_name = "Prenotazione"
