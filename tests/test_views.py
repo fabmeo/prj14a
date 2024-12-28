@@ -34,7 +34,7 @@ def test_home(app: "DjangoTestApp"):
     response = app.get(url)
     assert response.status_code == 200
     assert 'albdif/home.html' in [t.name for t in response.templates]
-    assert 'Homepage AD Pegaso' in response.content.decode()
+    assert 'Homepage AD Pegasus' in response.content.decode()
 
 
 def test_login_ko(app: "DjangoTestApp"):

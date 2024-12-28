@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import CharField
+from django.db.models import CharField, Q
 from django.core.exceptions import ValidationError
 
 
@@ -117,13 +117,13 @@ class Prenotazione(models.Model):
     """
 
     PRENOTATA = "PR"
-    CANCELLATA = "CA"
     PAGATA = "PG"
+    CANCELLATA = "CA"
 
     STATO_PRENOTAZIONE = [
         (PRENOTATA, "Prenotata"),
-        (CANCELLATA, "Cancellata"),
         (PAGATA, "Pagata"),
+        (CANCELLATA, "Cancellata"),
     ]
 
     visitatore = models.ForeignKey(Visitatore, on_delete=models.CASCADE)
@@ -131,6 +131,8 @@ class Prenotazione(models.Model):
     data_prenotazione = models.DateTimeField()
     stato_prenotazione = models.CharField(max_length=2, choices=STATO_PRENOTAZIONE, default=PRENOTATA)
     richiesta = models.CharField(max_length=1000, null=True, blank=True, help_text="richiesta aggiuntiva del cliente")
+    costo_soggiorno = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    data_pagamento = models.DateTimeField(null=True, blank=True)
 
     class Meta():
         verbose_name = "Prenotazione"
@@ -165,6 +167,7 @@ class Stagione(models.Model):
     stagione = models.CharField(max_length=50)
     data_inizio = models.DateField()
     data_fine = models.DateField()
+    prezzo_deafult = models.DecimalField(max_digits=7, decimal_places=2, default=50)
 
     class Meta():
         verbose_name = "Stagione"
@@ -172,6 +175,20 @@ class Stagione(models.Model):
 
     def __str__(self):
         return f"{self.stagione} {self.data_inizio} {self.data_fine}"
+
+    def clean(self):
+        if self.data_fine < self.data_inizio:
+            raise ValidationError("La data fine deve essere maggiore della data inizio")
+
+        s = 0 if not self.id else self.id
+        if Stagione.objects.filter(Q(data_inizio__lte=self.data_fine),
+                                   Q(data_fine__gte=self.data_inizio),
+                                   ~Q(id__exact=s)).exists():
+            raise ValidationError("Le date si sovrappongono ad un'altra stagione")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super(Stagione, self).save(*args, **kwargs)
 
 
 class PrezzoCamera(models.Model):

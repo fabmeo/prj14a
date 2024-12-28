@@ -1,4 +1,4 @@
-# Albergo Diffuso Pegaso
+# Albergo Diffuso Pegasus
 
 Nome del progetto: **PW14A** 
 
@@ -19,9 +19,9 @@ Nome del progetto: **PW14A**
 >python manage.py runserver
 
 VARIABILI AMBIENTE DA IMPOSTARE:
-- export PEGASO_MEDIA_URL='media/'
-- export PEGASO_MEDIA_ROOT='c:/prj/pw14a/media/'
-- export PEGASO_DATABASE_URL='sqlite:///C:/prj/pw14a/src/db.sqlite3'
+- export PEGASUS_MEDIA_URL='media/'
+- export PEGASUS_MEDIA_ROOT='c:/prj/pw14a/media/'
+- export PEGASUS_DATABASE_URL='sqlite:///C:/prj/pw14a/src/db.sqlite3'
 
 ## AVVIARE I TEST
 
