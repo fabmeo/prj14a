@@ -200,6 +200,7 @@ def test_prenotazione_avvenuta(app: "DjangoTestApp", user):
     assert 'Stai prenotando la camera' in response.content.decode()
 
     response.form["richiesta"] = "bla bla"
+    response.form["numero_persone"] = 3
     response.form["data_inizio"] = date(2025,2,1)
     response.form["data_fine"] = date(2025,2,1)
     response = response.form.submit()
