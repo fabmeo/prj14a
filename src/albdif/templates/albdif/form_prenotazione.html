@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('prenotazioneForm');
     const catalogoPrezzi = document.getElementById('catalogo_prezzi');
 
-    form.addEventListener('change', function() {
+    function updateCatalogoPrezzi() {
         const dataInizio = new Date(form.querySelector('[name="data_inizio"]').value);
         const dataFine = new Date(form.querySelector('[name="data_fine"]').value);
 
@@ -108,9 +108,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dataInizio <= rowFine && dataFine >= rowInizio) {
                     row.className = 'row align-items-center bg-warning p-3 border';
                 }
+                else {
+                    row.className = 'row align-items-center bg-light p-3 border';
+                }
             }
         });
-    });
+    }
+
+    form.addEventListener('change', updateCatalogoPrezzi);
+    updateCatalogoPrezzi(); // Trigger the function on page load
 });
 </script>
 {% endblock extra_js %}
