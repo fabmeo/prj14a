@@ -38,8 +38,19 @@
             </div>
             <div id="catalogo_prezzi" class="col">
                 <h4> Riferimento prezzi </h4>
+                <div class="row align-items-center bg-secondary p-3 border">
+                    <div class="col">
+                      Da
+                    </div>
+                    <div class="col">
+                      a
+                    </div>
+                    <div class="col">
+                      Prezzo
+                    </div>
+                </div>
                 {% for s in stagioni %}
-                <div class="row align-items-center bg-light p-3 border" data-inizio="{{ s.data_inizio }}" data-fine="{{ s.data_fine }}">
+                <div class="row align-items-center bg-light p-3 border" data-inizio="{{ s.data_inizio|date:"Y-m-d" }}" data-fine="{{ s.data_fine|date:"Y-m-d" }}">
                     <div class="col">
                       {{ s.data_inizio }}
                     </div>
@@ -90,13 +101,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const dataFine = new Date(form.querySelector('[name="data_fine"]').value);
 
         catalogoPrezzi.querySelectorAll('.row').forEach(row => {
-            const rowInizio = new Date(row.getAttribute('data-inizio').split('-').reverse().join('-'));
-            const rowFine = new Date(row.getAttribute('data-fine').split('-').reverse().join('-'));
+            if (row.getAttribute('data-inizio')) {
+                const rowInizio = new Date(row.getAttribute('data-inizio'));
+                const rowFine = new Date(row.getAttribute('data-fine'));
 
-            if (dataInizio >= rowInizio && dataFine <= rowFine) {
-                row.style.backgroundColor = 'yellow';
-            } else {
-                row.style.backgroundColor = '';
+                if (dataInizio <= rowFine && dataFine >= rowInizio) {
+                    row.className = 'row align-items-center bg-warning p-3 border';
+                }
             }
         });
     });

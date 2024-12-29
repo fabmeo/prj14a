@@ -182,6 +182,7 @@ class prenota_camera(generic.DetailView):
 
         calendario_form = CalendarioPrenotazioneForm(request.POST)
         calendario_form.instance.prenotazione = prenotazione_form.instance
+        stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
             prenotazione = prenotazione_form.save()
@@ -198,7 +199,8 @@ class prenota_camera(generic.DetailView):
             'visitatore': visitatore,
             'camera': camera,
             'prenotazione_form': prenotazione_form,
-            'calendario_form': calendario_form
+            'calendario_form': calendario_form,
+            'stagioni': stagioni
         })
 
 
