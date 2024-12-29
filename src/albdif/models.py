@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CharField
+from django.core.exceptions import ValidationError
 
 
 class Visitatore(models.Model):
@@ -50,7 +51,15 @@ class Proprieta(models.Model):
 
     def __str__(self):
         return f"{self.descrizione}"
+    
+    def clean(self):
+        if self.principale and Proprieta.objects.filter(principale=True).exclude(id=self.id).exists():
+            raise ValidationError("Esiste già una proprietà principale.")
 
+    def save(self, *args, **kwargs):
+        self.clean()
+        super(Proprieta, self).save(*args, **kwargs)
+        
 
 class Camera(models.Model):
     """
@@ -108,13 +117,11 @@ class Prenotazione(models.Model):
     """
 
     PRENOTATA = "PR"
-    SCADUTA = "SC"
     CANCELLATA = "CA"
     PAGATA = "PG"
 
     STATO_PRENOTAZIONE = {
         PRENOTATA: "Prenotata",
-        SCADUTA: "Scaduta",
         CANCELLATA: "Cancellata",
         PAGATA: "Pagata",
     }
@@ -130,7 +137,7 @@ class Prenotazione(models.Model):
         verbose_name_plural = "Prenotazioni"
 
     def __str__(self):
-        return f"{self.visitatore} {self.stato_prenotazione} {self.camera}"
+        return f"{self.id} {self.visitatore} {self.camera} {self.stato_prenotazione}"
 
 
 class CalendarioPrenotazione(models.Model):

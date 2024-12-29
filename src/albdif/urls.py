@@ -24,6 +24,8 @@ urlpatterns = [
     path("prenota_camera/<int:id1>/<int:id2>/", views.prenota_camera.as_view(), name="prenota_camera"),
     # ex: /prenota_modifica/1/
     path("prenota_modifica/<int:id1>/", views.prenota_modifica.as_view(), name="prenota_modifica"),
+    # ex: /prenotazione/1/
+    #path("prenota_dettaglio/<int:pk>/", views.prenotazione_detail.as_view(), name="prenotazione_detail"),
 
     # ex: /prezzi_camera/
     path("prezzi_camera/", views.prezzi_camera_list.as_view(), name="prezzi_camera_list"),
@@ -32,8 +34,6 @@ urlpatterns = [
 
     # ex: /prenotazioni/
     path("prenotazioni/", views.prenotazioni_list.as_view(), name="prenotazioni_list"),
-    # ex: /prenotazione/1/
-    path("prenotazione/<int:pk>/", views.prenotazione_detail.as_view(), name="prenotazione_detail"),
     # ex: /prenotazione_utente/1/
     path("prenotazioni_utente/<int:pk>/", views.prenotazioni_utente_list.as_view(), name="prenotazioni_utente_list"),
 

@@ -39,7 +39,7 @@ COPY src /app/
 ENV PYTHONPATH=/app/__pypackages__/3.13/lib/:/app/ \
     PATH=/app/:__pypackages__/3.13/bin/:$PATH \
 #    CHDIR=/src/ \
-    DJANGO_SETTINGS_MODULE=siteprj.settings
+    DJANGO_SETTINGS_MODULE=albdif.config.settings
 
 #RUN python manage.py migrate \
 #    && python manage.py showmigrations

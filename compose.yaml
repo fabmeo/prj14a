@@ -12,7 +12,7 @@ services:
     environment:
       - PEGASO_MEDIA_URL=/media/
       - PEGASO_MEDIA_ROOT=/src/media/
-      - DJANGO_SETTINGS_MODULE=siteprj.settings
+      - DJANGO_SETTINGS_MODULE=albdif.config.settings
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
