@@ -21,23 +21,23 @@ class CameraAdmin(admin.ModelAdmin):
     list_filter = ['proprieta', ]
 
 
-class CalendarioPrenotazioneAdmin(admin.ModelAdmin):
-    list_display = ['prenotazione__id', 'data_inizio', 'data_fine', 'prenotazione__data_prenotazione', 'prenotazione__visitatore']
-    search_fields = ['prenotazione__visitatore', ]
-    list_filter = ['prenotazione__visitatore', 'prenotazione__camera', 'data_inizio']
-
-
 class PrenotazioneAdmin(admin.ModelAdmin):
     list_display = ['id', 'visitatore', 'stato_prenotazione', 'data_prenotazione', 'camera']
     search_fields = ['richiesta', ]
     list_filter = ['visitatore', 'camera', 'camera__proprieta', 'stato_prenotazione', 'data_prenotazione']
 
 
+class CalendarioPrenotazioneAdmin(admin.ModelAdmin):
+    list_display = ['prenotazione', 'data_inizio', 'data_fine'] #, 'prenotazione__data_prenotazione', 'prenotazione__visitatore']
+    search_fields = ['prenotazione__visitatore', ]
+    list_filter = ['data_inizio'] #, 'prenotazione__visitatore', 'prenotazione__camera']
+
+
 admin.site.register(Foto, FotoAdmin)
 admin.site.register(Proprieta, ProprietaAdmin)
 admin.site.register(Camera, CameraAdmin)
-admin.site.register(CalendarioPrenotazione, CalendarioPrenotazioneAdmin)
 admin.site.register(Prenotazione, PrenotazioneAdmin)
+admin.site.register(CalendarioPrenotazione, CalendarioPrenotazioneAdmin)
 
 admin.site.register(Visitatore)
 admin.site.register(Host)

@@ -23,9 +23,12 @@ urlpatterns = ([
                   path("albdif/", include("albdif.urls")),
                   path('admin/', admin.site.urls),
                   path("accounts/", include("django.contrib.auth.urls")),
+                  path("", include("albdif.urls")),
 ])
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + \
                    static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+if "django_browser_reload" in settings.INSTALLED_APPS:  # pragma: no cover
+    urlpatterns += [path(r"__reload__/", include("django_browser_reload.urls"))]
