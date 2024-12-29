@@ -1,9 +1,10 @@
 import datetime
+from gc import disable
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django.forms.widgets import DateInput
+from django.forms.widgets import DateInput, HiddenInput
 
 from .models import Prenotazione, CalendarioPrenotazione
 
@@ -16,12 +17,12 @@ class LoginForm(forms.Form):
 class PrenotazioneForm(forms.ModelForm):
     richiesta = forms.CharField(widget=forms.Textarea(attrs={"rows": 3, "cols": 80}))
     numero_persone = forms.IntegerField()
+    costo_soggiorno = forms.DecimalField(max_digits=7, decimal_places=2, localize=True, widget=HiddenInput())
 
     class Meta:
         model = Prenotazione
-        #fields = '__all__'
-        exclude = ['visitatore', 'camera', 'stato_prenotazione', 'data_prenotazione',
-                   'costo_soggiorno', 'data_pagamento']
+        fields = ['richiesta', 'numero_persone', 'costo_soggiorno']
+        # exclude = ['visitatore', 'camera', 'stato_prenotazione', 'data_prenotazione', 'data_pagamento']
 
 
 class CalendarioPrenotazioneForm(forms.ModelForm):
