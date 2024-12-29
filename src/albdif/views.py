@@ -238,12 +238,14 @@ class prenota_modifica(generic.DetailView):
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         prenotazione_form = PrenotazioneForm(instance=prenotazione)
         calendario_form = CalendarioPrenotazioneForm(instance=calendario)
+        stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
 
         return render(request, self.template_name, {
             'visitatore': visitatore,
             'camera': camera,
             'prenotazione_form': prenotazione_form,
-            'calendario_form': calendario_form
+            'calendario_form': calendario_form,
+            'stagioni': stagioni
         })
 
     def post(self, request, *args, **kwargs):
@@ -253,12 +255,11 @@ class prenota_modifica(generic.DetailView):
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         prenotazione_form = PrenotazioneForm(request.POST, instance=prenotazione)
         calendario_form = CalendarioPrenotazioneForm(request.POST, instance=calendario)
+        stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
             prenotazione = prenotazione_form.save()
             calendario = calendario_form.save()
-            #calendario.prenotazione = prenotazione
-            #calendario.save()
             messages.success(request, 'Prenotazione modificata con successo')
             #@TODO invio email all'utente
             return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
@@ -267,7 +268,8 @@ class prenota_modifica(generic.DetailView):
             'visitatore': visitatore,
             'camera': camera,
             'prenotazione_form': prenotazione_form,
-            'calendario_form': calendario_form
+            'calendario_form': calendario_form,
+            'stagioni': stagioni
         })
 
 
