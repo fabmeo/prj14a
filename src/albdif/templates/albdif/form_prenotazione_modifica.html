@@ -36,6 +36,7 @@
             <div id="form_prenot" class="col">
                 {% include 'albdif/include/prenotazione.html' %}
             </div>
+
             <div id="catalogo_prezzi" class="col">
                 <h4> Riferimento prezzi </h4>
                 <div class="row align-items-center bg-secondary p-3 border">
@@ -64,8 +65,7 @@
                 {% endfor %}
             </div>
         </div>
-
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">Salva</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal" onclick="calcolaPrezzo()">Salva</button>
     </div>
 </form>
 
@@ -79,7 +79,8 @@
             </div>
             <div class="modal-body">
                 Sei sicuro di voler salvare le modifiche alla prenotazione?
-            </div>
+                <div id="prezzoTotale"></div>
+           </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
                 <button type="button" class="btn btn-primary" onclick="document.getElementById('prenotazioneForm').submit();">Conferma</button>
@@ -92,4 +93,5 @@
 
 {% block footer %}
     <script type="text/javascript" src="{% static 'js/evidenzia_calendario.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/calcola_prezzo_prenotazione.js' %}"></script>
 {% endblock footer %}

@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">Conferma Prenotazione</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal" onclick="calcolaPrezzo()">Conferma Prenotazione</button>
     </div>
 </form>
 
@@ -79,6 +79,7 @@
             </div>
             <div class="modal-body">
                 Sei sicuro di voler procedere alla prenotazione?
+                <div id="prezzoTotale"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
@@ -92,4 +93,5 @@
 
 {% block footer %}
     <script type="text/javascript" src="{% static 'js/evidenzia_calendario.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/calcola_prezzo_prenotazione.js' %}"></script>
 {% endblock footer %}
