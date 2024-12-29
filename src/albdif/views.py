@@ -15,7 +15,7 @@ from django.contrib.auth import logout as auth_logout
 
 from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm
 from .utils.utility import date_range
-from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore
+from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore, Stagione
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -162,12 +162,13 @@ class prenota_camera(generic.DetailView):
         camera = get_object_or_404(Camera, id=self.kwargs["id2"])
         prenotazione_form = PrenotazioneForm(initial={'visitatore': visitatore.id, 'camera': camera.id})
         calendario_form = CalendarioPrenotazioneForm()
-
+        stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
         return render(request, self.template_name, {
             'visitatore': visitatore,
             'camera': camera,
             'prenotazione_form': prenotazione_form,
-            'calendario_form': calendario_form
+            'calendario_form': calendario_form,
+            'stagioni': stagioni
         })
 
     def post(self, request, *args, **kwargs):

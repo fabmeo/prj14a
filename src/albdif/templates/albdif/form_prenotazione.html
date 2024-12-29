@@ -31,9 +31,31 @@
 <form id="prenotazioneForm" action="{% url 'albdif:prenota_camera' user.pk camera.pk %}" method="post">
     {% csrf_token %}
 
-    {% include 'albdif/include/prenotazione.html' %}
+    <div class="container-md">
+        <div class="row">
+            <div id="form_prenot" class="col">
+                {% include 'albdif/include/prenotazione.html' %}
+            </div>
+            <div id="catalogo_prezzi" class="col">
+                <h4> Riferimento prezzi </h4>
+                {% for s in stagioni %}
+                <div class="row align-items-center bg-light p-3 border" data-inizio="{{ s.data_inizio }}" data-fine="{{ s.data_fine }}">
+                    <div class="col">
+                      {{ s.data_inizio }}
+                    </div>
+                    <div class="col">
+                      {{ s.data_fine }}
+                    </div>
+                    <div class="col">
+                      {{ s.prezzo_deafult }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
-    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">Conferma Prenotazione</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">Conferma Prenotazione</button>
+    </div>
 </form>
 
 <!-- Confirmation Modal -->
@@ -56,3 +78,28 @@
 </div>
 
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('prenotazioneForm');
+    const catalogoPrezzi = document.getElementById('catalogo_prezzi');
+
+    form.addEventListener('change', function() {
+        const dataInizio = new Date(form.querySelector('[name="data_inizio"]').value);
+        const dataFine = new Date(form.querySelector('[name="data_fine"]').value);
+
+        catalogoPrezzi.querySelectorAll('.row').forEach(row => {
+            const rowInizio = new Date(row.getAttribute('data-inizio').split('-').reverse().join('-'));
+            const rowFine = new Date(row.getAttribute('data-fine').split('-').reverse().join('-'));
+
+            if (dataInizio >= rowInizio && dataFine <= rowFine) {
+                row.style.backgroundColor = 'yellow';
+            } else {
+                row.style.backgroundColor = '';
+            }
+        });
+    });
+});
+</script>
+{% endblock extra_js %}
