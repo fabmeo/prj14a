@@ -203,6 +203,7 @@ def test_prenotazione_avvenuta(app: "DjangoTestApp", user):
     response.form["numero_persone"] = 3
     response.form["data_inizio"] = date(2025,2,1)
     response.form["data_fine"] = date(2025,2,1)
+    response.form["costo_soggiorno"] = 100
     response = response.form.submit()
     assert response.status_code == 302
     p = Prenotazione.objects.get(visitatore__utente=user)
@@ -219,7 +220,8 @@ def test_prenotazione_modifica(app: "DjangoTestApp", user):
         visitatore=v1,
         camera=c1,
         data_prenotazione=date(2024, 12, 25),
-        stato_prenotazione="PR"
+        stato_prenotazione="PR",
+        costo_soggiorno=100,
     )
     CalendarioPrenotazioneFactory(
         prenotazione=p1,
