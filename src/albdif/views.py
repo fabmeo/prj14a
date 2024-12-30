@@ -58,7 +58,7 @@ class profilo(LoginRequiredMixin, generic.DetailView):
     """
     model = User
     template_name = "albdif/profilo.html"
-    login_url = "/albdif/login/"
+    login_url = "/login/"
 
     def dispatch(self, request, *args, **kwargs):
         """ La pagina del profilo può essere acceduta solo dal suo utente """
@@ -79,6 +79,15 @@ class profilo(LoginRequiredMixin, generic.DetailView):
         context['prenotazioni_list'] = prenotazioni
         context['storico_list'] = storico
         return context
+
+
+# REGISTRAZIONE
+class registrazione(generic.DetailView):
+    """
+    # pagina di registrazione
+    """
+    template_name = "albdif/registrazione.html"
+    login_url = "/registrazione/"
 
 
 # PROPRIETA'
