@@ -7,6 +7,10 @@ ENV PYTHONUNBUFFERED=1
 ENV PEGASUS_MEDIA_URL=$PEGASUS_MEDIA_URL
 ENV PEGASUS_MEDIA_ROOT=$PEGASUS_MEDIA_ROOT
 #ENV PEGASUS_DATABASE_URL=$PEGASUS_DATABASE_URL
+ENV PEGASUS_SOCIAL_AUTH_REDIRECT_IS_HTTPS=0
+ENV PEGASUS_SOCIAL_AUTH_GITHUB_KEY=$PEGASUS_SOCIAL_AUTH_GITHUB_KEY
+ENV PEGASUS_SOCIAL_AUTH_GITHUB_SECRET=$PEGASUS_SOCIAL_AUTH_GITHUB_SECRET
+ENV PEGASUS_SOCIAL_AUTH_GITHUB_REDIRECT_URI=$PEGASUS_SOCIAL_AUTH_GITHUB_REDIRECT_URI
 
 # Set the working directory
 WORKDIR /app/
@@ -30,8 +34,8 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements-test.txt /app/
+RUN pip install --no-cache-dir -r requirements-test.txt
 
 # Copy the project
 COPY src /app/

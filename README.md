@@ -41,12 +41,13 @@ Comandi di utilità
 Prima di codificare lo yaml
 > docker build -t pw14a .
 
-> docker run -p 8000:8000 pw14a
+> docker run -p 8080:8000 pw14a
 
-> docker run --env-file .envdkc -p 8000:8000 pw14a
+> docker run --env-file .envdkc -p 8080:8000 pw14a
 
 Dopo la codifica dello yaml
 > docker-compose up --build -d
+> docker-compose --env-file .envdkc up --build -d
 
 bash
 docker stop <container_id>
