@@ -1,12 +1,12 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.13.0-slim
+FROM python:3.12.0-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PEGASUS_MEDIA_URL=$PEGASUS_MEDIA_URL
 ENV PEGASUS_MEDIA_ROOT=$PEGASUS_MEDIA_ROOT
-#ENV PEGASUS_DATABASE_URL=$PEGASUS_DATABASE_URL
+ENV PEGASUS_MEDIA_URL=$PEGASUS_MEDIA_URL
+ENV PEGASUS_DATABASE_URL=$PEGASUS_DATABASE_URL
 ENV PEGASUS_SOCIAL_AUTH_REDIRECT_IS_HTTPS=0
 ENV PEGASUS_SOCIAL_AUTH_GITHUB_KEY=$PEGASUS_SOCIAL_AUTH_GITHUB_KEY
 ENV PEGASUS_SOCIAL_AUTH_GITHUB_SECRET=$PEGASUS_SOCIAL_AUTH_GITHUB_SECRET
@@ -40,8 +40,8 @@ RUN pip install --no-cache-dir -r requirements-test.txt
 # Copy the project
 COPY src /app/
 
-ENV PYTHONPATH=/app/__pypackages__/3.13/lib/:/app/ \
-    PATH=/app/:__pypackages__/3.13/bin/:$PATH \
+ENV PYTHONPATH=/app/__pypackages__/3.12/lib/:/app/ \
+    PATH=/app/:__pypackages__/3.12/bin/:$PATH \
 #    CHDIR=/src/ \
     DJANGO_SETTINGS_MODULE=albdif.config.settings
 
