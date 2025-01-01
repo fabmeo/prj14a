@@ -10,10 +10,9 @@ Autore: fabio meoli
 2. installazione di uv (https://docs.astral.sh/uv/getting-started/installation/)
 > pip install uv
 
-
-Per provare il progetto:
-
-1. copia del codice dal repository Github
+### Installazione del progetto
+1. copia del codice dal repository Github 
+> posizionarsi su una directory: es c:\prj ed eseguire il comando seguente
 > git clone https://github.com/fabmeo/prj14a.git
 2. accedere alla directory pw14a
 > cd pw14a
@@ -25,7 +24,7 @@ Per provare il progetto:
 > pytest tests
 
 4. impostazione delle variabili d'ambiente
-> **NCESSARIE**
+> **NECESSARIE**
 > ```
 > set PEGASUS_MEDIA_URL=media/
 > set PEGASUS_MEDIA_ROOT=c:/prj/pw14a/media/
@@ -39,18 +38,23 @@ Per provare il progetto:
 > set PEGASUS_SOCIAL_AUTH_GITHUB_REDIRECT_URI=http://localhost:8000/social/complete/github/
 > ```
 5. creazione del database (accesso alla sotto-directory src)
+> ```
 > cd src
 > python manage.py migrate
+> ```
 6. creazione dei dati di test (include utente "guest")
 > python manage.py crea_dati_test
 7. avvio del server
 > python manage.py runserver localhost:8000
 8. Click sulla url del sito in esecuzione (vedi sotto)
+> ```
+> ...
 > System check identified 3 issues (0 silenced).
 > January 01, 2025 - 21:04:58
 > Django version 4.2.17, using settings 'albdif.config.settings'
 > Starting development server at http://localhost:8000/
 > Quit the server with CTRL-BREAK.
+> ```
 9. Il sito è navigabile in modalità anonima ma può essere acceduto anche con le seguenti credenziali:
 > utente: **guest**
 > password: **password**
