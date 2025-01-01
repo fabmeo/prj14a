@@ -132,7 +132,7 @@ def test_prenotazione_passata(app: "DjangoTestApp", user):
     response.form["data_inizio"] = date(2026,1,1)
     response.form["data_fine"] = date(2024,1,2)
     response = response.form.submit()
-    assert 'La data fine non può essere antecedente alla data inizio' in response.content.decode()
+    assert 'La data fine non può essere antecedente o uguale alla data inizio' in response.content.decode()
 
 def test_prenotazione_negata(app: "DjangoTestApp", user):
     u1 = UserFactory()
@@ -158,7 +158,7 @@ def test_prenotazione_negata(app: "DjangoTestApp", user):
 
     response.form["richiesta"] = "bla bla"
     response.form["data_inizio"] = date(2025,2,1)
-    response.form["data_fine"] = date(2025,2,1)
+    response.form["data_fine"] = date(2025,2,2)
     response = response.form.submit()
     assert "Spiacenti: la camera è stata già prenotata" in response.content.decode()
 
@@ -184,7 +184,7 @@ def test_prenotazione_sovrapposta(app: "DjangoTestApp", user):
 
     response.form["richiesta"] = "bla bla"
     response.form["data_inizio"] = date(2025,2,1)
-    response.form["data_fine"] = date(2025,2,1)
+    response.form["data_fine"] = date(2025,2,2)
     response = response.form.submit()
     assert "Spiacenti: le date si sovrappongono ad un" in response.content.decode()
 
@@ -202,7 +202,7 @@ def test_prenotazione_avvenuta(app: "DjangoTestApp", user):
     response.form["richiesta"] = "bla bla"
     response.form["numero_persone"] = 3
     response.form["data_inizio"] = date(2025,2,1)
-    response.form["data_fine"] = date(2025,2,1)
+    response.form["data_fine"] = date(2025,2,2)
     response.form["costo_soggiorno"] = 100
     response = response.form.submit()
     assert response.status_code == 302
@@ -219,14 +219,14 @@ def test_prenotazione_modifica(app: "DjangoTestApp", user):
     p1 = PrenotazioneFactory(
         visitatore=v1,
         camera=c1,
-        data_prenotazione=date(2024, 12, 25),
+        data_prenotazione=date.today(),
         stato_prenotazione="PR",
         costo_soggiorno=100,
     )
     CalendarioPrenotazioneFactory(
         prenotazione=p1,
         data_inizio=date(2025, 2, 1),
-        data_fine=date(2025, 2, 2))
+        data_fine=date(2025, 2, 3))
 
     url = reverse("albdif:prenota_modifica", kwargs={'id1': p1.pk})
     response = app.get(url)
@@ -235,7 +235,7 @@ def test_prenotazione_modifica(app: "DjangoTestApp", user):
 
     response.form["richiesta"] = "avevo dimenticato di chiedere ..."
     response.form["data_inizio"] = date(2025,2,1)
-    response.form["data_fine"] = date(2025,2,1)
+    response.form["data_fine"] = date(2025,2,2)
     response = response.form.submit()
     assert response.status_code == 302
     p = Prenotazione.objects.get(visitatore__utente=user)
