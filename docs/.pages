@@ -1,0 +1,4 @@
+nav:
+    - Readme: ..readme.md
+    - Docker: docker.md
+    - Varie: varie.md
