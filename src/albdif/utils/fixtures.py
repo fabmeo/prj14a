@@ -120,16 +120,6 @@ class CalendarioPrenotazioneFactory(DjangoModelFactory):
 
 
 class FotoFactory(DjangoModelFactory):
-    descrizione = factory.Faker('name')
-    camera = factory.SubFactory(CameraFactory)
-    proprieta = factory.SubFactory(ProprietaFactory)
-    file = factory.django.ImageField(color='blue')
-
-    class Meta:
-        model = Foto
-
-
-class FotoFactory(DjangoModelFactory):
 
     descrizione = factory.Faker('name')
     file = factory.LazyAttribute(lambda _: FotoFactory._get_random_file())
