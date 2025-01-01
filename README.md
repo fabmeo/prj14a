@@ -33,6 +33,9 @@ Autore: fabio meoli
 > ```
 > **OPZIONALI**
 > ```
+> a) Se si vuole attivare il SSO Github seguire la guida a questo link: https://python-social-auth.readthedocs.io/en/latest/backends/github.html
+> b) e registrare una nuova app dalle impostazioni dello sviluppatore del proprio account Github: https://github.com/settings/applications/new 
+> c) Questo permetterà di ottenere la coppia key/secret da imposare di seguito e consentire la registrazione immediata dell'account sull'applicazione AD Pegasus 
 > set PEGASUS_SOCIAL_AUTH_GITHUB_KEY=<inserire la api key github>
 > set PEGASUS_SOCIAL_AUTH_GITHUB_SECRET=<inserire la secret key github>
 > set PEGASUS_SOCIAL_AUTH_GITHUB_REDIRECT_URI=http://localhost:8000/social/complete/github/
