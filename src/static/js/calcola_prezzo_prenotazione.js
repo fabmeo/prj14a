@@ -6,7 +6,8 @@ function calcolaPrezzo() {
 
     // Controllo per verificare che la data di fine sia almeno il giorno dopo la data di inizio
     if (dataFine <= dataInizio) {
-        alert("La data di fine soggiorno deve essere almeno il giorno dopo la data di inizio soggiorno");
+        document.getElementById('prezzoTotale').textContent = '';
+        document.getElementById('id_costo_soggiorno').value = 0;
         return;
     }
     else {
