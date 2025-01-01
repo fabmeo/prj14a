@@ -23,16 +23,21 @@ Per provare il progetto:
 > - (pw14a) C:\prj\pw14a>
 3. verifica del progetto con l'esecuzione dei test
 > pytest tests
+
 4. impostazione delle variabili d'ambiente
 > **NCESSARIE**
+> ```
 > set PEGASUS_MEDIA_URL=media/
 > set PEGASUS_MEDIA_ROOT=c:/prj/pw14a/media/
 > set PEGASUS_DATABASE_URL=sqlite:///C:/prj/pw14a/database/db.sqlite3
 > set PEGASUS_SOCIAL_AUTH_REDIRECT_IS_HTTPS=0
+> ```
 > **OPZIONALI**
+> ```
 > set PEGASUS_SOCIAL_AUTH_GITHUB_KEY=<inserire la api key github>
 > set PEGASUS_SOCIAL_AUTH_GITHUB_SECRET=<inserire la secret key github>
 > set PEGASUS_SOCIAL_AUTH_GITHUB_REDIRECT_URI=http://localhost:8000/social/complete/github/
+> ```
 5. creazione del database (accesso alla sotto-directory src)
 > cd src
 > python manage.py migrate
@@ -101,4 +106,3 @@ bash
 docker stop <container_id>
 docker run -d -p 8080:8080 hello-world-go
 docker exec -it <container_id> bash
- 
