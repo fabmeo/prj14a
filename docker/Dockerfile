@@ -31,7 +31,9 @@ RUN apt-get update && \
     libxss-dev \
     unzip \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install uv \
+
 
 # Install Python dependencies
 COPY requirements-test.txt /app/
