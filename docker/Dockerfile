@@ -12,9 +12,6 @@ ENV PEGASUS_SOCIAL_AUTH_GITHUB_KEY=$PEGASUS_SOCIAL_AUTH_GITHUB_KEY
 ENV PEGASUS_SOCIAL_AUTH_GITHUB_SECRET=$PEGASUS_SOCIAL_AUTH_GITHUB_SECRET
 ENV PEGASUS_SOCIAL_AUTH_GITHUB_REDIRECT_URI=$PEGASUS_SOCIAL_AUTH_GITHUB_REDIRECT_URI
 
-# Set the working directory
-WORKDIR /app/
-
 # Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -32,26 +29,26 @@ RUN apt-get update && \
     unzip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install uv \
+    && pip install uv
 
+# Set the working directory
+WORKDIR /app
+COPY uv.lock README.md pyproject.toml /app/
+# Copy the project
+COPY src /app/src/
+#COPY src /app/
 
 # Install Python dependencies
-#COPY requirements-test.txt /app/
-#RUN pip install --no-cache-dir -r requirements-test.txt
-RUN uv sync --no-dev
+RUN cd /app  \
+    && uv sync --no-dev
 
-# Copy the project
-COPY src /app/
-
-ENV PYTHONPATH=/app/__pypackages__/3.12/lib/:/app/ \
-    PATH=/app/:__pypackages__/3.12/bin/:$PATH \
-#    CHDIR=/src/ \
-    DJANGO_SETTINGS_MODULE=albdif.config.settings
-
-#RUN python manage.py migrate \
-#    && python manage.py showmigrations
-
-#CMD ["python", "manage.py", "showmigrations"]
+ENV PATH=/app/.venv/bin:/usr/local/bin:/usr/bin:/bin \
+    DJANGO_SETTINGS_MODULE=albdif.config.settings \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app/src/__pypackages__/3.12/lib/:/app/src/ \
+    VIRTUAL_ENV=/app/.venv \
+    UV_PROJECT_ENVIRONMENT=/app/.venv
 
 # Expose the port on which Django will run
 EXPOSE 8000
