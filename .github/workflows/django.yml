@@ -31,4 +31,5 @@ jobs:
         PYTHONPATH: ./src
         DJANGO_SETTINGS_MODULE: albdif.config.settings
       run: |
+        source .venv/bin/activate
         pytest tests
