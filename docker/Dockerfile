@@ -36,8 +36,9 @@ RUN apt-get update && \
 
 
 # Install Python dependencies
-COPY requirements-test.txt /app/
-RUN pip install --no-cache-dir -r requirements-test.txt
+#COPY requirements-test.txt /app/
+#RUN pip install --no-cache-dir -r requirements-test.txt
+RUN uv sync --no-dev
 
 # Copy the project
 COPY src /app/
