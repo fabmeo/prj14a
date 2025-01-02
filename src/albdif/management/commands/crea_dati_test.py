@@ -1,16 +1,26 @@
 from datetime import date
 
 from django.core.management.base import BaseCommand
-from albdif.models import Proprieta, Camera, Prenotazione
+from albdif.models import Proprieta, Camera, Prenotazione, ServizioCamera, Servizio
 
 from albdif.utils.fixtures import ProprietaFactory, CameraFactory, PrenotazioneFactory, \
-    CalendarioPrenotazioneFactory, StagioneFactory, FotoFactory, ProprietaPrincFactory, UserFactory, VisitatoreFactory
+    CalendarioPrenotazioneFactory, StagioneFactory, FotoFactory, ProprietaPrincFactory, UserFactory, VisitatoreFactory, \
+    ServizioFactory, ServizioCameraFactory
+from albdif.views import camera_detail
 
 
 class Command(BaseCommand):
     help = 'Crea dati di test'
 
     def handle(self, *args, **kwargs):
+
+        # Servizi
+        #servs = ServizioFactory.build_batch(5)
+        #for s in servs:
+        #    s.save()
+        servs = ['toilette', 'wifi', 'phon', 'minibar', 'aria condizionata']
+        for s in servs:
+            ServizioFactory.create(descrizione_servizio=s)
 
         # Proprietà principale
         ProprietaPrincFactory.create()
@@ -24,6 +34,8 @@ class Command(BaseCommand):
         for proprieta in Proprieta.objects.all():
             for _ in range(4):
                 c = CameraFactory.create(proprieta=proprieta)
+                for s in Servizio.objects.all():
+                    ServizioCameraFactory.create(camera=c, servizio=s)
                 FotoFactory.create(camera=c)
                 FotoFactory.create(camera=c)
 
@@ -32,15 +44,16 @@ class Command(BaseCommand):
             ('Bassa', date(2025, 1, 1), date(2025, 2, 28), 50.00),
             ('Media', date(2025, 3, 1), date(2025, 5, 31), 75.00),
             ('Bassa', date(2025, 6, 1), date(2025, 9, 30), 100.00),
-            ('Media', date(2025, 10, 1), date(2025, 12, 31), 75.00)
+            ('Media', date(2025, 10, 1), date(2025, 12, 31), 75.00),
+            ('Bassa', date(2026, 1, 1), date(9999, 12, 31), 85.00)
         ]
         
-        for stagione, data_inizio, data_fine, prezzo_deafult in stagioni:
+        for stagione, data_inizio, data_fine, prezzo_default in stagioni:
             StagioneFactory.create(
                 stagione=stagione,
                 data_inizio=data_inizio,
                 data_fine=data_fine,
-                prezzo_deafult=prezzo_deafult
+                prezzo_default=prezzo_default
             )
 
         # Creazione prenotazioni

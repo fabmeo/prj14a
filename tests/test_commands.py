@@ -15,6 +15,6 @@ def test_crea_dati_test():
     assert Proprieta.objects.count() == 4
     assert Camera.objects.count() == 16
     assert Prenotazione.objects.count() == 16
-    assert Stagione.objects.count() == 4
+    assert Stagione.objects.count() == 5
     assert CalendarioPrenotazione.objects.count() == 16
     assert Proprieta.objects.filter(principale=True).count() == 1

@@ -11,7 +11,8 @@ from django.core.files.base import ContentFile
 import factory.fuzzy
 from factory.django import DjangoModelFactory
 
-from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione, Foto, Stagione
+from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione, Foto, Stagione, \
+    Servizio, ServizioCamera
 
 
 class UserFactory(DjangoModelFactory):
@@ -54,7 +55,7 @@ class StagioneFactory(DjangoModelFactory):
     stagione = factory.fuzzy.FuzzyChoice(choices=['Bassa', 'Media', 'Alta'])
     data_inizio = factory.fuzzy.FuzzyDate(date(2025, 1, 1), date(2025, 12, 31))
     data_fine = factory.LazyAttribute(lambda obj: obj.data_inizio + datetime.timedelta(days=2))
-    prezzo_deafult = factory.fuzzy.FuzzyDecimal(50.00, 500.00)
+    prezzo_default = factory.fuzzy.FuzzyDecimal(50.00, 500.00)
 
     class Meta:
         model = Stagione
@@ -86,14 +87,32 @@ suffix = ("Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
           "mollit anim id est laborum.")
 
 
+class ServizioFactory(DjangoModelFactory):
+
+    descrizione_servizio = factory.fuzzy.FuzzyChoice(choices=['toilette', 'wifi', 'phon', 'minibar', 'aria condizionata'])
+
+    class Meta:
+        model = Servizio
+
+
 class CameraFactory(DjangoModelFactory):
     proprieta = factory.SubFactory(ProprietaFactory)
     nome = factory.Faker('name')
     descrizione = factory.fuzzy.FuzzyText(prefix=prefix, length=12, suffix=suffix)
-    # services = dict
 
     class Meta:
         model = Camera
+
+
+class ServizioCameraFactory(DjangoModelFactory):
+
+    camera = factory.SubFactory(CameraFactory)
+    servizio = factory.SubFactory(ServizioFactory)
+    incluso = factory.fuzzy.FuzzyChoice(choices=[True, False])
+    costo = factory.LazyAttribute(lambda obj: 5.75 if not obj.incluso else 0.0)
+
+    class Meta:
+        model = ServizioCamera
 
 
 STATI = ["PR", "SC", "CA", "PG"]
