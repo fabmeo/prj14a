@@ -1,10 +1,11 @@
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from django_webtest import DjangoTestApp
 
-from albdif.models import Proprieta, Stagione, Camera, PrezzoCamera
-from albdif.utils.fixtures import CameraFactory, StagioneFactory, PrezzoCameraFactory
+from albdif.models import Proprieta, Prenotazione
+from albdif.utils.fixtures import CameraFactory, StagioneFactory, PrezzoCameraFactory, PrenotazioneFactory, \
+    VisitatoreFactory, CalendarioPrenotazioneFactory
 
 
 def test_proprieta(user, host):
@@ -60,3 +61,29 @@ def test_camera(app: "DjangoTestApp"):
     assert c1.prezzo_bassa_stagione > 0
     PrezzoCameraFactory(camera=c1, stagione=s1, prezzo=45.63)
     assert c1.prezzo_bassa_stagione == Decimal("45.63")
+
+def test_prenotazione(app: "DjangoTestApp"):
+    c1 = CameraFactory.create()
+    v1 = VisitatoreFactory.create()
+    p1 = PrenotazioneFactory.create(camera=c1, visitatore=v1, stato_prenotazione=Prenotazione.PAGATA)
+    try:
+        p1.stato_prenotazione = Prenotazione.PRENOTATA
+    except Exception as e:
+        assert "Transizione di stato non valida da" in str(e)
+
+def test_prenotazione_contemporanea(app: "DjangoTestApp"):
+
+    c1 = CameraFactory.create()
+    v1 = VisitatoreFactory.create()
+    v2 = VisitatoreFactory.create()
+    p1 = PrenotazioneFactory.create(camera=c1, visitatore=v1, stato_prenotazione=Prenotazione.PRENOTATA)
+    CalendarioPrenotazioneFactory(prenotazione=p1,
+                                  data_inizio=date.today() + timedelta(days=5),
+                                  data_fine=date.today() + timedelta(days=7))
+    try:
+        p2 = PrenotazioneFactory.create(camera=c1, visitatore=v2, stato_prenotazione=Prenotazione.PRENOTATA)
+        CalendarioPrenotazioneFactory(prenotazione=p2,
+                                      data_inizio=date.today() + timedelta(days=5),
+                                      data_fine=date.today() + timedelta(days=7))
+    except Exception as e:
+        assert "Spiacenti, la camera è stata già prenotata!" in str(e)
