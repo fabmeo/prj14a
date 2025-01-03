@@ -82,3 +82,9 @@ Autore: fabio meoli
 > ```
 2. dalla directory del progetto (es c:\prj\pw14a) lanciare il comando che segue
 > docker-compose up --build -d
+3. aprire una finestra sul browser e incollare la seguente url
+> http://localhost:8000
+4. Il sito è navigabile in modalità anonima ma può essere acceduto anche con le seguenti credenziali:
+> utente: **guest**
+> password: **password**
+ 
