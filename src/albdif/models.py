@@ -232,7 +232,7 @@ class CalendarioPrenotazione(models.Model):
     def altra_prenotazione_presente(self, data_inizio, data_fine, prenotazione):
         cp = CalendarioPrenotazione.objects.filter(
             Q(data_inizio__lte=data_fine),
-            Q(data_fine__gte=data_inizio),
+            Q(data_fine__gt=data_inizio),
             Q(prenotazione__camera__pk=prenotazione.camera.pk),
             ~Q(prenotazione__id=prenotazione.id)
         )
@@ -242,7 +242,7 @@ class CalendarioPrenotazione(models.Model):
         if self.pk:
             prenotazione = Prenotazione.objects.get(pk=self.prenotazione.pk)
             if self.altra_prenotazione_presente(self.data_inizio, self.data_fine, prenotazione):
-                raise ValidationError(f"Spiacenti, la camera è stata già prenotata!")
+                raise ValidationError(f"Trovata altra prenotazione nello stesso periodo")
 
     def save(self, *args, **kwargs):
         self.clean()
