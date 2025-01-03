@@ -15,8 +15,8 @@ Autore: fabio meoli
 4. accedere alla directory pw14a
 > cd pw14a
 5. sono presenti due opzioni: 
-   * Esecuzione del progetto in locale 
-   * Esecuzione del progetto con Docker
+   * [Esecuzione del progetto in locale](#esecuzione-del-progetto-in-locale)
+   * [Esecuzione del progetto con Docker](#esecuzione-del-progetto-con-docker)
 
 ### Esecuzione del progetto in locale
 1. installazione del virtualenv
