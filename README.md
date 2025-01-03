@@ -1,8 +1,6 @@
-# Benvenuti nel progetto PW14A
+# Benvenuti, in questa pagina trovate le informazioni per scaricare ed eseguire il progetto 
 
 Titolo: **Albergo Diffuso Pegasus**
-
-Autore: fabio meoli
 
 ---
 ### Prerequisiti per l'avvio del progetto in locale (SO Windows)
@@ -14,7 +12,8 @@ Autore: fabio meoli
 > git clone https://github.com/fabmeo/prj14a.git
 4. accedere alla directory pw14a
 > cd pw14a
-5. sono presenti due opzioni: 
+5. sono presenti le seguenti due opzioni: 
+
    * [Esecuzione del progetto in locale](#esecuzione-del-progetto-in-locale)
    * [Esecuzione del progetto con Docker](#esecuzione-del-progetto-con-docker)
 
@@ -32,6 +31,7 @@ Autore: fabio meoli
 > set PEGASUS_MEDIA_ROOT=c:/prj/pw14a/media/
 > set PEGASUS_DATABASE_URL=sqlite:///C:/prj/pw14a/database/db.sqlite3
 > set PEGASUS_SOCIAL_AUTH_REDIRECT_IS_HTTPS=0
+> set PEGASUS_STATIC_ROOT=C:/prj/pw14a/src/static
 > ```
 > **OPZIONALI**
 > ```
@@ -87,4 +87,6 @@ Autore: fabio meoli
 4. Il sito è navigabile in modalità anonima ma può essere acceduto anche con le seguenti credenziali:
 > utente: **guest**
 > password: **password**
- 
+5. il sito di amministrazione può essere acceduto dalla seguente url: http://localhost:8000/admin  
+> utente: **admin**
+> password: **password**

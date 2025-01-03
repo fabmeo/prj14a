@@ -28,6 +28,8 @@ class UserFactory(DjangoModelFactory):
     last_name = factory.Faker('last_name')
     email = factory.Sequence(lambda n: f"test-{n}@adpegasus.it")
     password = "password"  # noqa
+    is_superuser = False
+    is_staff = False
 
     class Meta:
         model = settings.AUTH_USER_MODEL
