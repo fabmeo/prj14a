@@ -13,6 +13,8 @@ class Visitatore(models.Model):
     """
     registrazione = models.DateTimeField("data registrazione")
     utente = models.OneToOneField(User, on_delete=models.CASCADE)
+    telefono = models.CharField(max_length=20, null=True, blank=True)
+    codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
 
     class Meta():
         verbose_name = "Visitatore"
@@ -29,6 +31,10 @@ class Host(models.Model):
     """
     registrazione = models.DateTimeField("data registrazione")
     utente = models.OneToOneField(User, on_delete=models.CASCADE)
+    telefono = models.CharField(max_length=20, null=True, blank=True)
+    codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
+    partita_iva = models.CharField(max_length=11, null=True, blank=True)
+    contratto = models.FileField(blank=True, upload_to='contratti_host', null=True)
 
     class Meta():
         verbose_name = "Host"
@@ -164,28 +170,51 @@ class Prenotazione(models.Model):
     """
     Prenotazione:
     la prenotazione viene eseguita da un visitatore per una camera di una proprietà
+    Stati della prenotazione:
+
+    - REGISTRATA   - è lo stato iniziale della prenotazione                             (START)   'PR' *
+    - CANCELLATA   - è lo stato che assume a seguito della transizione di cancellazione (END)     'CA' *
+    - CONFERMATA   - è lo stato che determina la fine della transazione di pagamento              'PG' *
+    - RICH.RIMB.   - è lo stato che assume a seguito della richiesta di rimborso                  'RR'
+    - RIMBORSATA   - è lo stato che assume al termine della transizione di rimborso     (END)     'RE'
+    - NEGATA       - è lo stato che assume dopo la richiesta di rimborso                (END)     'NG'
+    - SCADUTA      - è lo stato che assume se la prenotazione non viene confermata entro x giorni 'SC'
+
+    N.B. Solo gli stati con l'asterisco in fondo sono quelli gestiti dall'applicazione per il PW
     """
 
-    PRENOTATA = "PR"
-    PAGATA = "PG"
+    REGISTRATA = "PR"
+    CONFERMATA = "PG"
     CANCELLATA = "CA"
+    RICHIESTA = "RR"
+    RIMBORSATA = "RE"
+    NEGATA = "NE"
+    SCADUTA = "SC"
 
     STATO_PRENOTAZIONE = [
-        (PRENOTATA, "Prenotata"),
-        (PAGATA, "Pagata"),
+        (REGISTRATA, "Registrata"),
+        (CONFERMATA, "Confermata"),
         (CANCELLATA, "Cancellata"),
+        (RICHIESTA, "Richiesta Rimborso"),
+        (RIMBORSATA, "Rimborsata"),
+        (NEGATA, "Negata"),
+        (SCADUTA, "Scaduta")
     ]
 
     PASSAGGI_STATO = [
-        (PRENOTATA, PRENOTATA),
-        (PRENOTATA, PAGATA),
-        (PRENOTATA, CANCELLATA),
+        (REGISTRATA, REGISTRATA),
+        (REGISTRATA, CONFERMATA),
+        (REGISTRATA, CANCELLATA),
+        (REGISTRATA, SCADUTA),
+        (CONFERMATA, RICHIESTA),
+        (RICHIESTA, RIMBORSATA),
+        (RICHIESTA, NEGATA),
     ]
 
     visitatore = models.ForeignKey(Visitatore, on_delete=models.CASCADE)
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE)
     data_prenotazione = models.DateTimeField()
-    stato_prenotazione = models.CharField(max_length=2, choices=STATO_PRENOTAZIONE, default=PRENOTATA)
+    stato_prenotazione = models.CharField(max_length=2, choices=STATO_PRENOTAZIONE, default=REGISTRATA)
     richiesta = models.CharField(max_length=1000, null=True, blank=True, help_text="richiesta aggiuntiva del cliente")
     costo_soggiorno = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     data_pagamento = models.DateTimeField(null=True, blank=True)

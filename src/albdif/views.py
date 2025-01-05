@@ -197,7 +197,7 @@ class prenota_camera(generic.DetailView):
         prenotazione_form = PrenotazioneForm(request.POST)
         prenotazione_form.instance.visitatore = visitatore
         prenotazione_form.instance.camera = camera
-        prenotazione_form.instance.stato_prenotazione = Prenotazione.PRENOTATA
+        prenotazione_form.instance.stato_prenotazione = Prenotazione.REGISTRATA
         prenotazione_form.instance.data_prenotazione = datetime.now()
 
         calendario_form = CalendarioPrenotazioneForm(request.POST)
@@ -400,7 +400,7 @@ class prenota_paga(generic.DetailView):
 
         if pagamento_form.is_valid():
             prenotazione.data_pagamento = datetime.now()
-            prenotazione.stato_prenotazione = prenotazione.PAGATA
+            prenotazione.stato_prenotazione = prenotazione.CONFERMATA
             pagamento = pagamento_form.save()
             messages.success(request, 'Pagamento effettuto con successo')
             #@TODO invio email all'utente

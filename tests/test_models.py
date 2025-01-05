@@ -65,9 +65,9 @@ def test_camera(app: "DjangoTestApp"):
 def test_prenotazione(app: "DjangoTestApp"):
     c1 = CameraFactory.create()
     v1 = VisitatoreFactory.create()
-    p1 = PrenotazioneFactory.create(camera=c1, visitatore=v1, stato_prenotazione=Prenotazione.PAGATA)
+    p1 = PrenotazioneFactory.create(camera=c1, visitatore=v1, stato_prenotazione=Prenotazione.CONFERMATA)
     try:
-        p1.stato_prenotazione = Prenotazione.PRENOTATA
+        p1.stato_prenotazione = Prenotazione.REGISTRATA
     except Exception as e:
         assert "Transizione di stato non valida da" in str(e)
 
@@ -76,12 +76,12 @@ def test_prenotazione_contemporanea(app: "DjangoTestApp"):
     c1 = CameraFactory.create()
     v1 = VisitatoreFactory.create()
     v2 = VisitatoreFactory.create()
-    p1 = PrenotazioneFactory.create(camera=c1, visitatore=v1, stato_prenotazione=Prenotazione.PRENOTATA)
+    p1 = PrenotazioneFactory.create(camera=c1, visitatore=v1, stato_prenotazione=Prenotazione.REGISTRATA)
     CalendarioPrenotazioneFactory(prenotazione=p1,
                                   data_inizio=date.today() + timedelta(days=5),
                                   data_fine=date.today() + timedelta(days=7))
     try:
-        p2 = PrenotazioneFactory.create(camera=c1, visitatore=v2, stato_prenotazione=Prenotazione.PRENOTATA)
+        p2 = PrenotazioneFactory.create(camera=c1, visitatore=v2, stato_prenotazione=Prenotazione.REGISTRATA)
         CalendarioPrenotazioneFactory(prenotazione=p2,
                                       data_inizio=date.today() + timedelta(days=5),
                                       data_fine=date.today() + timedelta(days=7))

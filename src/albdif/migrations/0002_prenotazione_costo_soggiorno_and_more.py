@@ -28,6 +28,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='prenotazione',
             name='stato_prenotazione',
-            field=models.CharField(choices=[('PR', 'Prenotata'), ('PG', 'Pagata'), ('CA', 'Cancellata')], default='PR', max_length=2),
+            field=models.CharField(choices=[('PR', 'Registrata'), ('PG', 'Confermata'), ('CA', 'Cancellata')], default='PR', max_length=2),
         ),
     ]
