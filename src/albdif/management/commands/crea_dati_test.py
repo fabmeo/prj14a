@@ -13,10 +13,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        # Servizi
-        #servs = ServizioFactory.build_batch(5)
-        #for s in servs:
-        #    s.save()
         servs = ['toilette', 'wifi', 'phon', 'minibar', 'aria condizionata']
         for s in servs:
             ServizioFactory.create(descrizione_servizio=s)
@@ -101,5 +97,8 @@ class Command(BaseCommand):
         CalendarioPrenotazioneFactory.create(prenotazione=p3,
                                              data_inizio=date.today() + timedelta(days=30),
                                              data_fine=date.today() + timedelta(days=35))
+
+        # Creazione dell'utente admin
+        UserFactory.create(username="admin", is_superuser=True, is_staff=True)
 
         self.stdout.write(self.style.SUCCESS('Dati di test creati con successo'))
