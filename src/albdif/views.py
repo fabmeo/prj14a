@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 import json
 
 from django.contrib import messages
@@ -16,7 +16,7 @@ from django.db import transaction
 from django.db.models import F, Q
 
 from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm
-from .utils.utility import date_range, calcola_prezzo_totale
+from .utils.utility import date_range, calcola_prezzo_totale, to_date
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore, Stagione, \
     ServizioCamera
 
@@ -176,12 +176,25 @@ class prenota_camera(generic.DetailView):
         prenotazione_form = PrenotazioneForm(initial={'visitatore': visitatore.id, 'camera': camera.id})
         calendario_form = CalendarioPrenotazioneForm()
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
+        #di = calendario_form['data_inizio']
+        #df = calendario_form['data_fine']
+        st = []
+        for s in stagioni:
+            pc = PrezzoCamera.objects.filter(camera=camera, stagione=s)
+            if pc.exists():
+                prezzo = pc.first().prezzo
+            else:
+                prezzo = s.prezzo_default
+            e = {'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine,
+                 'prezzo_default': prezzo}
+            st.append(e)
+        #tot = calcola_prezzo_totale(di, df, st)
         return render(request, self.template_name, {
             'visitatore': visitatore,
             'camera': camera,
             'prenotazione_form': prenotazione_form,
             'calendario_form': calendario_form,
-            'stagioni': stagioni
+            'stagioni': st
         })
 
     @transaction.atomic
@@ -203,6 +216,19 @@ class prenota_camera(generic.DetailView):
         calendario_form = CalendarioPrenotazioneForm(request.POST)
         calendario_form.instance.prenotazione = prenotazione_form.instance
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
+        di = to_date(request.POST['data_inizio'])
+        df = to_date(request.POST['data_fine'])
+        st = []
+        for s in stagioni:
+            pc = PrezzoCamera.objects.filter(camera=camera, stagione=s)
+            if pc.exists():
+                prezzo = pc.first().prezzo
+            else:
+                prezzo = s.prezzo_default
+            e = {'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine,
+                 'prezzo_default': prezzo}
+            st.append(e)
+        tot = calcola_prezzo_totale(di, df, st)
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
             prenotazione = prenotazione_form.save()
@@ -259,13 +285,26 @@ class prenota_modifica(generic.DetailView):
         prenotazione_form = PrenotazioneForm(instance=prenotazione)
         calendario_form = CalendarioPrenotazioneForm(instance=calendario)
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
+        #di = calendario_form['data_inizio']
+        #df = calendario_form['data_fine']
+        st = []
+        for s in stagioni:
+            pc = PrezzoCamera.objects.filter(camera=prenotazione.camera, stagione=s)
+            if pc.exists():
+                prezzo = pc.first().prezzo
+            else:
+                prezzo = s.prezzo_default
+            e = {'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine,
+                 'prezzo_default': prezzo}
+            st.append(e)
+        #tot = calcola_prezzo_totale(di, df, st)
 
         return render(request, self.template_name, {
             'visitatore': visitatore,
             'camera': camera,
             'prenotazione_form': prenotazione_form,
             'calendario_form': calendario_form,
-            'stagioni': stagioni
+            'stagioni': st
         })
 
     @transaction.atomic
@@ -281,12 +320,19 @@ class prenota_modifica(generic.DetailView):
         visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
+        di = to_date(request.POST['data_inizio'])
+        df = to_date(request.POST['data_fine'])
         st = []
         for s in stagioni:
+            pc = PrezzoCamera.objects.filter(camera=prenotazione.camera, stagione=s)
+            if pc.exists():
+                prezzo = pc.first().prezzo
+            else:
+                prezzo = s.prezzo_default
             e = {'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine,
-                 'prezzo_default': s.prezzo_default}
+                 'prezzo_default': prezzo}
             st.append(e)
-        tot = calcola_prezzo_totale(calendario.data_inizio, calendario.data_fine, st)
+        tot = calcola_prezzo_totale(di, df, st)
         if prenotazione.costo_soggiorno and prenotazione.costo_soggiorno != tot:
             messages.info(request, 'Il prezzo è stato aggiornato')
             prenotazione.costo_soggiorno = tot
