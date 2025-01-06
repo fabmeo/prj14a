@@ -63,11 +63,16 @@
     {% include 'albdif/include/calendario_camera.html' %}
   </div>
   <div class="col-md-8">
-    {% if user.is_authenticated %}
-      <h5>Le tue prenotazioni</h5>
-      {% include 'albdif/include/prenotazioni_list.html' %}
-      <a href="{% url 'albdif:prenota_camera' user.pk camera.pk %}" class="btn btn-success">Nuova prenotazione</a>
-    {% endif %}
+    <div class="descrizione">
+      {% if user.is_authenticated and not user.is_superuser %}
+        <h5>Le tue prenotazioni</h5>
+        {% include 'albdif/include/prenotazioni_list.html' %}
+        <a href="{% url 'albdif:prenota_camera' user.pk camera.pk %}" class="btn btn-success">Nuova prenotazione</a>
+      {% else %}
+        <h5>Per prenotare questa camera è necessario registrarsi al sito</h5>
+            <a href="{% url 'albdif:login' %}" class="btn btn-success">Accedi/Registrati</a>
+      {% endif %}
+    </div>
    </div>
 </div>
 

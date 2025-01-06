@@ -273,6 +273,9 @@ class CalendarioPrenotazione(models.Model):
             if self.altra_prenotazione_presente(self.data_inizio, self.data_fine, prenotazione):
                 raise ValidationError(f"Trovata altra prenotazione nello stesso periodo")
 
+        if self.data_fine <= self.data_inizio:
+            raise ValidationError("La data fine deve essere maggiore della data inizio")
+
     def save(self, *args, **kwargs):
         self.clean()
         super(CalendarioPrenotazione, self).save(*args, **kwargs)

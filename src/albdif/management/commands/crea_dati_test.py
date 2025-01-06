@@ -64,8 +64,12 @@ class Command(BaseCommand):
                 PrenotazioneFactory.create(camera=c, visitatore=v)
 
         # Creazione calendario prenotazioni
+        gg = 1
         for p in Prenotazione.objects.all():
-            CalendarioPrenotazioneFactory.create(prenotazione=p)
+            CalendarioPrenotazioneFactory.create(prenotazione=p,
+                                                 data_inizio=date.today() + timedelta(days=gg),
+                                                 data_fine=date.today() + timedelta(days=gg+3))
+            gg = gg + 20
 
         # Creazione dell'utente guest
         g = UserFactory.create(username="guest")

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 
 def date_range(start_date, end_date):
@@ -20,6 +20,11 @@ def date_range(start_date, end_date):
         current_date += timedelta(days=1)
 
     return date_list
+
+
+def to_date(data):
+    return date(int(data[:4]), int(data[5:7]), int(data[-2:]))
+
 
 def calcola_prezzo_totale(data_inizio, data_fine, catalogo_prezzi):
     """

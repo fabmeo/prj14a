@@ -47,11 +47,11 @@ Titolo: **Albergo Diffuso Pegasus**
 > cd src
 > python manage.py migrate
 > ```
-5. creazione dei dati di test (include utente "guest")
+5. creazione dei dati di test (include utente "guest" per navigare il sito come un utente già registrato e l'utente "admin" per accedere all'Admin Site)
 > python manage.py crea_dati_test
 6. avvio del server
 > python manage.py runserver localhost:8000
-7. Click sulla url del sito in esecuzione (vedi sotto)
+7. Click sulla url del sito in esecuzione come nell'esempio sottostante
 > ```
 > <esempio della shell come si dovrebbe vedere con il server online> 
 > ...

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 import json
 
 from django.contrib import messages
@@ -16,7 +16,7 @@ from django.db import transaction
 from django.db.models import F, Q
 
 from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm
-from .utils.utility import date_range, calcola_prezzo_totale
+from .utils.utility import date_range, calcola_prezzo_totale, to_date
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore, Stagione, \
     ServizioCamera
 
