@@ -1,5 +1,3 @@
-import datetime
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CharField, Q
@@ -11,7 +9,8 @@ class Visitatore(models.Model):
     Visitatore:
     persona che effettua la registrazione al sito per effettuare la prenotazione
     """
-    registrazione = models.DateTimeField("data registrazione")
+    # timestamp della registrazione al sito
+    registrazione = models.DateTimeField()
     utente = models.OneToOneField(User, on_delete=models.CASCADE)
     telefono = models.CharField(max_length=20, null=True, blank=True)
     codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
@@ -29,12 +28,16 @@ class Host(models.Model):
     Host:
     persona o azienda che effettua la registrazione per accedere ai servizi hosting dell'AD
     """
-    registrazione = models.DateTimeField("data registrazione")
+    # timestamp della registrazione al sito
+    registrazione = models.DateTimeField()
     utente = models.OneToOneField(User, on_delete=models.CASCADE)
     telefono = models.CharField(max_length=20, null=True, blank=True)
     codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
     partita_iva = models.CharField(max_length=11, null=True, blank=True)
+    # contratto di associazione al sito
     contratto = models.FileField(blank=True, upload_to='contratti_host', null=True)
+    # richiesta di associazione al sito
+    richiesta_associazione = models.FileField(blank=True, upload_to='richiesta_host', null=True)
 
     class Meta():
         verbose_name = "Host"
@@ -50,8 +53,11 @@ class Proprieta(models.Model):
     l'albergo diffuso di proprietà di un host necessario per collezionare le camere da affittare
     """
     host = models.ForeignKey(Host, on_delete=models.CASCADE)
+    # descrizione della struttura ricettiva (Albergo Diffuso)
     descrizione = models.CharField(max_length=2000)
+    # indica se l'albergo è quello principale (solo un AD può avere questo attributo a True)
     principale = models.BooleanField(default=False, help_text="Indica se è l'AD principale")
+    # nome della struttura ricettiva
     nome = models.CharField(max_length=100, default="... inserire un nickname")
 
     class Meta():
@@ -91,8 +97,11 @@ class Camera(models.Model):
     ogni camera fa parte di una proprietà
     """
     proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE)
+    # nome della camera (facilita l'identificazione da parte della struttura ricettiva e del cliente)
     nome = models.CharField(max_length=100, default="... inserire un nickname")
+    # descrizione della camera (utile ai clienti per capire cosa stanno prenotando)
     descrizione = models.CharField(max_length=1000)
+    # numero dei posti letto presenti nella camera
     numero_posti_letto = models.IntegerField(null=True, blank=True, default=2)
 
     class Meta():
@@ -100,7 +109,7 @@ class Camera(models.Model):
         verbose_name_plural = "Camere"
 
     def __str__(self):
-        return f"{self.nome} di {self.proprieta}"
+        return f"{self.nome}"
 
     @property
     def image(self):
@@ -127,7 +136,9 @@ class ServizioCamera(models.Model):
     """
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE)
     servizio = models.ForeignKey(Servizio, on_delete=models.CASCADE)
+    # indica se il servizio è incluso nel prezzo o meno (opzionale)
     incluso = models.BooleanField(default=False)
+    # è il costo giornaliero del servizio: se "incluso" = True deve essere 0
     costo = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
 
     class Meta():
@@ -151,9 +162,11 @@ class Foto(models.Model):
     Foto:
     ogni foto può essere riferita o ad una camera o alla proprietà
     """
+    # descrizione della foto
     descrizione = CharField(max_length=100)
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE, null=True, blank=True)
     proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE, null=True, blank=True)
+    # file immagine
     file = models.FileField(blank=True, upload_to='foto_camera')
 
     class Meta():
@@ -214,11 +227,17 @@ class Prenotazione(models.Model):
 
     visitatore = models.ForeignKey(Visitatore, on_delete=models.CASCADE)
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE)
+    # data registrazione della prenotazione
     data_prenotazione = models.DateTimeField()
+    # indica lo stato attuale della prenotazione
     stato_prenotazione = models.CharField(max_length=2, choices=STATO_PRENOTAZIONE, default=REGISTRATA)
+    # eventuale richiesta del cliente
     richiesta = models.CharField(max_length=1000, null=True, blank=True, help_text="richiesta aggiuntiva del cliente")
+    # indica il costo del soggiorno determinato al momento della registrazione
     costo_soggiorno = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    # indica il timestamp in cui è stato effettuato il pagamento del soggiorno
     data_pagamento = models.DateTimeField(null=True, blank=True)
+    # numero delle persone che saranno ospitati
     numero_persone = models.IntegerField(null=True, blank=True, default=1)
 
     class Meta():
@@ -248,7 +267,9 @@ class CalendarioPrenotazione(models.Model):
     registra i periodi relativi ad una prenotazione
     """
     prenotazione = models.ForeignKey(Prenotazione, on_delete=models.CASCADE)
+    # data inizio soggiorno
     data_inizio = models.DateField(help_text="Data inizio soggiorno")
+    # data fine soggiorno
     data_fine = models.DateField(help_text="Data fine soggiorno")
 
     class Meta():
@@ -286,9 +307,19 @@ class Stagione(models.Model):
     Stagione:
     definisce le stagioni (periodi) che determinano poi i prezzi
     """
-    stagione = models.CharField(max_length=50)
+    BASSA = "Bassa"
+    MEDIA = "Media"
+    ALTA = "Alta"
+
+    PREZZI_STAGIONE = [(BASSA, "Bassa stagione"), (MEDIA, "Media stagione"), (ALTA, "Alta stagione")]
+
+    # stagione (un nome per ricordare un periodo dell'anno)
+    stagione = models.CharField(max_length=50, choices=PREZZI_STAGIONE)
+    # data inizio della stagione
     data_inizio = models.DateField()
+    # data fine della stagione
     data_fine = models.DateField()
+    # prezzo di riferimento
     prezzo_default = models.DecimalField(max_digits=7, decimal_places=2, default=50)
 
     class Meta():
@@ -320,6 +351,7 @@ class PrezzoCamera(models.Model):
     """
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE)
     stagione = models.ForeignKey(Stagione, on_delete=models.CASCADE)
+    # prezzo specifico di una camera per una stagione
     prezzo = models.DecimalField(max_digits=7, decimal_places=2)
 
     class Meta():
