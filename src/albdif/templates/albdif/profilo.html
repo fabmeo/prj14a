@@ -10,7 +10,7 @@
         <table class="visitatore">
             {{ form }}
         </table>
-        <input type="submit" class="btn btn-success" name="save" value="Salva">
+        <input type="submit" disabled="True" class="btn btn-success" name="save" value="Salva">
     </form>
     <form action="{% url 'albdif:logout' %}" method="POST" class="d-inline float-end">
         {% csrf_token %}

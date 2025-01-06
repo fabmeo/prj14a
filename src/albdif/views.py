@@ -54,6 +54,17 @@ class logout(View):
         return redirect('albdif:home')
 
 
+# PAGINA DEI CONTATTI
+class contatti(View):
+    """
+    # pagina dei contatti
+    """
+    template_name = "albdif/contatti.html"
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+
 # PROFILO UTENTE VISITATORE
 class profilo(LoginRequiredMixin, generic.DetailView):
     """

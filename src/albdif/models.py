@@ -52,6 +52,7 @@ class Proprieta(models.Model):
     host = models.ForeignKey(Host, on_delete=models.CASCADE)
     descrizione = models.CharField(max_length=2000)
     principale = models.BooleanField(default=False, help_text="Indica se è l'AD principale")
+    nome = models.CharField(max_length=100, default="... inserire un nickname")
 
     class Meta():
         verbose_name = "Proprietà"
@@ -219,7 +220,6 @@ class Prenotazione(models.Model):
     costo_soggiorno = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     data_pagamento = models.DateTimeField(null=True, blank=True)
     numero_persone = models.IntegerField(null=True, blank=True, default=1)
-    version = models.DateTimeField(default=datetime.datetime.now())
 
     class Meta():
         verbose_name = "Prenotazione"
