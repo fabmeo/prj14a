@@ -170,29 +170,19 @@ class prenota_camera(generic.DetailView):
     """
     template_name = "albdif/form_prenotazione.html"
 
-    def _get_common_context(self, visitatore, camera):
+    def get(self, request, *args, **kwargs):
+        visitatore = Visitatore.objects.get(utente__id=self.kwargs["id1"])
+        camera = get_object_or_404(Camera, id=self.kwargs["id2"])
         prenotazione_form = PrenotazioneForm(initial={'visitatore': visitatore.id, 'camera': camera.id})
         calendario_form = CalendarioPrenotazioneForm()
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
-        st = []
-        for s in stagioni:
-            pc = PrezzoCamera.objects.filter(camera=camera, stagione=s)
-            # se è presente il prezzo specifico della camera è prioritario rispetto ai prezzi di riferimento
-            prezzo = pc.first().prezzo if pc.exists() else s.prezzo_default
-            st.append({'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine, 'prezzo_default': prezzo})
-        return {
+        return render(request, self.template_name, {
             'visitatore': visitatore,
             'camera': camera,
             'prenotazione_form': prenotazione_form,
             'calendario_form': calendario_form,
-            'stagioni': st
-        }
-
-    def get(self, request, *args, **kwargs):
-        visitatore = Visitatore.objects.get(utente__id=self.kwargs["id1"])
-        camera = get_object_or_404(Camera, id=self.kwargs["id2"])
-        context = self._get_common_context(visitatore, camera)
-        return render(request, self.template_name, context)
+            'stagioni': stagioni
+        })
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
@@ -213,15 +203,6 @@ class prenota_camera(generic.DetailView):
         calendario_form = CalendarioPrenotazioneForm(request.POST)
         calendario_form.instance.prenotazione = prenotazione_form.instance
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
-        #di = to_date(request.POST['data_inizio'])
-        #df = to_date(request.POST['data_fine'])
-        st = []
-        for s in stagioni:
-            pc = PrezzoCamera.objects.filter(camera=camera, stagione=s)
-            # se è presente il prezzo specifico della camera è prioritario rispetto ai prezzi di riferimento
-            prezzo = pc.first().prezzo if pc.exists() else s.prezzo_default
-            st.append({'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine, 'prezzo_default': prezzo})
-        #tot = calcola_prezzo_totale(di, df, st)
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
             prenotazione = prenotazione_form.save()
@@ -231,10 +212,16 @@ class prenota_camera(generic.DetailView):
             messages.success(request, 'Prenotazione avvenuta con successo')
             #@TODO invio email all'utente
             return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
+        else:
+            messages.error(request, 'Sono presenti degli errori: ricontrollare i dati inseriti')
 
-        messages.error(request, 'Sono presenti degli errori: ricontrollare i dati inseriti')
-        context = self._get_common_context(visitatore, camera)
-        return render(request, self.template_name, context)
+        return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
+            'prenotazione_form': prenotazione_form,
+            'calendario_form': calendario_form,
+            'stagioni': stagioni
+        })
 
 
 class prenota_modifica(generic.DetailView):
@@ -251,7 +238,8 @@ class prenota_modifica(generic.DetailView):
             return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
 
         """ Non è possibile modificare una prenotazione già pagata"""
-        if prenotazione.stato_prenotazione == "PG":
+        p = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
+        if p.stato_prenotazione == "PG":
             messages.warning(request, 'Non è possibile modificare una prenotazione già pagata!')
             return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
 
@@ -263,30 +251,22 @@ class prenota_modifica(generic.DetailView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def _get_common_context(self, prenotazione):
+    def get(self, request, *args, **kwargs):
+        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
         calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
         visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
-        stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
         prenotazione_form = PrenotazioneForm(instance=prenotazione)
         calendario_form = CalendarioPrenotazioneForm(instance=calendario)
-        st = []
-        for s in stagioni:
-            pc = PrezzoCamera.objects.filter(camera=prenotazione.camera, stagione=s)
-            prezzo = pc.first().prezzo if pc.exists() else s.prezzo_default
-            st.append({'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine, 'prezzo_default': prezzo})
-        return {
+        stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
+
+        return render(request, self.template_name, {
             'visitatore': visitatore,
             'camera': camera,
             'prenotazione_form': prenotazione_form,
             'calendario_form': calendario_form,
-            'stagioni': st
-        }
-
-    def get(self, request, *args, **kwargs):
-        prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
-        context = self._get_common_context(prenotazione)
-        return render(request, self.template_name, context)
+            'stagioni': stagioni
+        })
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
@@ -298,15 +278,15 @@ class prenota_modifica(generic.DetailView):
         CalendarioPrenotazione.objects.select_for_update().filter(prenotazione__camera__id=prenotazione.camera.id)
 
         calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
+        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
-        di = to_date(request.POST['data_inizio'])
-        df = to_date(request.POST['data_fine'])
         st = []
         for s in stagioni:
-            pc = PrezzoCamera.objects.filter(camera=prenotazione.camera, stagione=s)
-            prezzo = pc.first().prezzo if pc.exists() else s.prezzo_default
-            st.append({'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine, 'prezzo_default': prezzo})
-        tot = calcola_prezzo_totale(di, df, st)
+            e = {'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine,
+                 'prezzo_default': s.prezzo_default}
+            st.append(e)
+        tot = calcola_prezzo_totale(calendario.data_inizio, calendario.data_fine, st)
         if prenotazione.costo_soggiorno and prenotazione.costo_soggiorno != tot:
             messages.info(request, 'Il prezzo è stato aggiornato')
             prenotazione.costo_soggiorno = tot
@@ -318,10 +298,15 @@ class prenota_modifica(generic.DetailView):
             calendario_form.save()
             messages.success(request, 'Prenotazione modificata con successo')
             #@TODO invio email all'utente
-            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': prenotazione.visitatore.utente.id}))
+            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
 
-        context = self._get_common_context(prenotazione)
-        return render(request, self.template_name, context)
+        return render(request, self.template_name, {
+            'visitatore': visitatore,
+            'camera': camera,
+            'prenotazione_form': prenotazione_form,
+            'calendario_form': calendario_form,
+            'stagioni': stagioni
+        })
 
 
 class prenota_cancella(generic.DetailView):
