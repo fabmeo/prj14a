@@ -68,6 +68,16 @@ h1, h2, h3, h4, h5 {
     overflow-y: auto;
 }
 
+.sezione-dx-home {
+    font-size: 16px;
+    color: #333;
+    margin: 2px;
+    padding: 10px;
+    border: 1px solid #462a2a;
+    background-color: rgba(143, 202, 236, 0.6);
+    text-align: justify;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.9);
+}
 .titolopagina {
     margin-top: 60px;
 }

@@ -83,6 +83,7 @@ class ProprietaFactory(DjangoModelFactory):
     host = factory.SubFactory(HostFactory)
     descrizione = factory.fuzzy.FuzzyText(prefix=prefix, length=12, suffix=suffix)
     principale = False  # solo uno a True, gli altri a False
+    nome = factory.Faker('name')
 
     class Meta:
         model = Proprieta

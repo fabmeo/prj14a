@@ -6,6 +6,7 @@
 {% block title %}Lista dei Partner{% endblock %}
 {% block content %}
 <h2 class="titolopagina"> I nostri partner ... </h2>
+<p>In questa sezione puoi consultare le strutture alberghiere dei nostri partner</p>
 
 <hr>
 
@@ -16,9 +17,11 @@
             <div style="flex: 1;"></div>
             <div style="flex: 5; text-align: center;">
                 {% for f in p.foto %}
-                <a href="{% url 'albdif:proprieta_detail' p.prop.pk %}">{{ p.prop }}
-                    <img src="{{ f.file.url }}" alt="Immagine di {{ p.prop }}" style="width: 100%; height: auto;">
-                </a>
+                <h3>Albergo diffuso di
+                    <a href="{% url 'albdif:proprieta_detail' p.prop.pk %}">{{ p.prop.nome }}
+                        <img src="{{ f.file.url }}" alt="Immagine di {{ p.prop }}" style="width: 100%; height: auto;">
+                    </a>
+                </h3>
                 {% endfor %}
             </div>
             <div style="flex: 1;"></div>
