@@ -17,8 +17,8 @@ from django.db.models import F, Q
 
 from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm
 from .utils.utility import date_range, calcola_prezzo_totale, to_date
-from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore, Stagione, \
-    ServizioCamera
+from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Stagione, \
+    ServizioCamera # Visitatore
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -86,9 +86,9 @@ class profilo(LoginRequiredMixin, generic.DetailView):
         """Ritorna la lista delle prenotazioni di un utente"""
         context = super(profilo, self).get_context_data(**kwargs)
         utente_id = self.kwargs.get('pk')
-        prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore__utente__id=utente_id,
+        prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore__id=utente_id,
                                                              data_inizio__gte=datetime.now())
-        storico = CalendarioPrenotazione.objects.filter(prenotazione__visitatore__utente__id=utente_id,
+        storico = CalendarioPrenotazione.objects.filter(prenotazione__visitatore__id=utente_id,
                                                         data_inizio__lt=datetime.now())
         context['prenotazioni_list'] = prenotazioni
         context['storico_list'] = storico
@@ -165,7 +165,7 @@ class camera_detail(generic.DetailView):
         foto = Foto.objects.filter(camera=self.object.pk)
         prenotazioni = []
         if self.request.user.is_authenticated:
-            prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore__utente=self.request.user,
+            prenotazioni = CalendarioPrenotazione.objects.filter(prenotazione__visitatore__user=self.request.user,
                                                                  prenotazione__camera=self.object,
                                                                  data_inizio__gte=datetime.now())
         context['disabled_dates'] = json.dumps(gia_prenotate)
@@ -182,7 +182,7 @@ class prenota_camera(generic.DetailView):
     template_name = "albdif/form_prenotazione.html"
 
     def get(self, request, *args, **kwargs):
-        visitatore = Visitatore.objects.get(utente__id=self.kwargs["id1"])
+        visitatore = User.objects.get(id=self.kwargs["id1"])
         camera = get_object_or_404(Camera, id=self.kwargs["id2"])
         prenotazione_form = PrenotazioneForm(initial={'visitatore': visitatore.id, 'camera': camera.id})
         calendario_form = CalendarioPrenotazioneForm()
@@ -197,7 +197,7 @@ class prenota_camera(generic.DetailView):
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
-        visitatore = Visitatore.objects.get(utente__id=self.kwargs["id1"])
+        visitatore = User.objects.get(id=self.kwargs["id1"])
         camera = get_object_or_404(Camera, id=self.kwargs["id2"])
 
         # TODO su sqlite non è possibile testare questa situazione per il lock è acquisito sull'intero database
@@ -222,7 +222,7 @@ class prenota_camera(generic.DetailView):
             calendario.save()
             messages.success(request, 'Prenotazione avvenuta con successo')
             #@TODO invio email all'utente
-            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
+            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
         else:
             messages.error(request, 'Sono presenti degli errori: ricontrollare i dati inseriti')
 
@@ -244,7 +244,7 @@ class prenota_modifica(generic.DetailView):
     def dispatch(self, request, *args, **kwargs):
         """ La pagina della prenotazione può essere acceduta solo dal suo utente """
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
-        if prenotazione.visitatore.utente.id != request.user.id:
+        if prenotazione.visitatore.id != request.user.id:
             messages.warning(request, 'Accesso ad altre pagine prenotazione non consentito!')
             return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
 
@@ -265,7 +265,7 @@ class prenota_modifica(generic.DetailView):
     def get(self, request, *args, **kwargs):
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
         calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
-        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        visitatore = get_object_or_404(User, id=prenotazione.visitatore.id)
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         prenotazione_form = PrenotazioneForm(instance=prenotazione)
         calendario_form = CalendarioPrenotazioneForm(instance=calendario)
@@ -289,7 +289,7 @@ class prenota_modifica(generic.DetailView):
         CalendarioPrenotazione.objects.select_for_update().filter(prenotazione__camera__id=prenotazione.camera.id)
 
         calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
-        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        visitatore = get_object_or_404(User, id=prenotazione.visitatore.id)
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
         st = []
@@ -309,7 +309,7 @@ class prenota_modifica(generic.DetailView):
             calendario_form.save()
             messages.success(request, 'Prenotazione modificata con successo')
             #@TODO invio email all'utente
-            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
+            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
 
         return render(request, self.template_name, {
             'visitatore': visitatore,
@@ -329,7 +329,7 @@ class prenota_cancella(generic.DetailView):
     def dispatch(self, request, *args, **kwargs):
         """ La pagina della prenotazione può essere acceduta solo dal suo utente """
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
-        if prenotazione.visitatore.utente.id != request.user.id:
+        if prenotazione.visitatore.id != request.user.id:
             messages.error(request, 'Accesso ad altre pagine prenotazione non consentito!')
             return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
 
@@ -369,7 +369,7 @@ class prenota_paga(generic.DetailView):
     def dispatch(self, request, *args, **kwargs):
         """ La pagina del pagamento della prenotazione può essere acceduta solo dal suo utente """
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
-        if prenotazione.visitatore.utente.id != request.user.id:
+        if prenotazione.visitatore.id != request.user.id:
             messages.warning(request, 'Accesso ad altre pagine prenotazione non consentito!')
             return HttpResponseRedirect(reverse('albdif:camera_detail', kwargs={'pk': prenotazione.camera.id}))
 
@@ -390,7 +390,7 @@ class prenota_paga(generic.DetailView):
     def get(self, request, *args, **kwargs):
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
         calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
-        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        visitatore = get_object_or_404(User, id=prenotazione.visitatore.id)
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
         if prenotazione.costo_soggiorno is None:
@@ -405,7 +405,7 @@ class prenota_paga(generic.DetailView):
 
     def post(self, request, *args, **kwargs):
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
-        visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
+        visitatore = get_object_or_404(User, id=prenotazione.visitatore.id)
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
         pagamento_form = PagamentoForm(request.POST, instance=prenotazione)
 
@@ -415,7 +415,7 @@ class prenota_paga(generic.DetailView):
             pagamento = pagamento_form.save()
             messages.success(request, 'Pagamento effettuto con successo')
             #@TODO invio email all'utente
-            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
+            return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.id}))
 
         return render(request, self.template_name, {
             'visitatore': visitatore,

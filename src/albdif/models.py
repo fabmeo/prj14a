@@ -1,50 +1,56 @@
-from django.contrib.auth.models import User
+from functools import cached_property
+from typing import Optional, Any
+
+from django.contrib.auth.models import User, Group as Group_, AbstractUser, Permission
 from django.db import models
-from django.db.models import CharField, Q
+from django.db.models import CharField, Q, QuerySet
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+
+valida_telefono = RegexValidator(r"^\d[1-9]{1,3}/\d{7,10}$")
 
 
-class Visitatore(models.Model):
-    """
-    Visitatore:
-    persona che effettua la registrazione al sito per effettuare la prenotazione
-    """
-    # timestamp della registrazione al sito
-    registrazione = models.DateTimeField()
-    utente = models.OneToOneField(User, on_delete=models.CASCADE)
-    telefono = models.CharField(max_length=20, null=True, blank=True)
-    codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
-
-    class Meta():
-        verbose_name = "Visitatore"
-        verbose_name_plural = "Visitatori"
-
-    def __str__(self):
-        return f"{self.utente.last_name} {self.utente.first_name}"
-
-
-class Host(models.Model):
-    """
-    Host:
-    persona o azienda che effettua la registrazione per accedere ai servizi hosting dell'AD
-    """
-    # timestamp della registrazione al sito
-    registrazione = models.DateTimeField()
-    utente = models.OneToOneField(User, on_delete=models.CASCADE)
-    telefono = models.CharField(max_length=20, null=True, blank=True)
-    codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
-    partita_iva = models.CharField(max_length=11, null=True, blank=True)
-    # contratto di associazione al sito
-    contratto = models.FileField(blank=True, upload_to='contratti_host', null=True)
-    # richiesta di associazione al sito
-    richiesta_associazione = models.FileField(blank=True, upload_to='richiesta_host', null=True)
-
-    class Meta():
-        verbose_name = "Host"
-        verbose_name_plural = "Hosts"
-
-    def __str__(self):
-        return f"{self.utente.last_name} {self.utente.first_name}"
+# class Visitatore(models.Model):
+#     """
+#     Visitatore:
+#     persona che effettua la registrazione al sito per effettuare la prenotazione
+#     """
+#     # timestamp della registrazione al sito
+#     registrazione = models.DateTimeField()
+#     utente = models.OneToOneField(User, on_delete=models.CASCADE)
+#     telefono = models.CharField(max_length=20, null=True, blank=True)
+#     codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
+#
+#     class Meta():
+#         verbose_name = "Visitatore"
+#         verbose_name_plural = "Visitatori"
+#
+#     def __str__(self):
+#         return f"{self.utente.last_name} {self.utente.first_name}"
+#
+#
+# class Host(models.Model):
+#     """
+#     Host:
+#     persona o azienda che effettua la registrazione per accedere ai servizi hosting dell'AD
+#     """
+#     # timestamp della registrazione al sito
+#     registrazione = models.DateTimeField()
+#     utente = models.OneToOneField(User, on_delete=models.CASCADE)
+#     telefono = models.CharField(max_length=20, null=True, blank=True)
+#     codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
+#     partita_iva = models.CharField(max_length=11, null=True, blank=True)
+#     # contratto di associazione al sito
+#     contratto = models.FileField(blank=True, upload_to='contratti_host', null=True)
+#     # richiesta di associazione al sito
+#     richiesta_associazione = models.FileField(blank=True, upload_to='richiesta_host', null=True)
+#
+#     class Meta():
+#         verbose_name = "Host"
+#         verbose_name_plural = "Hosts"
+#
+#     def __str__(self):
+#         return f"{self.utente.last_name} {self.utente.first_name}"
 
 
 class Proprieta(models.Model):
@@ -52,7 +58,7 @@ class Proprieta(models.Model):
     Proprietà:
     l'albergo diffuso di proprietà di un host necessario per collezionare le camere da affittare
     """
-    host = models.ForeignKey(Host, on_delete=models.CASCADE)
+    #host = models.ForeignKey(Host, on_delete=models.CASCADE)
     # descrizione della struttura ricettiva (Albergo Diffuso)
     descrizione = models.CharField(max_length=2000)
     # indica se l'albergo è quello principale (solo un AD può avere questo attributo a True)
@@ -75,6 +81,81 @@ class Proprieta(models.Model):
         self.clean()
         super(Proprieta, self).save(*args, **kwargs)
         
+
+class Group(Group_):
+    class Meta:
+        proxy = True
+
+
+class User(AbstractUser):
+    # timestamp della registrazione al sito
+    registrazione = models.DateTimeField()
+    # codice fiscale
+    codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
+    # partita iva
+    partita_iva = models.CharField(max_length=11, null=True, blank=True)
+    # numero di telefono
+    telefono = models.CharField("Telefono", max_length=255, blank=True, null=True,
+        validators=[valida_telefono],
+        help_text="Deve contenere solo numeri e uno slash ( / )",
+    )
+    # richiesta di associazione al sito
+    richiesta_associazione = models.FileField(blank=True, upload_to='richiesta_host', null=True)
+    # contratto di associazione al sito
+    contratto = models.FileField(blank=True, upload_to='contratti_host', null=True)
+    groups = models.ManyToManyField(Group, related_name='albdif_user_set')
+    user_permissions = models.ManyToManyField(Permission, related_name='albdif_user_set_permissions')
+
+    class Meta:
+        permissions = (
+            ("Visitatore", "Gestione visitatore"),
+            ("Titolare", "Titolare di proprietà"),
+            ("Contabile", "Gestore contabilità proprietà"),
+            ("Accoglienza", "Accoglienza visitatori di una proprietà"),
+        )
+
+    def get_label(self) -> str:
+        if self.last_name and self.first_name:
+            return f"{self.first_name} {self.last_name}"
+        return str(self.username)
+
+    def get_proprieta(self) -> Optional[Proprieta]:
+        return self.get_allowed_proprieta().first()
+
+    @cached_property
+    def default_proprieta(self) -> Optional[Proprieta]:
+        return self.get_proprieta().first()
+
+    def get_allowed_proprieta(self, **extra: Any) -> QuerySet:
+        if UserRole.objects.filter(user=self, proprieta__isnull=True):
+            return Proprieta.objects.filter(**extra)  # type: ignore[no-any-return]
+
+        return Proprieta.objects.filter(userrole__user=self).filter(**extra)  # type: ignore[no-any-return]
+
+
+class RuoloUtente(models.Model):
+    """
+    Ruolo che un utente svolge nell'usare l'applicazione
+    es.
+       - l'utente con ruolo (Django Group) "Visitatore" del sito                   - GESTITO IN QUESTA VERSIONE
+       - l'utente con ruolo (Django Group) "Titolare" di una proprietà (Host)      - GESTITO IN QUESTA VERSIONE
+       - l'utente con ruolo (Django Group) "Responsabile Ordini" di una proprietà
+       - l'utente con ruolo (Django Group) "Contabile" di una proprietà
+       - l'utente con ruolo (Django Group) "Accoglienza" di una proprietà
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    ente = models.ForeignKey(
+        Proprieta, on_delete=models.CASCADE, blank=True, null=True, limit_choices_to={"parent__isnull": True}
+    )
+
+    def __str__(self):
+        return f"{self.group}"
+
+    class Meta():
+        verbose_name = "Ruolo utente"
+        verbose_name_plural = "Ruoli utente"
+
 
 class Servizio(models.Model):
     """
@@ -225,7 +306,8 @@ class Prenotazione(models.Model):
         (RICHIESTA, NEGATA),
     ]
 
-    visitatore = models.ForeignKey(Visitatore, on_delete=models.CASCADE)
+    #visitatore = models.ForeignKey(Visitatore, on_delete=models.CASCADE)
+    visitatore = models.ForeignKey(User, on_delete=models.CASCADE)
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE)
     # data registrazione della prenotazione
     data_prenotazione = models.DateTimeField()
@@ -245,7 +327,7 @@ class Prenotazione(models.Model):
         verbose_name_plural = "Prenotazioni"
 
     def __str__(self):
-        return f"{self.id} {self.visitatore} {self.camera} {self.stato_prenotazione}"
+        return f"{self.id} {self.user} {self.camera} {self.stato_prenotazione}"
 
     def is_valid_state_transition(self, old_state, new_state):
         return (old_state, new_state) in self.PASSAGGI_STATO

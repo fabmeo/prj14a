@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import Visitatore, Host, Proprieta, Camera, Foto, Prenotazione, CalendarioPrenotazione, Stagione, \
-    PrezzoCamera, Servizio, ServizioCamera
+from .models import Proprieta, Camera, Foto, Prenotazione, CalendarioPrenotazione, Stagione, \
+    PrezzoCamera, Servizio, ServizioCamera, User, RuoloUtente  # Visitatore, Host
 
 
 class FotoAdmin(admin.ModelAdmin):
@@ -11,7 +11,7 @@ class FotoAdmin(admin.ModelAdmin):
 
 
 class ProprietaAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'host', 'descrizione', 'principale']
+    list_display = ['pk', 'descrizione', 'principale'] # host
     search_fields = ['descrizione', ]
     list_filter = ['principale', ]
 
@@ -40,26 +40,39 @@ class ServizioCameraAdmin(admin.ModelAdmin):
     list_filter = ['camera', 'servizio']
 
 
-class VisitatoreAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'utente', 'registrazione']
-    search_fields = ['utente_first_name', 'utente_last_name']
+class UserAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'registrazione', 'last_name', 'first_name'] # 'utente',
+    search_fields = ['first_name', 'last_name']
     list_filter = ['registrazione',]
 
 
-class HostAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'utente', 'registrazione']
-    search_fields = ['utente_first_name', 'utente_last_name']
-    list_filter = ['registrazione',]
+class RuoloUtenteAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'user', 'group', 'ente'] # 'utente',
+    search_fields = ['user', 'ente']
+    list_filter = ['ente',]
+
+
+# class VisitatoreAdmin(admin.ModelAdmin):
+#     list_display = ['pk', 'utente', 'registrazione']
+#     search_fields = ['utente_first_name', 'utente_last_name']
+#     list_filter = ['registrazione',]
+#
+#
+# class HostAdmin(admin.ModelAdmin):
+#     list_display = ['pk', 'utente', 'registrazione']
+#     search_fields = ['utente_first_name', 'utente_last_name']
+#     list_filter = ['registrazione',]
 
 
 class StagioneAdmin(admin.ModelAdmin):
     list_display = ['pk', 'stagione', 'data_inizio']
     list_filter = ['data_inizio', 'stagione', ]
 
-
+admin.site.register(RuoloUtente, RuoloUtenteAdmin)
+admin.site.register(User, UserAdmin)
+#admin.site.register(Visitatore, VisitatoreAdmin)
+#admin.site.register(Host, HostAdmin)
 admin.site.register(Stagione, StagioneAdmin)
-admin.site.register(Visitatore, VisitatoreAdmin)
-admin.site.register(Host, HostAdmin)
 admin.site.register(Foto, FotoAdmin)
 admin.site.register(Proprieta, ProprietaAdmin)
 admin.site.register(Camera, CameraAdmin)
