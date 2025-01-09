@@ -5,18 +5,18 @@ from django_webtest import DjangoTestApp
 
 from albdif.models import Proprieta, Prenotazione
 from albdif.utils.fixtures import CameraFactory, StagioneFactory, PrezzoCameraFactory, PrenotazioneFactory, \
-    VisitatoreFactory, CalendarioPrenotazioneFactory, ServizioFactory, ServizioCameraFactory
+    CalendarioPrenotazioneFactory, ServizioFactory, ServizioCameraFactory, UtenteFactory
 
 
-def test_proprieta(user, host):
+def test_proprieta(app: "DjangoTestApp"):
     Proprieta.objects.create(
-        host=host,
+        nome="bli bli",
         descrizione="bla bla",
         principale=True,
     )
     try:
         Proprieta.objects.create(
-            host=host,
+            nome="bli bli",
             descrizione="bla bla",
             principale=True
         )
@@ -64,7 +64,7 @@ def test_camera(app: "DjangoTestApp"):
 
 def test_prenotazione(app: "DjangoTestApp"):
     c1 = CameraFactory.create()
-    v1 = VisitatoreFactory.create()
+    v1 = UtenteFactory.create()
     p1 = PrenotazioneFactory.create(camera=c1, visitatore=v1, stato_prenotazione=Prenotazione.CONFERMATA)
     try:
         p1.stato_prenotazione = Prenotazione.REGISTRATA
@@ -75,8 +75,8 @@ def test_prenotazione(app: "DjangoTestApp"):
 def test_prenotazione_contemporanea(app: "DjangoTestApp"):
 
     c1 = CameraFactory.create()
-    v1 = VisitatoreFactory.create()
-    v2 = VisitatoreFactory.create()
+    v1 = UtenteFactory.create()
+    v2 = UtenteFactory.create()
     p1 = PrenotazioneFactory.create(camera=c1, visitatore=v1, stato_prenotazione=Prenotazione.REGISTRATA)
     CalendarioPrenotazioneFactory.create(prenotazione=p1,
                                          data_inizio=date.today() + timedelta(days=5),

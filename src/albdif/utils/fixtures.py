@@ -11,7 +11,7 @@ import factory.fuzzy
 from factory.django import DjangoModelFactory
 
 from albdif.config import env
-from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione, Foto, Stagione, \
+from albdif.models import Proprieta, Camera, Prenotazione, CalendarioPrenotazione, Foto, Stagione, \
     Servizio, ServizioCamera, PrezzoCamera
 
 prefix = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
@@ -22,7 +22,7 @@ suffix = ("Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
           "mollit anim id est laborum.")
 
 
-class UserFactory(DjangoModelFactory):
+class UtenteFactory(DjangoModelFactory):
     username = factory.Sequence(lambda n: f"test-{n}")
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
@@ -30,6 +30,7 @@ class UserFactory(DjangoModelFactory):
     password = "password"  # noqa
     is_superuser = False
     is_staff = False
+    registrazione = factory.fuzzy.FuzzyDate(date.today() - timedelta(days=360), date.today())
 
     class Meta:
         model = settings.AUTH_USER_MODEL
@@ -44,20 +45,9 @@ class UserFactory(DjangoModelFactory):
         return manager.create_user(*args, **kwargs)
 
 
-class VisitatoreFactory(DjangoModelFactory):
-    utente = factory.SubFactory(UserFactory)
-    registrazione = factory.fuzzy.FuzzyDate(date(2024, 1, 1), date(2025, 12, 31))
-
-    class Meta:
-        model = Visitatore
-
-
-class HostFactory(DjangoModelFactory):
-    utente = factory.SubFactory(UserFactory)
-    registrazione = factory.fuzzy.FuzzyDate(date(2024, 1, 1), date(2025, 12, 31))
-
-    class Meta:
-        model = Host
+class GroupFactory(DjangoModelFactory):
+    name = factory.fuzzy.FuzzyText(length=10)
+    permissions = factory.fuzzy.FuzzyText(length=10)
 
 
 class StagioneFactory(DjangoModelFactory):
@@ -71,7 +61,7 @@ class StagioneFactory(DjangoModelFactory):
 
 
 class ProprietaPrincFactory(DjangoModelFactory):
-    host = factory.SubFactory(HostFactory)
+    #host = factory.SubFactory(HostFactory)
     descrizione = factory.Faker('name')
     principale = True  # solo uno a True, gli altri a False
 
@@ -80,13 +70,19 @@ class ProprietaPrincFactory(DjangoModelFactory):
 
 
 class ProprietaFactory(DjangoModelFactory):
-    host = factory.SubFactory(HostFactory)
+    #host = factory.SubFactory(HostFactory)
     descrizione = factory.fuzzy.FuzzyText(prefix=prefix, length=12, suffix=suffix)
     principale = False  # solo uno a True, gli altri a False
     nome = factory.Faker('name')
 
     class Meta:
         model = Proprieta
+
+
+class RuoloUtenteFactory(DjangoModelFactory):
+    user = factory.SubFactory(UtenteFactory)
+    group = factory.SubFactory(GroupFactory)
+    ente = factory.SubFactory(ProprietaFactory)
 
 
 class ServizioFactory(DjangoModelFactory):
@@ -125,7 +121,7 @@ class ServizioCameraFactory(DjangoModelFactory):
 STATI = ["PR", "PG", "CA"]
 
 class PrenotazioneFactory(DjangoModelFactory):
-    visitatore = factory.SubFactory(VisitatoreFactory)
+    visitatore = factory.SubFactory(UtenteFactory)
     camera = factory.SubFactory(CameraFactory)
     data_prenotazione = factory.fuzzy.FuzzyDate(start_date=date.today() - timedelta(days=30),
                                                 end_date=date.today())
@@ -186,6 +182,7 @@ class FotoFactory(DjangoModelFactory):
             raise RuntimeError(f"La directory '{directory}' non esiste.")
         except Exception as e:
             raise RuntimeError(f"Errore durante il caricamento dei file dalla directory '{directory}': {e}")
+
 
 class PrezzoCameraFactory(DjangoModelFactory):
 

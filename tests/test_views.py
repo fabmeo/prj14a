@@ -6,7 +6,7 @@ from django.urls import reverse
 import pytest
 from django_webtest import DjangoTestApp
 
-from albdif.utils.fixtures import UserFactory, VisitatoreFactory, HostFactory, CalendarioPrenotazioneFactory, \
+from albdif.utils.fixtures import UtenteFactory, CalendarioPrenotazioneFactory, \
     PrenotazioneFactory, CameraFactory, ProprietaFactory
 
 if TYPE_CHECKING:
@@ -16,15 +16,15 @@ from albdif.models import Prenotazione, CalendarioPrenotazione
 
 @pytest.fixture
 def user(db):
-    return UserFactory()
+    return UtenteFactory()
 
 @pytest.fixture
 def visitatore(db):
-    return VisitatoreFactory()
+    return UtenteFactory()
 
-@pytest.fixture
-def host(db):
-    return HostFactory()
+# @pytest.fixture
+# def host(db):
+#     return HostFactory()
 
 def test_home(app: "DjangoTestApp"):
     url = reverse("albdif:home")
@@ -76,7 +76,7 @@ def test_logout(app: "DjangoTestApp"):
 
 
 def test_profilo_denied(app: "DjangoTestApp", user):
-    s = UserFactory()
+    s = UtenteFactory()
     url = reverse("albdif:profilo", kwargs={'pk': s.pk})
     response = app.get(url)
     assert response.status_code == 302
@@ -93,7 +93,7 @@ def test_proprieta_partner_view(app: "DjangoTestApp"):
 
 def test_calendario_passato(app: "DjangoTestApp", user):
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=user)
+    v1 = UtenteFactory(utente=user)
     c1 = CameraFactory(proprieta=pr1)
     p1 = PrenotazioneFactory(
         visitatore=v1,
@@ -114,7 +114,7 @@ def test_calendario_passato(app: "DjangoTestApp", user):
 
 def test_prenotazione_passata(app: "DjangoTestApp", user):
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=user)
+    v1 = UtenteFactory(utente=user)
     c1 = CameraFactory(proprieta=pr1)
 
     url = reverse("albdif:prenota_camera", kwargs={'id1': v1.pk, 'id2': c1.pk})
@@ -137,9 +137,9 @@ def test_prenotazione_passata(app: "DjangoTestApp", user):
     assert 'La data fine non può essere antecedente o uguale alla data inizio' in response.content.decode()
 
 def test_prenotazione_negata(app: "DjangoTestApp", user):
-    u1 = UserFactory()
+    u1 = UtenteFactory()
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=u1)
+    v1 = UtenteFactory(utente=u1)
     c1 = CameraFactory(proprieta=pr1)
     p1 = PrenotazioneFactory(
         visitatore=v1,
@@ -152,7 +152,7 @@ def test_prenotazione_negata(app: "DjangoTestApp", user):
         data_inizio=date.today() + timedelta(days=10),
         data_fine=date.today() + timedelta(days=12))
 
-    v = VisitatoreFactory(utente=user)
+    v = UtenteFactory(utente=user)
     url = reverse("albdif:prenota_camera", kwargs={'id1': v.pk, 'id2': c1.pk})
     response = app.get(url)
     assert response.status_code == 200
@@ -168,7 +168,7 @@ def test_prenotazione_negata(app: "DjangoTestApp", user):
 
 def test_prenotazione_sovrapposta(app: "DjangoTestApp", user):
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=user)
+    v1 = UtenteFactory(utente=user)
     c1 = CameraFactory(proprieta=pr1)
     p1 = PrenotazioneFactory(
         visitatore=v1,
@@ -196,7 +196,7 @@ def test_prenotazione_sovrapposta(app: "DjangoTestApp", user):
 
 def test_prenotazione_avvenuta(app: "DjangoTestApp", user):
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=user)
+    v1 = UtenteFactory(utente=user)
     c1 = CameraFactory(proprieta=pr1)
 
     url = reverse("albdif:prenota_camera", kwargs={'id1': v1.pk, 'id2': c1.pk})
@@ -219,7 +219,7 @@ def test_prenotazione_avvenuta(app: "DjangoTestApp", user):
 
 def test_prenotazione_modifica(app: "DjangoTestApp", user):
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=user)
+    v1 = UtenteFactory(utente=user)
     c1 = CameraFactory(proprieta=pr1)
     p1 = PrenotazioneFactory(
         visitatore=v1,
@@ -249,9 +249,9 @@ def test_prenotazione_modifica(app: "DjangoTestApp", user):
 
 
 def test_prenotazione_modifica_denied(app: "DjangoTestApp", user):
-    s = UserFactory()
+    s = UtenteFactory()
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=s)
+    v1 = UtenteFactory(utente=s)
     c1 = CameraFactory(proprieta=pr1)
     p1 = PrenotazioneFactory(
         visitatore=v1,
@@ -272,9 +272,9 @@ def test_prenotazione_modifica_denied(app: "DjangoTestApp", user):
 
 
 def test_prenotazione_modifica_denied_2(app: "DjangoTestApp", user):
-    s = UserFactory()
+    s = UtenteFactory()
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=s)
+    v1 = UtenteFactory(utente=s)
     c1 = CameraFactory(proprieta=pr1)
     p1 = PrenotazioneFactory(
         visitatore=v1,
@@ -303,9 +303,9 @@ def test_prenotazione_modifica_denied_2(app: "DjangoTestApp", user):
 
 
 def test_prenotazione_cancellata(app: "DjangoTestApp", user):
-    s = UserFactory()
+    s = UtenteFactory()
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=s)
+    v1 = UtenteFactory(utente=s)
     c1 = CameraFactory(proprieta=pr1)
     p1 = PrenotazioneFactory(
         visitatore=v1,
@@ -366,7 +366,7 @@ def test_proprieta(app: "DjangoTestApp"):
 
 def test_camera(app: "DjangoTestApp", user):
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=user)
+    v1 = UtenteFactory(utente=user)
     c1 = CameraFactory(proprieta=pr1)
     c2 = CameraFactory(proprieta=pr1)
     p1 = PrenotazioneFactory(
@@ -425,7 +425,7 @@ def test_camera_anonymous(app: "DjangoTestApp"):
 
 def test_cancellazione_prenotazione(app: "DjangoTestApp", user):
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=user)
+    v1 = UtenteFactory(utente=user)
     c1 = CameraFactory(proprieta=pr1)
     p1 = PrenotazioneFactory(
         visitatore=v1,
@@ -459,7 +459,7 @@ def test_cancellazione_prenotazione(app: "DjangoTestApp", user):
 
 def test_pagamento_prenotazione(app: "DjangoTestApp", user):
     pr1 = ProprietaFactory()
-    v1 = VisitatoreFactory(utente=user)
+    v1 = UtenteFactory(utente=user)
     c1 = CameraFactory(proprieta=pr1)
     p1 = PrenotazioneFactory(
         visitatore=v1,

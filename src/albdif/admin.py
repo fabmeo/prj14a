@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import Proprieta, Camera, Foto, Prenotazione, CalendarioPrenotazione, Stagione, \
-    PrezzoCamera, Servizio, ServizioCamera, User, RuoloUtente  # Visitatore, Host
+    PrezzoCamera, Servizio, ServizioCamera, Utente, RuoloUtente
 
 
 class FotoAdmin(admin.ModelAdmin):
@@ -40,7 +40,7 @@ class ServizioCameraAdmin(admin.ModelAdmin):
     list_filter = ['camera', 'servizio']
 
 
-class UserAdmin(admin.ModelAdmin):
+class UtenteAdmin(admin.ModelAdmin):
     list_display = ['pk', 'registrazione', 'last_name', 'first_name'] # 'utente',
     search_fields = ['first_name', 'last_name']
     list_filter = ['registrazione',]
@@ -69,7 +69,7 @@ class StagioneAdmin(admin.ModelAdmin):
     list_filter = ['data_inizio', 'stagione', ]
 
 admin.site.register(RuoloUtente, RuoloUtenteAdmin)
-admin.site.register(User, UserAdmin)
+admin.site.register(Utente, UtenteAdmin)
 #admin.site.register(Visitatore, VisitatoreAdmin)
 #admin.site.register(Host, HostAdmin)
 admin.site.register(Stagione, StagioneAdmin)

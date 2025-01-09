@@ -1,10 +1,13 @@
 from datetime import date, timedelta
 
-from django.core.management.base import BaseCommand
-from albdif.models import Proprieta, Camera, Prenotazione, Servizio, Visitatore, User
+#from django.core.management.base import BaseCommand
+from django.core.management import BaseCommand, call_command
+from django.contrib.auth.models import Permission
+
+from albdif.models import Proprieta, Camera, Prenotazione, Servizio, User, Group
 
 from albdif.utils.fixtures import ProprietaFactory, CameraFactory, PrenotazioneFactory, \
-    CalendarioPrenotazioneFactory, StagioneFactory, FotoFactory, ProprietaPrincFactory, UserFactory, VisitatoreFactory, \
+    CalendarioPrenotazioneFactory, StagioneFactory, FotoFactory, ProprietaPrincFactory, UserFactory, \
     ServizioFactory, ServizioCameraFactory
 
 
@@ -13,6 +16,26 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
+        print("Esegui le migrazioni")
+        call_command("migrate")
+
+        print("Crea il ruolo Visitatore")
+        visitatori, __ = Group.objects.get_or_create(name="Visitatore")
+        permissions = Permission.objects.filter(
+            content_type__app_label="albdif",
+            codename__in=["consulta_catalogo", ],
+        )
+        visitatori.permissions.add(*permissions)
+
+        print("Crea il ruolo Titolare")
+        titolari, __ = Group.objects.get_or_create(name="Titolare")
+        permissions = Permission.objects.filter(
+            content_type__app_label="albdif",
+            codename__in=["crea_proprieta", "consulta_catalogo",],
+        )
+        titolari.permissions.add(*permissions)
+
+        print("Crea il ruolo Titolare")
         servs = ['toilette', 'wifi', 'phon', 'minibar', 'aria condizionata']
         for s in servs:
             ServizioFactory.create(descrizione_servizio=s)
@@ -21,8 +44,8 @@ class Command(BaseCommand):
         utenti = UserFactory.build_batch(3)
         for u in utenti:
             u.save()
-        for t in User.objects.all():
-            VisitatoreFactory.create(utente=t)
+        #for t in User.objects.all():
+        #    UserFactory.create(utente=t)
 
         # Proprietà principale
         ProprietaPrincFactory.create()
@@ -58,7 +81,7 @@ class Command(BaseCommand):
                 prezzo_default=prezzo_default
             )
 
-        for v in Visitatore.objects.all():
+        for v in User.objects.all():
             # Creazione prenotazioni
             for c in Camera.objects.all():
                 PrenotazioneFactory.create(camera=c, visitatore=v)
@@ -72,8 +95,8 @@ class Command(BaseCommand):
             gg = gg + 20
 
         # Creazione dell'utente guest
-        g = UserFactory.create(username="guest")
-        v = VisitatoreFactory.create(utente=g)
+        v = UserFactory.create(username="guest")
+        #v = UserFactory.create(utente=g)
 
         c1 = Camera.objects.get(id=1)
         c2 = Camera.objects.get(id=2)

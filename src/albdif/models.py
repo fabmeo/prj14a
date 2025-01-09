@@ -58,13 +58,12 @@ class Proprieta(models.Model):
     Proprietà:
     l'albergo diffuso di proprietà di un host necessario per collezionare le camere da affittare
     """
-    #host = models.ForeignKey(Host, on_delete=models.CASCADE)
+    # nome della struttura ricettiva
+    nome = models.CharField(max_length=100, default="... inserire un nickname")
     # descrizione della struttura ricettiva (Albergo Diffuso)
     descrizione = models.CharField(max_length=2000)
     # indica se l'albergo è quello principale (solo un AD può avere questo attributo a True)
     principale = models.BooleanField(default=False, help_text="Indica se è l'AD principale")
-    # nome della struttura ricettiva
-    nome = models.CharField(max_length=100, default="... inserire un nickname")
 
     class Meta():
         verbose_name = "Proprietà"
@@ -87,7 +86,7 @@ class Group(Group_):
         proxy = True
 
 
-class User(AbstractUser):
+class Utente(AbstractUser):
     # timestamp della registrazione al sito
     registrazione = models.DateTimeField()
     # codice fiscale
@@ -127,10 +126,11 @@ class User(AbstractUser):
         return self.get_proprieta().first()
 
     def get_allowed_proprieta(self, **extra: Any) -> QuerySet:
-        if UserRole.objects.filter(user=self, proprieta__isnull=True):
+        if RuoloUtente.objects.filter(user=self, ente__isnull=True):
             return Proprieta.objects.filter(**extra)  # type: ignore[no-any-return]
 
-        return Proprieta.objects.filter(userrole__user=self).filter(**extra)  # type: ignore[no-any-return]
+        return Proprieta.objects.filter(**extra)  # type: ignore[no-any-return]
+        #return Proprieta.objects.filter(userrole__user=self).filter(**extra)  # type: ignore[no-any-return]
 
 
 class RuoloUtente(models.Model):
@@ -307,7 +307,7 @@ class Prenotazione(models.Model):
     ]
 
     #visitatore = models.ForeignKey(Visitatore, on_delete=models.CASCADE)
-    visitatore = models.ForeignKey(User, on_delete=models.CASCADE)
+    visitatore = models.ForeignKey(Utente, on_delete=models.CASCADE)
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE)
     # data registrazione della prenotazione
     data_prenotazione = models.DateTimeField()
