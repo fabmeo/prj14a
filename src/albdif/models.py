@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import models
 from django.db.models import CharField, Q
 from django.core.exceptions import ValidationError
@@ -7,11 +7,14 @@ from django.core.exceptions import ValidationError
 class Visitatore(models.Model):
     """
     Visitatore:
-    persona che effettua la registrazione al sito per effettuare la prenotazione
+    la persona che utilizza il sito:
+        - i visitatori che effettuano la registrazione al sito per prenotare
+        - gli owner delle proprietà/camere degli AD Partner
+        - altre persone che useranno l'applicazione (es. Accoglienza, Manutenzione, etc.)
     """
+    utente = models.OneToOneField(User, on_delete=models.CASCADE)
     # timestamp della registrazione al sito
     registrazione = models.DateTimeField()
-    utente = models.OneToOneField(User, on_delete=models.CASCADE)
     telefono = models.CharField(max_length=20, null=True, blank=True)
     codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
 
@@ -23,36 +26,12 @@ class Visitatore(models.Model):
         return f"{self.utente.last_name} {self.utente.first_name}"
 
 
-class Host(models.Model):
-    """
-    Host:
-    persona o azienda che effettua la registrazione per accedere ai servizi hosting dell'AD
-    """
-    # timestamp della registrazione al sito
-    registrazione = models.DateTimeField()
-    utente = models.OneToOneField(User, on_delete=models.CASCADE)
-    telefono = models.CharField(max_length=20, null=True, blank=True)
-    codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
-    partita_iva = models.CharField(max_length=11, null=True, blank=True)
-    # contratto di associazione al sito
-    contratto = models.FileField(blank=True, upload_to='contratti_host', null=True)
-    # richiesta di associazione al sito
-    richiesta_associazione = models.FileField(blank=True, upload_to='richiesta_host', null=True)
-
-    class Meta():
-        verbose_name = "Host"
-        verbose_name_plural = "Hosts"
-
-    def __str__(self):
-        return f"{self.utente.last_name} {self.utente.first_name}"
-
-
 class Proprieta(models.Model):
     """
     Proprietà:
     l'albergo diffuso di proprietà di un host necessario per collezionare le camere da affittare
     """
-    host = models.ForeignKey(Host, on_delete=models.CASCADE)
+    #host = models.ForeignKey(Host, on_delete=models.CASCADE)
     # descrizione della struttura ricettiva (Albergo Diffuso)
     descrizione = models.CharField(max_length=2000)
     # indica se l'albergo è quello principale (solo un AD può avere questo attributo a True)
@@ -74,7 +53,32 @@ class Proprieta(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super(Proprieta, self).save(*args, **kwargs)
-        
+
+    @property
+    def host(self):
+        "ritorna l'host proprietario dell'AD"
+        if not self.principale:
+            return RuoloUtente.objects.filter(ruolo="Host", ente=self.pk).first()
+        else:
+            return None
+
+
+class RuoloUtente(models.Model):
+    """
+    RuoloUtente:
+    definisce il ruolo di un utente su una proprietà (AD); in base al ruolo si abilitano o meno delle funzionalità
+    """
+    utente = models.ForeignKey(User, on_delete=models.CASCADE)
+    ruolo = models.ForeignKey(Group, on_delete=models.CASCADE)
+    ente = models.ForeignKey(Proprieta, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta():
+        verbose_name = "Ruolo utente"
+        verbose_name_plural = "Ruoli utente"
+
+    def __str__(self):
+        return f"{self.utente}"
+
 
 class Servizio(models.Model):
     """

@@ -6,8 +6,8 @@ from django.urls import reverse
 import pytest
 from django_webtest import DjangoTestApp
 
-from albdif.utils.fixtures import UserFactory, VisitatoreFactory, HostFactory, CalendarioPrenotazioneFactory, \
-    PrenotazioneFactory, CameraFactory, ProprietaFactory
+from albdif.utils.fixtures import UserFactory, VisitatoreFactory, CalendarioPrenotazioneFactory, \
+    PrenotazioneFactory, CameraFactory, ProprietaFactory, RuoloUtenteFactory
 
 if TYPE_CHECKING:
     from albdif.models import Prenotazione, CalendarioPrenotazione
@@ -23,8 +23,8 @@ def visitatore(db):
     return VisitatoreFactory()
 
 @pytest.fixture
-def host(db):
-    return HostFactory()
+def ruoloutente(db):
+    return RuoloUtenteFactory()
 
 def test_home(app: "DjangoTestApp"):
     url = reverse("albdif:home")
