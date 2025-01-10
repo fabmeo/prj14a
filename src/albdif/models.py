@@ -44,7 +44,7 @@ class Proprieta(models.Model):
         verbose_name_plural = "Proprietà"
 
     def __str__(self):
-        return f"{self.descrizione[:20]}"
+        return f"{self.nome}"
     
     def clean(self):
         if self.principale and Proprieta.objects.filter(principale=True).exclude(id=self.id).exists():

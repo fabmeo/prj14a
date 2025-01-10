@@ -18,4 +18,4 @@ def test_crea_dati_test():
     assert Stagione.objects.count() == 5
     assert CalendarioPrenotazione.objects.count() == 51
     assert Proprieta.objects.filter(principale=True).count() == 1
-    assert RuoloUtente.objects.all().count() == 2
+    assert RuoloUtente.objects.all().count() == 6
