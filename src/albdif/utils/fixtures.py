@@ -5,14 +5,15 @@ from typing import Any
 
 from django.conf import settings
 from django.db.models import Model
+from django.contrib.auth.models import User, Group
 from django.core.files.base import ContentFile
 
 import factory.fuzzy
 from factory.django import DjangoModelFactory
 
 from albdif.config import env
-from albdif.models import Visitatore, Host, Proprieta, Camera, Prenotazione, CalendarioPrenotazione, Foto, Stagione, \
-    Servizio, ServizioCamera, PrezzoCamera
+from albdif.models import Visitatore, Proprieta, Camera, Prenotazione, CalendarioPrenotazione, Foto, Stagione, \
+    Servizio, ServizioCamera, PrezzoCamera, RuoloUtente
 
 prefix = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
           "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ")
@@ -52,14 +53,6 @@ class VisitatoreFactory(DjangoModelFactory):
         model = Visitatore
 
 
-class HostFactory(DjangoModelFactory):
-    utente = factory.SubFactory(UserFactory)
-    registrazione = factory.fuzzy.FuzzyDate(date(2024, 1, 1), date(2025, 12, 31))
-
-    class Meta:
-        model = Host
-
-
 class StagioneFactory(DjangoModelFactory):
     stagione = factory.fuzzy.FuzzyChoice(choices=['Bassa', 'Media', 'Alta'])
     data_inizio = factory.fuzzy.FuzzyDate(date(2025, 1, 1), date(2025, 12, 31))
@@ -71,7 +64,6 @@ class StagioneFactory(DjangoModelFactory):
 
 
 class ProprietaPrincFactory(DjangoModelFactory):
-    host = factory.SubFactory(HostFactory)
     descrizione = factory.Faker('name')
     principale = True  # solo uno a True, gli altri a False
 
@@ -80,13 +72,29 @@ class ProprietaPrincFactory(DjangoModelFactory):
 
 
 class ProprietaFactory(DjangoModelFactory):
-    host = factory.SubFactory(HostFactory)
     descrizione = factory.fuzzy.FuzzyText(prefix=prefix, length=12, suffix=suffix)
     principale = False  # solo uno a True, gli altri a False
     nome = factory.Faker('name')
 
     class Meta:
         model = Proprieta
+
+
+class GroupFactory(DjangoModelFactory):
+    name = factory.fuzzy.FuzzyText(length=10)
+    permissions = factory.fuzzy.FuzzyText(length=10)
+
+    class Meta:
+        model = Group
+
+
+class RuoloUtenteFactory(DjangoModelFactory):
+    utente = factory.SubFactory(UserFactory)
+    ruolo = factory.SubFactory(GroupFactory)
+    ente = factory.SubFactory(ProprietaFactory)
+
+    class Meta:
+        model = RuoloUtente
 
 
 class ServizioFactory(DjangoModelFactory):

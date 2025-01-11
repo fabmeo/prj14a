@@ -6,8 +6,8 @@ from django.urls import reverse
 import pytest
 from django_webtest import DjangoTestApp
 
-from albdif.utils.fixtures import UserFactory, VisitatoreFactory, HostFactory, CalendarioPrenotazioneFactory, \
-    PrenotazioneFactory, CameraFactory, ProprietaFactory
+from albdif.utils.fixtures import UserFactory, VisitatoreFactory, CalendarioPrenotazioneFactory, \
+    PrenotazioneFactory, CameraFactory, ProprietaFactory, RuoloUtenteFactory
 
 if TYPE_CHECKING:
     from albdif.models import Prenotazione, CalendarioPrenotazione
@@ -23,8 +23,8 @@ def visitatore(db):
     return VisitatoreFactory()
 
 @pytest.fixture
-def host(db):
-    return HostFactory()
+def ruoloutente(db):
+    return RuoloUtenteFactory()
 
 def test_home(app: "DjangoTestApp"):
     url = reverse("albdif:home")
@@ -390,9 +390,10 @@ def test_camera(app: "DjangoTestApp", user):
     )
     CalendarioPrenotazioneFactory(
         prenotazione=p2,
-        data_inizio=date(2025, 1, 6),
-        data_fine=date(2025, 1, 10))
+        data_inizio=date.today() + timedelta(days=20),
+        data_fine=date.today() + timedelta(days=25))
 
+    # DEVE ESSERE PRESENTE UNA PRENOTAZIONE PER LA CAMERA C1
     url = reverse("albdif:camera_detail", kwargs={'pk': c1.pk})
     response = app.get(url)
     assert response.status_code == 200
@@ -400,6 +401,7 @@ def test_camera(app: "DjangoTestApp", user):
     assert 'Modifica' in response.content.decode()
     assert 'Nessuna prenotazione trovata' not in response.content.decode()
 
+    # NON DEVE ESSERE PRESENTE UNA PRENOTAZIONE PER LA CAMERA C2
     url = reverse("albdif:camera_detail", kwargs={'pk': c2.pk})
     response = app.get(url)
     assert response.status_code == 200

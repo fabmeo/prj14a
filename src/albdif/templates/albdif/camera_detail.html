@@ -63,9 +63,9 @@
     {% include 'albdif/include/calendario_camera.html' %}
   </div>
   <div class="col-md-8">
-    <div class="descrizione">
-      {% if user.is_authenticated and not user.is_superuser %}
         <h5>Le tue prenotazioni</h5>
+    <div class="prenotazioni">
+      {% if user.is_authenticated and not user.is_superuser %}
         {% include 'albdif/include/prenotazioni_list.html' %}
         <a href="{% url 'albdif:prenota_camera' user.pk camera.pk %}" class="btn btn-success">Nuova prenotazione</a>
       {% else %}

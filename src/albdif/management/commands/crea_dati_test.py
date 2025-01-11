@@ -1,11 +1,13 @@
 from datetime import date, timedelta
 
 from django.core.management.base import BaseCommand
-from albdif.models import Proprieta, Camera, Prenotazione, Servizio, Visitatore, User
+from albdif.models import Group, RuoloUtente
+from django.contrib.auth.models import Permission
 
+from albdif.models import Proprieta, Camera, Prenotazione, Servizio, Visitatore, User
 from albdif.utils.fixtures import ProprietaFactory, CameraFactory, PrenotazioneFactory, \
     CalendarioPrenotazioneFactory, StagioneFactory, FotoFactory, ProprietaPrincFactory, UserFactory, VisitatoreFactory, \
-    ServizioFactory, ServizioCameraFactory
+    ServizioFactory, ServizioCameraFactory, RuoloUtenteFactory
 
 
 class Command(BaseCommand):
@@ -17,10 +19,29 @@ class Command(BaseCommand):
         for s in servs:
             ServizioFactory.create(descrizione_servizio=s)
 
+        # Creazione ruoli
+        visitatore, __ = Group.objects.get_or_create(name="Visitatore")
+        permissions = Permission.objects.filter(
+            content_type__app_label="albdif",
+            codename__in=["consulta_catalogo", ],
+        )
+        visitatore.permissions.add(*permissions)
+
+        print("Crea il ruolo Titolare")
+        titolare, __ = Group.objects.get_or_create(name="Titolare")
+        permissions = Permission.objects.filter(
+            content_type__app_label="albdif",
+            codename__in=["crea_proprieta", "consulta_catalogo",],
+        )
+        titolare.permissions.add(*permissions)
+
         # Creazione visitatori
         utenti = UserFactory.build_batch(3)
         for u in utenti:
             u.save()
+            # Creazione ruolo
+            RuoloUtenteFactory.create(utente=u, ruolo=visitatore, ente=None)
+
         for t in User.objects.all():
             VisitatoreFactory.create(utente=t)
 
@@ -30,6 +51,8 @@ class Command(BaseCommand):
         # Creazione altre proprieta
         for _ in range(3):
             p = ProprietaFactory.create()
+            # Creazione ruolo
+            RuoloUtenteFactory.create(ruolo=titolare, ente=p)
             FotoFactory.create(proprieta=p)
 
         # Creazione camere

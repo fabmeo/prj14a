@@ -9,7 +9,7 @@ AMBIENTE = {
     "SECRET_KEY": (str, "very-insecure-"),
     "MEDIA_ROOT": (str, "/tmp/media/"),
     "MEDIA_URL": (str, "/media/"),
-    "STATIC_ROOT": (str, "/tmp/static/"),
+    "STATIC_ROOT": (str, "./static/"),
     "STATIC_URL": (str, "/static/"),
     "SOCIAL_AUTH_REDIRECT_IS_HTTPS": (bool, True),
     "GOOGLE_CLIENT_ID": (str, ""),
