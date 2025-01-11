@@ -23,7 +23,7 @@ class CameraAdmin(admin.ModelAdmin):
 
 
 class PrenotazioneAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'visitatore', 'stato_prenotazione', 'data_prenotazione', 'camera']
+    list_display = ['pk', 'visitatore', 'stato_prenotazione', 'data_prenotazione', 'camera', 'costo_soggiorno']
     search_fields = ['richiesta', 'visitatore']
     list_filter = ['visitatore', 'camera', 'camera__proprieta', 'stato_prenotazione', 'data_prenotazione']
 
@@ -31,7 +31,7 @@ class PrenotazioneAdmin(admin.ModelAdmin):
 class CalendarioPrenotazioneAdmin(admin.ModelAdmin):
     list_display = ['pk', 'prenotazione', 'data_inizio', 'data_fine'] #, 'prenotazione__data_prenotazione', 'prenotazione__visitatore']
     search_fields = ['prenotazione__visitatore', ]
-    list_filter = ['data_inizio', 'prenotazione__visitatore', 'prenotazione__camera']
+    list_filter = ['data_inizio', 'prenotazione__visitatore', 'prenotazione__camera', 'prenotazione__stato_prenotazione']
 
 
 class ServizioCameraAdmin(admin.ModelAdmin):

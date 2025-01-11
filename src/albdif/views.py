@@ -297,10 +297,14 @@ class prenota_modifica(generic.DetailView):
             e = {'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine,
                  'prezzo_default': s.prezzo_default}
             st.append(e)
+
         tot = calcola_prezzo_totale(calendario.data_inizio, calendario.data_fine, st)
         if prenotazione.costo_soggiorno and prenotazione.costo_soggiorno != tot:
-            messages.info(request, 'Il prezzo è stato aggiornato')
             prenotazione.costo_soggiorno = tot
+            prezzo_aggiornato = True
+        else:
+            prezzo_aggiornato = False
+
         prenotazione_form = PrenotazioneForm(request.POST, instance=prenotazione)
         calendario_form = CalendarioPrenotazioneForm(request.POST, instance=calendario)
 
@@ -308,6 +312,8 @@ class prenota_modifica(generic.DetailView):
             prenotazione_form.save()
             calendario_form.save()
             messages.success(request, 'Prenotazione modificata con successo')
+            if prezzo_aggiornato:
+                messages.info(request, 'Il prezzo è stato aggiornato')
             #@TODO invio email all'utente
             return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
 

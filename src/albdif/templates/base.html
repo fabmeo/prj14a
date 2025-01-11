@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load bootstrap5 %}
     {% bootstrap_css %}
-    {% bootstrap_javascript %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/albdif.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'img/site/favicon.png' %}">
     {% block head %}{% endblock head %}
@@ -78,9 +77,9 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
+                {{ form.non_field_errors }}
             </div>
         {% endif %}
-        {{ form.non_field_errors }}
         </div>
     {% endblock header %}
     <div class="container mx-auto">
@@ -92,5 +91,6 @@
         {% endblock footer %}
     </footer>
 </div>
+{% bootstrap_javascript %}
 </body>
 </html>
