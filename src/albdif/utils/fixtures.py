@@ -64,7 +64,8 @@ class StagioneFactory(DjangoModelFactory):
 
 
 class ProprietaPrincFactory(DjangoModelFactory):
-    descrizione = factory.Faker('name')
+    nome = "AD Pegasus"
+    descrizione = "Questo è l'albergo diffuso principale ..."
     principale = True  # solo uno a True, gli altri a False
 
     class Meta:

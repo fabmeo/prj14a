@@ -31,7 +31,6 @@ class Proprieta(models.Model):
     Proprietà:
     l'albergo diffuso di proprietà di un host necessario per collezionare le camere da affittare
     """
-    #host = models.ForeignKey(Host, on_delete=models.CASCADE)
     # descrizione della struttura ricettiva (Albergo Diffuso)
     descrizione = models.CharField(max_length=2000)
     # indica se l'albergo è quello principale (solo un AD può avere questo attributo a True)
@@ -56,7 +55,7 @@ class Proprieta(models.Model):
 
     @property
     def host(self):
-        "ritorna l'host proprietario dell'AD"
+        # ritorna l'host proprietario dell'AD
         if not self.principale:
             return RuoloUtente.objects.filter(ruolo="Host", ente=self.pk).first()
         else:
@@ -66,7 +65,8 @@ class Proprieta(models.Model):
 class RuoloUtente(models.Model):
     """
     RuoloUtente:
-    definisce il ruolo di un utente su una proprietà (AD); in base al ruolo si abilitano o meno delle funzionalità
+    definisce il ruolo di un utente su una proprietà (AD); in base al ruolo si possono abilitare
+    o meno delle funzionalità dell'applicazione
     """
     utente = models.ForeignKey(User, on_delete=models.CASCADE)
     ruolo = models.ForeignKey(Group, on_delete=models.CASCADE)
@@ -75,6 +75,8 @@ class RuoloUtente(models.Model):
     class Meta():
         verbose_name = "Ruolo utente"
         verbose_name_plural = "Ruoli utente"
+        unique_together = ('utente', 'ente')
+
 
     def __str__(self):
         return f"{self.utente}"
@@ -98,15 +100,16 @@ class Servizio(models.Model):
 class Camera(models.Model):
     """
     Camera:
-    ogni camera fa parte di una proprietà
+    ogni camera fa parte di una proprietà (Albergo Diffuso)
     """
-    proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE)
     # nome della camera (facilita l'identificazione da parte della struttura ricettiva e del cliente)
     nome = models.CharField(max_length=100, default="... inserire un nickname")
     # descrizione della camera (utile ai clienti per capire cosa stanno prenotando)
     descrizione = models.CharField(max_length=1000)
     # numero dei posti letto presenti nella camera
     numero_posti_letto = models.IntegerField(null=True, blank=True, default=2)
+    # proprietà (albergo diffuso) a cui appartiene la camera
+    proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE)
 
     class Meta():
         verbose_name = "Camera"
@@ -136,10 +139,12 @@ class ServizioCamera(models.Model):
     """
     ServizioCamera
     elenca tutti i servizi di una camera specificando se sono inclusi nel prezzo (incluso=True)
-    o opzionali (incluso=False), in questo caso sarà visibile il prezzo
+    od opzionali (incluso=False), in questo caso sarà visibile il prezzo
     """
-    camera = models.ForeignKey(Camera, on_delete=models.CASCADE)
+    # tipo di servizio offerto dalla camera
     servizio = models.ForeignKey(Servizio, on_delete=models.CASCADE)
+    # camera a cui il servizio è associato
+    camera = models.ForeignKey(Camera, on_delete=models.CASCADE)
     # indica se il servizio è incluso nel prezzo o meno (opzionale)
     incluso = models.BooleanField(default=False)
     # è il costo giornaliero del servizio: se "incluso" = True deve essere 0
@@ -168,7 +173,9 @@ class Foto(models.Model):
     """
     # descrizione della foto
     descrizione = CharField(max_length=100)
+    # camera oggetto della foto
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE, null=True, blank=True)
+    # proprietà (albergo) oggetto della foto
     proprieta = models.ForeignKey(Proprieta, on_delete=models.CASCADE, null=True, blank=True)
     # file immagine
     file = models.FileField(blank=True, upload_to='foto_camera')
@@ -228,8 +235,9 @@ class Prenotazione(models.Model):
         (RICHIESTA, RIMBORSATA),
         (RICHIESTA, NEGATA),
     ]
-
+    # l'utente che esegue una prenotazione ...
     visitatore = models.ForeignKey(Visitatore, on_delete=models.CASCADE)
+    # la camera oggetto della prenotazione
     camera = models.ForeignKey(Camera, on_delete=models.CASCADE)
     # data registrazione della prenotazione
     data_prenotazione = models.DateTimeField()
@@ -360,7 +368,7 @@ class PrezzoCamera(models.Model):
 
     class Meta():
         verbose_name = "Prezzo della camera"
-        verbose_name_plural = "Prezzo della camere"
+        verbose_name_plural = "Prezzo delle camere"
 
     def __str__(self):
         return f"{self.camera} {self.stagione} {self.prezzo}"

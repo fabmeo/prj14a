@@ -7,12 +7,12 @@ from .models import Visitatore, Proprieta, Camera, Foto, Prenotazione, Calendari
 class FotoAdmin(admin.ModelAdmin):
     list_display = ['pk', 'descrizione']
     search_fields = ['descrizione', ]
-    list_filter = ['proprieta__descrizione', 'camera__descrizione']
+    list_filter = ['proprieta__nome', 'camera__nome']
 
 
 class ProprietaAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'descrizione', 'principale']
-    search_fields = ['descrizione', ]
+    list_display = ['pk', 'nome', 'principale']
+    search_fields = ['nome', 'descrizione', ]
     list_filter = ['principale', ]
 
 
@@ -49,11 +49,11 @@ class VisitatoreAdmin(admin.ModelAdmin):
 class RuoloUtenteAdmin(admin.ModelAdmin):
     list_display = ['utente', 'ente', 'ruolo']
     search_fields = ['utente', 'ente', 'ruolo']
-    list_filter = ['utente', 'ente', 'ruolo']
+    list_filter = ['ente', 'ruolo']
 
 
 class StagioneAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'stagione', 'data_inizio']
+    list_display = ['pk', 'stagione', 'data_inizio', 'data_fine']
     list_filter = ['data_inizio', 'stagione', ]
 
 
