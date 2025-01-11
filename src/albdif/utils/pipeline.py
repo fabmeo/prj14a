@@ -16,10 +16,10 @@ def registra_utente(user: User | None = None, **kwargs: Any) -> dict[str, Any]:
                 # salva l'istanza
                 v.save()
                 # preleva il gruppo/ruolo dell'utente
-                gruppo=Group.objects.filter(name="Visitatore")
+                gruppo = Group.objects.filter(name="Visitatore").first()
                 # crea il ruolo dell'utente sul sito (i visitatori hanno l'ente a null
                 ru = RuoloUtente.objects.create(utente=user, ruolo=gruppo, ente=None)
                 ru.save()
             except Exception as e:
-                raise "Errore: non è stato possibile creare l'utente, rivolgersi all'assistenza"
+                raise RuntimeError(f"Non è stato possibile creare l'utente, rivolgersi all'assistenza. Errore: {e}")
     return {}
