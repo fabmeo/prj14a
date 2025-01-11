@@ -83,6 +83,7 @@ class ProprietaFactory(DjangoModelFactory):
     host = factory.SubFactory(HostFactory)
     descrizione = factory.fuzzy.FuzzyText(prefix=prefix, length=12, suffix=suffix)
     principale = False  # solo uno a True, gli altri a False
+    nome = factory.Faker('name')
 
     class Meta:
         model = Proprieta
@@ -106,12 +107,16 @@ class CameraFactory(DjangoModelFactory):
         model = Camera
 
 
+def random_decimal():
+    return factory.fuzzy.FuzzyDecimal(1.0, 3.00, 2)
+
+
 class ServizioCameraFactory(DjangoModelFactory):
 
     camera = factory.SubFactory(CameraFactory)
     servizio = factory.SubFactory(ServizioFactory)
     incluso = factory.fuzzy.FuzzyChoice(choices=[True, False])
-    costo = factory.LazyAttribute(lambda obj: 5.75 if not obj.incluso else 0.0)
+    costo = factory.LazyAttribute(lambda obj: random_decimal().fuzz() if not obj.incluso else 0.0)
 
     class Meta:
         model = ServizioCamera
@@ -123,9 +128,9 @@ class PrenotazioneFactory(DjangoModelFactory):
     visitatore = factory.SubFactory(VisitatoreFactory)
     camera = factory.SubFactory(CameraFactory)
     data_prenotazione = factory.fuzzy.FuzzyDate(start_date=date.today() - timedelta(days=30),
-                                             end_date=date.today())
+                                                end_date=date.today())
     stato_prenotazione = factory.Iterator(STATI)
-    richiesta = factory.Faker('name')
+    richiesta = factory.fuzzy.FuzzyText()
     costo_soggiorno = factory.fuzzy.FuzzyDecimal(10.0,100.00,2)
     data_pagamento = factory.fuzzy.FuzzyDate(start_date=date.today() - timedelta(days=30),
                                              end_date=date.today())

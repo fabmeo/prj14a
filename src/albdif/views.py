@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 import json
 
 from django.contrib import messages
@@ -16,7 +16,7 @@ from django.db import transaction
 from django.db.models import F, Q
 
 from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm
-from .utils.utility import date_range, calcola_prezzo_totale
+from .utils.utility import date_range, calcola_prezzo_totale, to_date
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore, Stagione, \
     ServizioCamera
 
@@ -52,6 +52,17 @@ class logout(View):
     def post(self, request, *args, **kwargs):
         auth_logout(request)
         return redirect('albdif:home')
+
+
+# PAGINA DEI CONTATTI
+class contatti(View):
+    """
+    # pagina dei contatti
+    """
+    template_name = "albdif/contatti.html"
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
 
 
 # PROFILO UTENTE VISITATORE
@@ -197,7 +208,7 @@ class prenota_camera(generic.DetailView):
         prenotazione_form = PrenotazioneForm(request.POST)
         prenotazione_form.instance.visitatore = visitatore
         prenotazione_form.instance.camera = camera
-        prenotazione_form.instance.stato_prenotazione = Prenotazione.PRENOTATA
+        prenotazione_form.instance.stato_prenotazione = Prenotazione.REGISTRATA
         prenotazione_form.instance.data_prenotazione = datetime.now()
 
         calendario_form = CalendarioPrenotazioneForm(request.POST)
@@ -400,7 +411,7 @@ class prenota_paga(generic.DetailView):
 
         if pagamento_form.is_valid():
             prenotazione.data_pagamento = datetime.now()
-            prenotazione.stato_prenotazione = prenotazione.PAGATA
+            prenotazione.stato_prenotazione = prenotazione.CONFERMATA
             pagamento = pagamento_form.save()
             messages.success(request, 'Pagamento effettuto con successo')
             #@TODO invio email all'utente

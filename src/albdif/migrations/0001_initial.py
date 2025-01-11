@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('data_prenotazione', models.DateTimeField()),
-                ('stato_prenotazione', models.CharField(choices=[('PR', 'Prenotata'), ('SC', 'Scaduta'), ('CA', 'Cancellata'), ('PG', 'Pagata')], default='PR', max_length=2)),
+                ('stato_prenotazione', models.CharField(choices=[('PR', 'Registrata'), ('SC', 'Scaduta'), ('CA', 'Cancellata'), ('PG', 'Confermata')], default='PR', max_length=2)),
                 ('richiesta', models.CharField(blank=True, help_text='richiesta aggiuntiva del cliente', max_length=1000, null=True)),
                 ('camera', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='albdif.camera')),
             ],

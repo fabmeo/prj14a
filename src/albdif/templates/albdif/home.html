@@ -11,7 +11,16 @@
             <img src="../static/img/background1.jpg" alt="Descrizione immagine" class="img-fluid">
         </div>
         <div class="col-md-6">
-            <p class="descrizione_home">Scopri l'Albergo Diffuso delle montagne romane, un'esperienza unica che combina natura, cultura e accoglienza. Visita le bellezze del territorio, rilassati nelle nostre strutture e prenota facilmente anche soggiorni presso i partner locali, per sostenere insieme la comunità montana</p>
+            <div>
+                <p class="descrizione_home">Scopri l'Albergo Diffuso delle montagne romane, un'esperienza unica che combina natura, cultura e accoglienza. Visita le bellezze del territorio, rilassati nelle nostre strutture e prenota facilmente anche soggiorni presso i partner locali, per sostenere insieme la comunità montana</p>
+                <br>
+            <div class="sezione-dx-home">
+                <h5>Al link che segue puoi vedere le nostre camere</h5>
+                <a href="{% url 'albdif:camere_list' %}" class="btn btn-success">Le nostre camere</a>
+                <br><br>
+                <h5>Al link che segue puoi consultare le altre strutture alberghiere a noi collegate</h5>
+                <a href="{% url 'albdif:proprieta_partner' %}" class="btn btn-success">Le camere dei nostri partner</a>
+            </div>
         </div>
     </div>
 </div>
