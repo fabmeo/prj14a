@@ -11,6 +11,24 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/albdif.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'img/site/favicon.png' %}">
     {% block head %}{% endblock head %}
+    <style>
+        /* Regole CSS personalizzate */
+        @media only screen and (min-width: 768px) {
+            .container {
+                max-width: 800px;
+            }
+        }
+        @media only screen and (min-width: 992px) {
+            .container {
+                max-width: 1000px;
+            }
+        }
+        @media only screen and (min-width: 1200px) {
+            .container {
+                max-width: 1200px;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="container-fluid">

@@ -23,30 +23,30 @@ class LoginForm(forms.Form):
 
 class PrenotazioneForm(forms.ModelForm):
     richiesta = forms.CharField(widget=forms.Textarea(attrs={"rows": 3, "cols": 80}),empty_value="Nessuna ulteriore richiesta")
-    numero_persone = forms.IntegerField()
+    numero_persone = forms.IntegerField(required=True)
     costo_soggiorno = forms.DecimalField(max_digits=7, decimal_places=2, localize=True, widget=HiddenInput())
 
     class Meta:
         model = Prenotazione
         fields = ['richiesta', 'numero_persone', 'costo_soggiorno']
 
-    # def clean_numero_persone(self):
-    #     numero_persone = self.cleaned_data.get("numero_persone")
-    #     validate_numero_persone(numero_persone, self.instance)
-    #     return numero_persone
-
     def clean(self):
         cleaned_data = super(PrenotazioneForm, self).clean()
         np = cleaned_data.get("numero_persone")
-        if np > self.instance.camera.numero_posti_letto:
+        if np:
+            if np > self.instance.camera.numero_posti_letto:
+                raise ValidationError(
+                    "Il numero delle persone non può essere superiore ai posti letto ({})".format(
+                        self.instance.camera.numero_posti_letto)
+                )
+        else:
             raise ValidationError(
-                "Il numero delle persone non può essere superiore ai posti letto ({})".format(
+                "Indicare il numero delle persone: da 1 a ({})".format(
                     self.instance.camera.numero_posti_letto)
             )
 
 
 class CalendarioPrenotazioneForm(forms.ModelForm):
-
     class Meta:
         model = CalendarioPrenotazione
         #fields = '__all__'
