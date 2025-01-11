@@ -307,7 +307,7 @@ class CalendarioPrenotazione(models.Model):
                 raise ValidationError(f"Trovata altra prenotazione nello stesso periodo")
 
         if not (self.data_fine and self.data_inizio):
-            raise ValidationError("Inserire il periodo")
+            raise ValidationError("Inserire le date di soggiorno")
 
         if self.data_fine <= self.data_inizio:
             raise ValidationError("La data fine deve essere maggiore della data inizio")
