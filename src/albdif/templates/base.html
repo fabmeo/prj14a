@@ -7,10 +7,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load bootstrap5 %}
     {% bootstrap_css %}
-    {% bootstrap_javascript %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/albdif.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'img/site/favicon.png' %}">
     {% block head %}{% endblock head %}
+    <style>
+        /* Regole CSS personalizzate */
+        @media only screen and (min-width: 768px) {
+            .container {
+                max-width: 800px;
+            }
+        }
+        @media only screen and (min-width: 992px) {
+            .container {
+                max-width: 1000px;
+            }
+        }
+        @media only screen and (min-width: 1200px) {
+            .container {
+                max-width: 1200px;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="container-fluid">
@@ -52,17 +69,19 @@
 
     {% block header %}
         <div class="container m-auto">
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        {{ form.non_field_errors }}
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ form.non_field_errors }}
         </div>
     {% endblock header %}
     <div class="container mx-auto">
@@ -74,5 +93,6 @@
         {% endblock footer %}
     </footer>
 </div>
+{% bootstrap_javascript %}
 </body>
 </html>

@@ -10,12 +10,11 @@ def test_crea_dati_test():
     call_command('crea_dati_test', )
     os.chdir('..')
     
-    #assert Host.objects.count() == 4
-    assert Visitatore.objects.count() == 4
+    assert Visitatore.objects.count() == 3
+    assert Proprieta.objects.filter(principale=True).count() == 1
+    assert RuoloUtente.objects.all().count() == 5
+    assert Stagione.objects.count() == 5
     assert Proprieta.objects.count() == 4
     assert Camera.objects.count() == 16
-    assert Prenotazione.objects.count() == 51
-    assert Stagione.objects.count() == 5
-    assert CalendarioPrenotazione.objects.count() == 51
-    assert Proprieta.objects.filter(principale=True).count() == 1
-    assert RuoloUtente.objects.all().count() == 6
+    assert Prenotazione.objects.count() == 35
+    assert CalendarioPrenotazione.objects.count() == 35

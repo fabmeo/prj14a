@@ -15,6 +15,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
+        # Creazione dell'utente admin
+        UserFactory.create(username="admin",
+                           first_name="Fabius",
+                           last_name="Pegasus",
+                           is_superuser=True,
+                           is_staff=True)
+
         servs = ['toilette', 'wifi', 'phon', 'minibar', 'aria condizionata']
         for s in servs:
             ServizioFactory.create(descrizione_servizio=s)
@@ -36,13 +43,14 @@ class Command(BaseCommand):
         titolare.permissions.add(*permissions)
 
         # Creazione visitatori
-        utenti = UserFactory.build_batch(3)
+        utenti = UserFactory.build_batch(2)
         for u in utenti:
             u.save()
             # Creazione ruolo
             RuoloUtenteFactory.create(utente=u, ruolo=visitatore, ente=None)
+        print(f"utenti: {len(utenti)}")
 
-        for t in User.objects.all():
+        for t in User.objects.filter(is_superuser=False):
             VisitatoreFactory.create(utente=t)
 
         # Proprietà principale
@@ -54,6 +62,7 @@ class Command(BaseCommand):
             # Creazione ruolo
             RuoloUtenteFactory.create(ruolo=titolare, ente=p)
             FotoFactory.create(proprieta=p)
+        print(f"proprietà: {Proprieta.objects.all().count()}")
 
         # Creazione camere
         for proprieta in Proprieta.objects.all():
@@ -63,6 +72,7 @@ class Command(BaseCommand):
                     ServizioCameraFactory.create(camera=c, servizio=s)
                 FotoFactory.create(camera=c)
                 FotoFactory.create(camera=c)
+        print(f"camere: {Camera.objects.all().count()}")
 
         # Creazione stagioni
         stagioni = [
@@ -124,8 +134,5 @@ class Command(BaseCommand):
         CalendarioPrenotazioneFactory.create(prenotazione=p3,
                                              data_inizio=date.today() + timedelta(days=30),
                                              data_fine=date.today() + timedelta(days=35))
-
-        # Creazione dell'utente admin
-        UserFactory.create(username="admin", is_superuser=True, is_staff=True)
 
         self.stdout.write(self.style.SUCCESS('Dati di test creati con successo'))
