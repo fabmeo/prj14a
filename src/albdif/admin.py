@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import Visitatore, Host, Proprieta, Camera, Foto, Prenotazione, CalendarioPrenotazione, Stagione, \
-    PrezzoCamera, Servizio, ServizioCamera
+from .models import Visitatore, Proprieta, Camera, Foto, Prenotazione, CalendarioPrenotazione, Stagione, \
+    PrezzoCamera, Servizio, ServizioCamera, RuoloUtente
 
 
 class FotoAdmin(admin.ModelAdmin):
@@ -11,7 +11,7 @@ class FotoAdmin(admin.ModelAdmin):
 
 
 class ProprietaAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'host', 'descrizione', 'principale']
+    list_display = ['pk', 'descrizione', 'principale']
     search_fields = ['descrizione', ]
     list_filter = ['principale', ]
 
@@ -46,10 +46,10 @@ class VisitatoreAdmin(admin.ModelAdmin):
     list_filter = ['registrazione',]
 
 
-class HostAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'utente', 'registrazione']
-    search_fields = ['utente_first_name', 'utente_last_name']
-    list_filter = ['registrazione',]
+class RuoloUtenteAdmin(admin.ModelAdmin):
+    list_display = ['utente', 'ente', 'ruolo']
+    search_fields = ['utente', 'ente', 'ruolo']
+    list_filter = ['utente', 'ente', 'ruolo']
 
 
 class StagioneAdmin(admin.ModelAdmin):
@@ -59,7 +59,7 @@ class StagioneAdmin(admin.ModelAdmin):
 
 admin.site.register(Stagione, StagioneAdmin)
 admin.site.register(Visitatore, VisitatoreAdmin)
-admin.site.register(Host, HostAdmin)
+admin.site.register(RuoloUtente, RuoloUtenteAdmin)
 admin.site.register(Foto, FotoAdmin)
 admin.site.register(Proprieta, ProprietaAdmin)
 admin.site.register(Camera, CameraAdmin)

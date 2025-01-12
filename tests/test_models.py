@@ -8,15 +8,13 @@ from albdif.utils.fixtures import CameraFactory, StagioneFactory, PrezzoCameraFa
     VisitatoreFactory, CalendarioPrenotazioneFactory, ServizioFactory, ServizioCameraFactory
 
 
-def test_proprieta(user, host):
+def test_proprieta(user):
     Proprieta.objects.create(
-        host=host,
         descrizione="bla bla",
         principale=True,
     )
     try:
         Proprieta.objects.create(
-            host=host,
             descrizione="bla bla",
             principale=True
         )
