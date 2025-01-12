@@ -295,6 +295,7 @@ class CalendarioPrenotazione(models.Model):
         cp = CalendarioPrenotazione.objects.filter(
             Q(data_inizio__lte=data_fine),
             Q(data_fine__gt=data_inizio),
+            ~Q(prenotazione__stato_prenotazione="CA"),
             Q(prenotazione__camera__pk=prenotazione.camera.pk),
             ~Q(prenotazione__id=prenotazione.id)
         )
