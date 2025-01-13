@@ -7,54 +7,22 @@
     <label for="id_data_fine" class="form-label" style="display:block;">Data Fine</label>
     {{ calendario_form.data_fine }}
     <div id="dataFineHelp" class="form-text">Data della partenza (entro le 10:00)</div>
+    <div class="mb-3 text-danger">
+    {{ calendario_form.non_field_errors }}
+    </div>
 </div>
 <div class="mb-3">
     <label for="id_numero_persone" class="form-label" style="display:block;">N° Persone</label>
     {{ prenotazione_form.numero_persone }}
     <div id="numPersoneHelp" class="form-text">Indicare il numero di ospiti (da 1 a {{ camera.numero_posti_letto }} - max posti letto)</div>
+    <div class="mb-3 text-danger">
+    {{ prenotazione_form.non_field_errors }}
 </div>
 <div class="mb-3">
     <label for="id_richiesta" class="form-label" style="display:block;">Richieste aggiuntive</label>
-    {{ prenotazione_form.richiesta }}
+    {{ prenotazione_form.richiesta }}     {{ prenotazione_form.costo_soggiorno }}
+    </div>
     <div id="richiestaHelp" class="form-text">Specificare eventuali necessità</div>
-</div>
-<div class="mb-3">
-    {{ prenotazione_form.costo_soggiorno }}
-</div>
-
-<div class="mb-3 text-danger">
-    {{ prenotazione_form.non_field_errors }}
-    {{ calendario_form.non_field_errors }}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {% for field in prenotazione_form %}
-            {% for error in field.errors %}
-                {{ error }}
-            {% endfor %}
-        {% endfor %}
-    </div>
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {% for field in calendario_form %}
-            {% for error in field.errors %}
-                {{ error }}
-            {% endfor %}
-        {% endfor %}
-    </div>
-
-    <div class="container m-auto">
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-                {{ form.non_field_errors }}
-            </div>
-        {% endif %}
-    </div>
-
-
 </div>
 
 <script>

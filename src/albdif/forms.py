@@ -22,7 +22,7 @@ class LoginForm(forms.Form):
 
 
 class PrenotazioneForm(forms.ModelForm):
-    richiesta = forms.CharField(widget=forms.Textarea(attrs={"rows": 3, "cols": 80}),empty_value="Nessuna ulteriore richiesta")
+    richiesta = forms.CharField(widget=forms.Textarea(attrs={"rows": 4, "cols": 50}),empty_value="Nessuna ulteriore richiesta")
     numero_persone = forms.IntegerField(required=True)
     costo_soggiorno = forms.DecimalField(max_digits=7, decimal_places=2, localize=True, widget=HiddenInput())
 
