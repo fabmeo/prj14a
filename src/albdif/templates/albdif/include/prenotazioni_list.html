@@ -21,7 +21,7 @@
                     {% endif %}
                 </td>
                 <td>{{ s.prenotazione.costo_soggiorno }} €</td>
-                <td>{{ s.prenotazione.get_stato_prenotazione_display }}</td>
+                <td>{{s.prenotazione.stato_prenotazione}} - {{ s.prenotazione.get_stato_prenotazione_display }}</td>
                 <td>
                    {% if s.prenotazione.stato_prenotazione == "PR" %}
                       <a href="{% url 'albdif:prenota_modifica' s.prenotazione.pk %}" class="btn btn-success">Modifica</a>
