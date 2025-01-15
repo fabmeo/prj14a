@@ -144,6 +144,7 @@ class PrenotazioneFactory(DjangoModelFactory):
     data_pagamento = factory.fuzzy.FuzzyDate(start_date=date.today() - timedelta(days=30),
                                              end_date=date.today())
     numero_persone = factory.fuzzy.FuzzyInteger(1,6)
+    data_stato = factory.LazyAttribute(lambda obj: obj.data_prenotazione + timedelta(minutes=10))
 
     class Meta:
         model = Prenotazione

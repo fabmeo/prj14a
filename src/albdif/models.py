@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User, Group
 from django.db import models
 from django.db.models import CharField, Q
@@ -15,8 +17,12 @@ class Visitatore(models.Model):
     utente = models.OneToOneField(User, on_delete=models.CASCADE)
     # timestamp della registrazione al sito
     registrazione = models.DateTimeField()
+    # recapito telefonico
     telefono = models.CharField(max_length=20, null=True, blank=True)
+    # codice fiscale
     codice_fiscale = models.CharField(max_length=16, null=True, blank=True)
+    # partita iva
+    partita_iva = models.CharField(max_length=11, null=True, blank=True)
 
     class Meta():
         verbose_name = "Visitatore"
@@ -218,7 +224,7 @@ class Prenotazione(models.Model):
 
     STATO_PRENOTAZIONE = [
         (REGISTRATA, "Registrata"),
-        (CONFERMATA, "Confermata"),
+        (CONFERMATA, "Confermata e Pagata"),
         (CANCELLATA, "Cancellata"),
         (RICHIESTA, "Richiesta Rimborso"),
         (RIMBORSATA, "Rimborsata"),
@@ -251,6 +257,8 @@ class Prenotazione(models.Model):
     data_pagamento = models.DateTimeField(null=True, blank=True)
     # numero delle persone che saranno ospitati
     numero_persone = models.IntegerField(null=True, blank=True, default=1)
+    # timestamp cambio di stato
+    data_stato = models.DateTimeField(null=True, blank=True)
 
     class Meta():
         verbose_name = "Prenotazione"
@@ -267,6 +275,7 @@ class Prenotazione(models.Model):
             old_state = Prenotazione.objects.get(pk=self.pk).stato_prenotazione
             if not self.is_valid_state_transition(old_state, self.stato_prenotazione):
                 raise ValidationError(f"Passaggio di stato non consentito da {old_state} a {self.stato_prenotazione}")
+            self.data_stato = datetime.now()
 
     def save(self, *args, **kwargs):
         self.clean()

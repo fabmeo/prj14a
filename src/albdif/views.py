@@ -211,11 +211,6 @@ class prenota_camera(generic.DetailView):
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
-            # TODO su sqlite non è possibile testare questa situazione per il lock è acquisito sull'intero database
-            # Acquisisco un lock esclusivo sulla tabella CalendarioPrenotazione per non consentire
-            # la prenotazione contemporanea da due o più utenti
-            CalendarioPrenotazione.objects.select_for_update().filter(prenotazione__camera__id=camera.id)
-
             prenotazione = prenotazione_form.save()
             calendario = calendario_form.save(commit=False)
             calendario.prenotazione = prenotazione
@@ -304,11 +299,6 @@ class prenota_modifica(generic.DetailView):
         calendario_form = CalendarioPrenotazioneForm(request.POST, instance=calendario)
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
-            # TODO su sqlite non è possibile testare questa situazione per il lock è acquisito sull'intero database
-            # Acquisisco un lock esclusivo sulla tabella CalendarioPrenotazione per non consentire
-            # la prenotazione contemporanea da due o più utenti
-            CalendarioPrenotazione.objects.select_for_update().filter(prenotazione__camera__id=prenotazione.camera.id)
-
             prenotazione_form.save()
             calendario_form.save()
             messages.success(request, 'Prenotazione modificata con successo')
@@ -360,6 +350,7 @@ class prenota_cancella(generic.DetailView):
     def get(self, request, *args, **kwargs):
         prenotazione = self.get_queryset()
         prenotazione.stato_prenotazione = prenotazione.CANCELLATA
+
         prenotazione.save()
         messages.success(request, 'Prenotazione cancellata con successo')
 
