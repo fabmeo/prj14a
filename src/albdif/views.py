@@ -200,11 +200,6 @@ class prenota_camera(generic.DetailView):
         visitatore = Visitatore.objects.get(utente__id=self.kwargs["id1"])
         camera = get_object_or_404(Camera, id=self.kwargs["id2"])
 
-        # TODO su sqlite non è possibile testare questa situazione per il lock è acquisito sull'intero database
-        # Acquisisco un lock esclusivo sulla tabella CalendarioPrenotazione per non consentire
-        # la prenotazione contemporanea da due o più utenti
-        CalendarioPrenotazione.objects.select_for_update().filter(prenotazione__camera__id=camera.id)
-
         prenotazione_form = PrenotazioneForm(request.POST)
         prenotazione_form.instance.visitatore = visitatore
         prenotazione_form.instance.camera = camera
@@ -216,6 +211,11 @@ class prenota_camera(generic.DetailView):
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
+            # TODO su sqlite non è possibile testare questa situazione per il lock è acquisito sull'intero database
+            # Acquisisco un lock esclusivo sulla tabella CalendarioPrenotazione per non consentire
+            # la prenotazione contemporanea da due o più utenti
+            CalendarioPrenotazione.objects.select_for_update().filter(prenotazione__camera__id=camera.id)
+
             prenotazione = prenotazione_form.save()
             calendario = calendario_form.save(commit=False)
             calendario.prenotazione = prenotazione
@@ -283,11 +283,6 @@ class prenota_modifica(generic.DetailView):
     def post(self, request, *args, **kwargs):
         prenotazione = get_object_or_404(Prenotazione, id=self.kwargs["id1"])
 
-        # TODO su sqlite non è possibile testare questa situazione per il lock è acquisito sull'intero database
-        # Acquisisco un lock esclusivo sulla tabella CalendarioPrenotazione per non consentire
-        # la prenotazione contemporanea da due o più utenti
-        CalendarioPrenotazione.objects.select_for_update().filter(prenotazione__camera__id=prenotazione.camera.id)
-
         calendario = get_object_or_404(CalendarioPrenotazione, prenotazione__id=prenotazione.id)
         visitatore = get_object_or_404(Visitatore, id=prenotazione.visitatore.id)
         camera = get_object_or_404(Camera, id=prenotazione.camera.id)
@@ -297,17 +292,28 @@ class prenota_modifica(generic.DetailView):
             e = {'stagione': s.stagione, 'data_inizio': s.data_inizio, 'data_fine': s.data_fine,
                  'prezzo_default': s.prezzo_default}
             st.append(e)
+
         tot = calcola_prezzo_totale(calendario.data_inizio, calendario.data_fine, st)
         if prenotazione.costo_soggiorno and prenotazione.costo_soggiorno != tot:
-            messages.info(request, 'Il prezzo è stato aggiornato')
             prenotazione.costo_soggiorno = tot
+            prezzo_aggiornato = True
+        else:
+            prezzo_aggiornato = False
+
         prenotazione_form = PrenotazioneForm(request.POST, instance=prenotazione)
         calendario_form = CalendarioPrenotazioneForm(request.POST, instance=calendario)
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
+            # TODO su sqlite non è possibile testare questa situazione per il lock è acquisito sull'intero database
+            # Acquisisco un lock esclusivo sulla tabella CalendarioPrenotazione per non consentire
+            # la prenotazione contemporanea da due o più utenti
+            CalendarioPrenotazione.objects.select_for_update().filter(prenotazione__camera__id=prenotazione.camera.id)
+
             prenotazione_form.save()
             calendario_form.save()
             messages.success(request, 'Prenotazione modificata con successo')
+            if prezzo_aggiornato:
+                messages.info(request, 'Il prezzo è stato aggiornato')
             #@TODO invio email all'utente
             return HttpResponseRedirect(reverse('albdif:profilo', kwargs={'pk': visitatore.utente.id}))
 

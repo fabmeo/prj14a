@@ -7,12 +7,12 @@ from .models import Visitatore, Proprieta, Camera, Foto, Prenotazione, Calendari
 class FotoAdmin(admin.ModelAdmin):
     list_display = ['pk', 'descrizione']
     search_fields = ['descrizione', ]
-    list_filter = ['proprieta__descrizione', 'camera__descrizione']
+    list_filter = ['proprieta__nome', 'camera__nome']
 
 
 class ProprietaAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'descrizione', 'principale']
-    search_fields = ['descrizione', ]
+    list_display = ['pk', 'nome', 'principale']
+    search_fields = ['nome', 'descrizione', ]
     list_filter = ['principale', ]
 
 
@@ -23,7 +23,7 @@ class CameraAdmin(admin.ModelAdmin):
 
 
 class PrenotazioneAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'visitatore', 'stato_prenotazione', 'data_prenotazione', 'camera']
+    list_display = ['pk', 'visitatore', 'stato_prenotazione', 'data_prenotazione', 'camera', 'costo_soggiorno']
     search_fields = ['richiesta', 'visitatore']
     list_filter = ['visitatore', 'camera', 'camera__proprieta', 'stato_prenotazione', 'data_prenotazione']
 
@@ -31,7 +31,7 @@ class PrenotazioneAdmin(admin.ModelAdmin):
 class CalendarioPrenotazioneAdmin(admin.ModelAdmin):
     list_display = ['pk', 'prenotazione', 'data_inizio', 'data_fine'] #, 'prenotazione__data_prenotazione', 'prenotazione__visitatore']
     search_fields = ['prenotazione__visitatore', ]
-    list_filter = ['data_inizio', 'prenotazione__visitatore', 'prenotazione__camera']
+    list_filter = ['data_inizio', 'prenotazione__visitatore', 'prenotazione__camera', 'prenotazione__stato_prenotazione']
 
 
 class ServizioCameraAdmin(admin.ModelAdmin):
@@ -49,11 +49,11 @@ class VisitatoreAdmin(admin.ModelAdmin):
 class RuoloUtenteAdmin(admin.ModelAdmin):
     list_display = ['utente', 'ente', 'ruolo']
     search_fields = ['utente', 'ente', 'ruolo']
-    list_filter = ['utente', 'ente', 'ruolo']
+    list_filter = ['ente', 'ruolo']
 
 
 class StagioneAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'stagione', 'data_inizio']
+    list_display = ['pk', 'stagione', 'data_inizio', 'data_fine']
     list_filter = ['data_inizio', 'stagione', ]
 
 

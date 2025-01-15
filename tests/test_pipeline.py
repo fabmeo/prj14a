@@ -1,10 +1,11 @@
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from albdif.models import Visitatore
 from albdif.utils.pipeline import registra_utente
 
 @pytest.mark.django_db
 def test_registra_utente_crea_visitatore():
+    Group.objects.get_or_create(name="Visitatore")
     user = User.objects.create_user(username='fabio', password='12345678')
     result = registra_utente(user=user)
     
