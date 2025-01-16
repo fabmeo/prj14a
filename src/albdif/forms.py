@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms.widgets import HiddenInput, Input
@@ -8,17 +9,27 @@ from django.forms.widgets import HiddenInput, Input
 from .models import Prenotazione, CalendarioPrenotazione
 
 
-# def validate_numero_persone(value, instance):
-#     if instance and value > instance.camera.numero_posti_letto:
-#         raise ValidationError(
-#             "Il numero delle persone non può essere superiore ai posti letto ({})".format(
-#                 instance.camera.numero_posti_letto)
-#         )
-
-
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=254)
     password = forms.CharField(widget=forms.PasswordInput)
+
+
+class RegistrazioneForm(forms.Form):
+    username = forms.CharField(max_length=254)
+    email = forms.EmailField(max_length=254)
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+
+    def clean(self):
+        cleaned_data = super(RegistrazioneForm, self).clean()
+        email = cleaned_data.get("email")
+        if email:
+            w_email = User.objects.filter(email__iexact=email)
+            if w_email.exists():
+                raise ValidationError("Registrazione negata: e-mail è già presente")
 
 
 class PrenotazioneForm(forms.ModelForm):

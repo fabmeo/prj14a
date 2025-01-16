@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from typing import TYPE_CHECKING
 
 from django.urls import reverse
+from django.contrib.auth.models import User, Group
 
 import pytest
 from django_webtest import DjangoTestApp
@@ -487,3 +488,51 @@ def test_pagamento_prenotazione(app: "DjangoTestApp", user):
     response = app.get(url)
     assert response.status_code == 302
     assert Prenotazione.objects.get(pk=p1.pk).stato_prenotazione == 'PG'
+
+
+def test_registrazione_ok(app: "DjangoTestApp", user):
+    Group.objects.get_or_create(name="Visitatore")
+    url = reverse("albdif:registrazione")
+    app.set_user(None)
+    response = app.get(url)
+    response.form["username"] = "pippo"
+    response.form["email"] = "pluto@pippo.it"
+    response.form["password"] = "12345678"
+    response = response.form.submit()
+    assert response.status_code == 302
+    assert User.objects.filter(username="pippo").count() == 1
+
+
+def test_registrazione_ko(app: "DjangoTestApp", user):
+    Group.objects.get_or_create(name="Visitatore")
+    url = reverse("albdif:registrazione")
+    app.set_user(None)
+    response = app.get(url)
+    response.form["username"] = "pippo"
+    response.form["email"] = "pluto@pippo"
+    response.form["password"] = "12345678"
+    response = response.form.submit()
+    assert response.status_code == 200
+    assert "Sono presenti degli errori" in response.content.decode()
+    assert "Inserisci un indirizzo email valido" in response.content.decode()
+
+    url = reverse("albdif:registrazione")
+    app.set_user(None)
+    response = app.get(url)
+    response.form["username"] = "plutone"
+    response.form["email"] = "plutone@pippo.it"
+    response.form["password"] = "12345678"
+    response = response.form.submit()
+    assert response.status_code == 302
+    assert User.objects.filter(username="plutone").count() == 1
+
+    url = reverse("albdif:registrazione")
+    app.set_user(None)
+    response = app.get(url)
+    response.form["username"] = "giove"
+    response.form["email"] = "plutone@pippo.it" # mail di utente già registrato
+    response.form["password"] = "12345678"
+    response = response.form.submit()
+    assert response.status_code == 200
+    assert "Sono presenti degli errori" in response.content.decode()
+    assert "Registrazione negata: e-mail è già presente" in response.content.decode()

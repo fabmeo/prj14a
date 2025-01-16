@@ -6,8 +6,9 @@ relative_files = True
 omit =
     **/asgi.py
     **/wsgi.py
-    **/migrations/**
     **/fixtures.py
+    **/management/commands/inizializza.py
+    **/migrations/**
     **/.old/**
     **/tests/**
 
