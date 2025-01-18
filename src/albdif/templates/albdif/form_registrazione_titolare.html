@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Registrazione al sito</h2>
+    <hr>
+    <div class="row">
+        <div class="col">
+            <form id="registrazioneForm" action="{% url 'albdif:registrazione_titolare' %}" method="post" enctype="multipart/form-data" onsubmit="return validatePassword()">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nome:</label>
+                    <div class="form-control"> {{ form.username }} </div>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <div class="form-control"> {{ form.email }} </div>
+                    <div class="invalid-feedback d-block"> {{ form.email.errors }} </div>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <div class="form-control"> {{ form.password }} </div>
+                </div>
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label">Conferma Password:</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="richiesta_adesione" class="form-label">Allegare il pdf di richiesta:</label>
+                    {{ form_richiesta.richiesta_adesione }}
+                    <div class="invalid-feedback d-block"> {{ form_richiesta.richiesta_adesione.errors }} </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Invia</button>
+                {{ form.non_field_errors }}
+                {{ form_richiesta.non_field_errors }}
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function validatePassword() {
+        var password = document.getElementById("id_password").value;
+        var confirmPassword = document.getElementById("confirm_password").value;
+        if (password !== confirmPassword) {
+            alert("Le password non coincidono.");
+            return false;
+        }
+        return true;
+    }
+</script>
+{% endblock content %}

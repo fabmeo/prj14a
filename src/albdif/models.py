@@ -11,8 +11,8 @@ class Visitatore(models.Model):
     Visitatore:
     la persona che utilizza il sito:
         - i visitatori che effettuano la registrazione al sito per prenotare
-        - gli owner delle proprietà/camere degli AD Partner
-        - altre persone che useranno l'applicazione (es. Accoglienza, Manutenzione, etc.)
+        - i titolari delle proprietà/camere degli AD Partner
+        - altre persone che useranno l'applicazione (es. Accoglienza, Manutenzione, Pulizia, etc.)
     """
     utente = models.OneToOneField(User, on_delete=models.CASCADE)
     # timestamp della registrazione al sito
@@ -30,6 +30,29 @@ class Visitatore(models.Model):
 
     def __str__(self):
         return f"{self.utente.last_name} {self.utente.first_name}"
+
+
+class RichiestaAdesione(models.Model):
+    """
+    RichiestaAdesione:
+        l'utente che richiede di associarsi al sito per pubblicare il suo Albergo Diffuso (Partner)
+    """
+    utente = models.OneToOneField(User, on_delete=models.CASCADE)
+    # richiesta adesione
+    richiesta_adesione = models.FileField(upload_to='adesioni')
+    # timestamp richiesta adesione
+    data_richiesta = models.DateTimeField(default=datetime.now)
+    # approvazione adesione
+    approvazione_adesione = models.FileField(null=True, blank=True, upload_to='approvazioni')
+    # timestamp approvazione adesione
+    data_adesione = models.DateTimeField(null=True, blank=True)
+
+    class Meta():
+        verbose_name = "Richiesta adesione"
+        verbose_name_plural = "Richieste adesioni"
+
+    def __str__(self):
+        return f"{self.utente.last_name} {self.data_richiesta}"
 
 
 class Proprieta(models.Model):

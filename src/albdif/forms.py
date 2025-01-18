@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms.widgets import HiddenInput, Input
 
-from .models import Prenotazione, CalendarioPrenotazione
+from .models import Prenotazione, CalendarioPrenotazione, RichiestaAdesione
 
 
 class LoginForm(forms.Form):
@@ -30,6 +30,26 @@ class RegistrazioneForm(forms.Form):
             w_email = User.objects.filter(email__iexact=email)
             if w_email.exists():
                 raise ValidationError("Registrazione negata: e-mail è già presente")
+
+
+class RegistrazioneTitolareForm(forms.ModelForm):
+    #richiesta_adesione = forms.FileField(required=True)
+    data_richiesta = forms.DateTimeField(widget=HiddenInput())
+
+    class Meta:
+        model = RichiestaAdesione
+        fields = ['richiesta_adesione', 'data_richiesta']
+
+    def clean(self):
+        cleaned_data = super(RegistrazioneTitolareForm, self).clean()
+        richiesta_adesione = cleaned_data.get("richiesta_adesione")
+
+        if richiesta_adesione:
+            if richiesta_adesione.name[-3:].lower() != 'pdf':
+                self._errors['richiesta_adesione'] = self.error_class(['La richiesta adesione deve essere in formato PDF'])
+        else:
+            self._errors['richiesta_adesione'] = self.error_class(['Il documento pdf è obbligatorio per sottoporre la richiesta'])
+        return cleaned_data
 
 
 class PrenotazioneForm(forms.ModelForm):

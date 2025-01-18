@@ -38,5 +38,9 @@
     <hr>
     <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger">Login con Google</a>
 {% endif %}
+<hr>
+
+<h3>Richiesta associazione al nostro sito da parte di Alberghi Diffusi del nostro territorio</h3>
+<a href="{% url 'albdif:registrazione_titolare' %}" class="btn btn-success">Richiesta associazione</a>
 
 {% endblock content %}
