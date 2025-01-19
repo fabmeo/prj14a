@@ -90,3 +90,10 @@ Titolo: **Albergo Diffuso Pegasus**
 5. il sito di amministrazione può essere acceduto dalla seguente url: http://localhost:8000/admin  
 > utente: **admin**
 > password: **password**
+
+---
+
+### Per avere un'idea di come è strutturato il progetto
+
+[Struttura del progetto](docs/Partecipa.md)
+
