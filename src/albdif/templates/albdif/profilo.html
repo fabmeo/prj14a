@@ -1,9 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 class="titolopagina"> Profilo dell'utente: {{ user.first_name }} {{ user.last_name }}</h2>
+<h3 class="titolopagina"> Profilo dell'utente: {{ user.first_name }} {{ user.last_name }} ({{ user.username }}) </h3>
+    {% if user.visitatore.is_titolare %}
+        {% if user.visitatore.is_titolare %}
+            <p> Lista Prenotazioni della Proprieta: {{ user.visitatore.ruolo.ente }}</p>
+        {% endif %}
+        {% for p in user.visitatore.proprieta %}
+            <p>Proprietario dell'Albergo Diffuso:<b> {{ p.ente.nome }} </b>
+            {% for pr in p.ente.prenotazioni %}
+                <p><b>{{ pr.prenotazione.visitatore }} </b> ha prenotato la camera <b>{{ pr.prenotazione.camera }} </b> - dal {{ pr.data_inizio }} al {{ pr.data_fine }}</p>
+            {% endfor %}
+        {% endfor %}
+    {% else %}
+         (Visitatore)
+    {% endif %}
+
+<hr>
 
 {% if user.is_authenticated %}
+
     <form action="/albdif/profilo/" method="POST" class="d-inline">
         {% csrf_token %}
         {{ form.non_field_errors }}

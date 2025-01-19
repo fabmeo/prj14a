@@ -31,6 +31,18 @@ class Visitatore(models.Model):
     def __str__(self):
         return f"{self.utente.last_name} {self.utente.first_name}"
 
+    @property
+    def is_titolare(self):
+        # ritorna True se l'utente è Titolare
+        gruppo = Group.objects.get(name="Titolare")
+        return RuoloUtente.objects.filter(ruolo=gruppo, utente=self.utente).exists()
+
+    @property
+    def proprieta(self):
+        # ritorna elenco delle Proprietà
+        gruppo = Group.objects.get(name="Titolare")
+        return RuoloUtente.objects.filter(ruolo=gruppo, utente=self.utente)
+
 
 class RichiestaAdesione(models.Model):
     """
@@ -84,12 +96,17 @@ class Proprieta(models.Model):
 
     @property
     def host(self):
-        # ritorna l'host proprietario dell'AD
+        # ritorna il Titolare proprietario dell'AD Partner
         if not self.principale:
-            return RuoloUtente.objects.filter(ruolo="Host", ente=self.pk).first()
+            return RuoloUtente.objects.filter(ruolo="Titolare", ente=self.pk).first()
         else:
             return None
 
+    @property
+    def prenotazioni(self):
+        # ritorna elenco delle prenotazioni attive
+        return CalendarioPrenotazione.objects.filter(prenotazione__camera__proprieta=self.pk,
+                                                     data_inizio__gte=datetime.now()).order_by('data_inizio')
 
 class RuoloUtente(models.Model):
     """

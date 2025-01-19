@@ -161,7 +161,6 @@ class registrazione_titolare(generic.DetailView):
                         # effettuo la rollback
                         transaction.set_rollback(True)
         except Exception as e:
-            #messages.error(request, "Non è stato possibile creare l'utente, rivolgersi all'assistenza")
             logger.debug(e)
             raise ValidationError("Sono presenti degli errori")
 
