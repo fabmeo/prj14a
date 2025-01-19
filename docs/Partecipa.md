@@ -1,13 +1,13 @@
 ### File presenti nella root del progetto e loro significato
 
-|nome file| descrizione                                                                                                        |
-|---------|--------------------------------------------------------------------------------------------------------------------|
-|.gitignore| specifiche su cosa includere/escludere dalle commit                                                                |
-|README.md| Specifica come scaricare ed eseguire il progetto                                                                   |
-|compose.yaml| Istruzioni per eseguire il progetto mediante "docker-compose"                                                      |
-|pyproject.toml| file che definisce le librerie che il progetto include e che saranno installate nel virtualenv                     |
-|pytest.ini| file di settings della libreria pytest                                                                             |
-|uv.lock| file creato con il comando "uv sync" che "blocca" le versioni delle librerie che saranno installate nel virtualenv |
+| nome file              | descrizione                                                                                                        |
+|------------------------|--------------------------------------------------------------------------------------------------------------------|
+| .gitignore             | specifiche su cosa includere/escludere dalle commit                                                                |
+| [README.md](README.md) | Specifica come scaricare ed eseguire il progetto                                                                   |
+| compose.yaml           | Istruzioni per eseguire il progetto mediante "docker-compose"                                                      |
+| pyproject.toml         | file che definisce le librerie che il progetto include e che saranno installate nel virtualenv                     |
+| pytest.ini             | file di settings della libreria pytest                                                                             |
+| uv.lock                | file creato con il comando "uv sync" che "blocca" le versioni delle librerie che saranno installate nel virtualenv |
 
 ===
 
