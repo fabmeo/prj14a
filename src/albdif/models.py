@@ -11,8 +11,8 @@ class Visitatore(models.Model):
     Visitatore:
     la persona che utilizza il sito:
         - i visitatori che effettuano la registrazione al sito per prenotare
-        - gli owner delle proprietà/camere degli AD Partner
-        - altre persone che useranno l'applicazione (es. Accoglienza, Manutenzione, etc.)
+        - i titolari delle proprietà/camere degli AD Partner
+        - altre persone che useranno l'applicazione (es. Accoglienza, Manutenzione, Pulizia, etc.)
     """
     utente = models.OneToOneField(User, on_delete=models.CASCADE)
     # timestamp della registrazione al sito
@@ -30,6 +30,41 @@ class Visitatore(models.Model):
 
     def __str__(self):
         return f"{self.utente.last_name} {self.utente.first_name}"
+
+    @property
+    def is_titolare(self):
+        # ritorna True se l'utente è Titolare
+        gruppo = Group.objects.get(name="Titolare")
+        return RuoloUtente.objects.filter(ruolo=gruppo, utente=self.utente).exists()
+
+    @property
+    def proprieta(self):
+        # ritorna elenco delle Proprietà
+        gruppo = Group.objects.get(name="Titolare")
+        return RuoloUtente.objects.filter(ruolo=gruppo, utente=self.utente)
+
+
+class RichiestaAdesione(models.Model):
+    """
+    RichiestaAdesione:
+        l'utente che richiede di associarsi al sito per pubblicare il suo Albergo Diffuso (Partner)
+    """
+    utente = models.OneToOneField(User, on_delete=models.CASCADE)
+    # richiesta adesione
+    richiesta_adesione = models.FileField(upload_to='adesioni')
+    # timestamp richiesta adesione
+    data_richiesta = models.DateTimeField(default=datetime.now)
+    # approvazione adesione
+    approvazione_adesione = models.FileField(null=True, blank=True, upload_to='approvazioni')
+    # timestamp approvazione adesione
+    data_adesione = models.DateTimeField(null=True, blank=True)
+
+    class Meta():
+        verbose_name = "Richiesta adesione"
+        verbose_name_plural = "Richieste adesioni"
+
+    def __str__(self):
+        return f"{self.utente.last_name} {self.data_richiesta}"
 
 
 class Proprieta(models.Model):
@@ -61,12 +96,17 @@ class Proprieta(models.Model):
 
     @property
     def host(self):
-        # ritorna l'host proprietario dell'AD
+        # ritorna il Titolare proprietario dell'AD Partner
         if not self.principale:
-            return RuoloUtente.objects.filter(ruolo="Host", ente=self.pk).first()
+            return RuoloUtente.objects.filter(ruolo="Titolare", ente=self.pk).first()
         else:
             return None
 
+    @property
+    def prenotazioni(self):
+        # ritorna elenco delle prenotazioni attive
+        return CalendarioPrenotazione.objects.filter(prenotazione__camera__proprieta=self.pk,
+                                                     data_inizio__gte=datetime.now()).order_by('data_inizio')
 
 class RuoloUtente(models.Model):
     """

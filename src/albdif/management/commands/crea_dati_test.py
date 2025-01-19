@@ -1,13 +1,13 @@
 from datetime import date, timedelta
 
 from django.core.management.base import BaseCommand
-from albdif.models import Group, RuoloUtente
+from albdif.models import Group, RuoloUtente, RichiestaAdesione
 from django.contrib.auth.models import Permission
 
 from albdif.models import Proprieta, Camera, Prenotazione, Servizio, Visitatore, User
 from albdif.utils.fixtures import ProprietaFactory, CameraFactory, PrenotazioneFactory, \
     CalendarioPrenotazioneFactory, StagioneFactory, FotoFactory, ProprietaPrincFactory, UserFactory, VisitatoreFactory, \
-    ServizioFactory, ServizioCameraFactory, RuoloUtenteFactory
+    ServizioFactory, ServizioCameraFactory, RuoloUtenteFactory, RichiestaAdesioneFactory
 
 
 class Command(BaseCommand):
@@ -59,9 +59,12 @@ class Command(BaseCommand):
         # Creazione altre proprieta
         for _ in range(3):
             p = ProprietaFactory.create()
-            # Creazione ruolo
-            RuoloUtenteFactory.create(ruolo=titolare, ente=p)
+            # Creazione il visitatore
+            v = VisitatoreFactory.create()
+            # Creazione ruolo Titolare "ru" per il visitatore "v" sulla proprietà "p"
+            ru = RuoloUtenteFactory.create(utente=v.utente, ruolo=titolare, ente=p)
             FotoFactory.create(proprieta=p)
+            RichiestaAdesioneFactory(utente=ru.utente)
         print(f"proprietà: {Proprieta.objects.all().count()}")
 
         # Creazione camere
@@ -91,9 +94,11 @@ class Command(BaseCommand):
                 prezzo_default=prezzo_default
             )
 
-        for v in Visitatore.objects.all():
+        gruppo = Group.objects.get(name="Visitatore")
+        for r in RuoloUtente.objects.filter(ruolo=gruppo):
             # Creazione prenotazioni
             for c in Camera.objects.all():
+                v = Visitatore.objects.get(utente=r.utente)
                 PrenotazioneFactory.create(camera=c, visitatore=v)
 
         # Creazione calendario prenotazioni

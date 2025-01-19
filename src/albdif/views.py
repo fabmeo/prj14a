@@ -5,6 +5,7 @@ from venv import logger
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
@@ -16,10 +17,11 @@ from django.contrib.auth import logout as auth_logout
 from django.db import transaction
 from django.db.models import F, Q
 
-from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm, RegistrazioneForm
+from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm, RegistrazioneForm, \
+    RegistrazioneTitolareForm
 from .utils.utility import date_range, calcola_prezzo_totale, to_date
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore, Stagione, \
-    ServizioCamera, RuoloUtente
+    ServizioCamera, RuoloUtente, RichiestaAdesione
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -100,6 +102,72 @@ class registrazione(generic.DetailView):
         messages.warning(request, 'Sono presenti degli errori')
         return render(request, self.template_name, {
             'form': registrazione_form,
+        })
+
+
+# RICHIESTA DI REGISTRAZIONE AL SITO DA PARTE DI UN TITOLARE DI AD PARTENER
+class registrazione_titolare(generic.DetailView):
+    """
+    # pagina di richiesta registrazione da parte di Titolare altro AD Partner
+    """
+    template_name = "albdif/form_registrazione_titolare.html"
+
+    def get(self, request, *args, **kwargs):
+
+        registrazione_form = RegistrazioneForm()
+        richiesta_form = RegistrazioneTitolareForm()
+        return render(request, self.template_name, {
+            'form': registrazione_form,
+            'form_richiesta': richiesta_form,
+        })
+
+    def post(self, request, *args, **kwargs):
+        try:
+            registrazione_form = RegistrazioneForm(request.POST)
+            richiesta_form = RegistrazioneTitolareForm(request.POST, request.FILES)
+            if registrazione_form.is_valid():
+                user_data = registrazione_form.cleaned_data
+                with transaction.atomic():
+                    user = User.objects.create_user(
+                        username=user_data['username'],
+                        email=user_data['email'],
+                        password=user_data['password'],
+                        #first_name=user_data['first_name'],
+                        #last_name=user_data['last_name']
+                    )
+                    # crea il visitatore legandolo all'utente appena registrato
+                    v = Visitatore.objects.create(utente=user, registrazione=datetime.now())
+                    # salva l'istanza
+                    v.save()
+
+                    #richiesta_form = RegistrazioneTitolareForm(request.POST, request.FILES)
+                    if richiesta_form.is_valid():
+                        # salva la Richiesta Adesione al sito
+                        richiesta_data = richiesta_form.cleaned_data
+                        RichiestaAdesione.objects.create(
+                            utente=user,
+                            richiesta_adesione=richiesta_data['richiesta_adesione'],
+                        )
+
+                        #@TODO Per adesso si assegna subito il ruolo Titolare ma successivamente sarà fatto all'approvazione
+                        # preleva il gruppo/ruolo dell'utente
+                        gruppo = Group.objects.filter(name="Titolare").first()
+                        # crea il ruolo dell'utente sul sito (i visitatori hanno l'ente a null
+                        ru = RuoloUtente.objects.create(utente=user, ruolo=gruppo, ente=None)
+                        ru.save()
+                        messages.success(request, 'Registrazione avvenuta con successo')
+                        return HttpResponseRedirect(reverse('albdif:login'))
+                    else:
+                        # effettuo la rollback
+                        transaction.set_rollback(True)
+        except Exception as e:
+            logger.debug(e)
+            raise ValidationError("Sono presenti degli errori")
+
+        messages.error(request, "Registrazione non avvenuta: verificare gli errori")
+        return render(request, self.template_name, {
+            'form': registrazione_form,
+            'form_richiesta': richiesta_form,
         })
 
 

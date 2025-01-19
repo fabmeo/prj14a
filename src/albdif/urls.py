@@ -12,6 +12,8 @@ urlpatterns = [
     path("profilo/<int:pk>/", views.profilo.as_view(), name="profilo"),
     # ex: /registrazione/
     path("registrazione/", views.registrazione.as_view(), name="registrazione"),
+    # ex: /registrazione_titolare/
+    path("registrazione_titolare/", views.registrazione_titolare.as_view(), name="registrazione_titolare"),
     # ex: /contatti/
     path("contatti/", views.contatti.as_view(), name="contatti"),
 
