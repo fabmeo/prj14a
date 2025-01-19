@@ -20,7 +20,7 @@ from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, Paga
     RegistrazioneTitolareForm
 from .utils.utility import date_range, calcola_prezzo_totale, to_date
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore, Stagione, \
-    ServizioCamera, RuoloUtente
+    ServizioCamera, RuoloUtente, RichiestaAdesione
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -120,36 +120,44 @@ class registrazione_titolare(generic.DetailView):
             'form_richiesta': richiesta_form,
         })
 
-    @transaction.atomic
     def post(self, request, *args, **kwargs):
         try:
             registrazione_form = RegistrazioneForm(request.POST)
-            richiesta_form = RegistrazioneTitolareForm(request.POST)
-            if registrazione_form.is_valid() and richiesta_form.is_valid():
+            richiesta_form = RegistrazioneTitolareForm(request.POST, request.FILES)
+            if registrazione_form.is_valid():
                 user_data = registrazione_form.cleaned_data
-                user = User.objects.create_user(
-                    username=user_data['username'],
-                    email=user_data['email'],
-                    password=user_data['password'],
-                    #first_name=user_data['first_name'],
-                    #last_name=user_data['last_name']
-                )
-                # crea il visitatore legandolo all'utente appena registrato
-                v = Visitatore.objects.create(utente=user, registrazione=datetime.now())
-                # salva l'istanza
-                v.save()
+                with transaction.atomic():
+                    user = User.objects.create_user(
+                        username=user_data['username'],
+                        email=user_data['email'],
+                        password=user_data['password'],
+                        #first_name=user_data['first_name'],
+                        #last_name=user_data['last_name']
+                    )
+                    # crea il visitatore legandolo all'utente appena registrato
+                    v = Visitatore.objects.create(utente=user, registrazione=datetime.now())
+                    # salva l'istanza
+                    v.save()
 
-                # salva la Richiesta Adesione al sito
-                richiesta_form.save()
+                    #richiesta_form = RegistrazioneTitolareForm(request.POST, request.FILES)
+                    if richiesta_form.is_valid():
+                        # salva la Richiesta Adesione al sito
+                        richiesta_data = richiesta_form.cleaned_data
+                        RichiestaAdesione.objects.create(
+                            utente=user,
+                            richiesta_adesione=richiesta_data['richiesta_adesione'],
+                        )
 
-                #@TODO Per adesso si assegna subito il ruolo Titolare ma successivamente sarà fatto all'approvazione
-                # preleva il gruppo/ruolo dell'utente
-                gruppo = Group.objects.filter(name="Titolare").first()
-                # crea il ruolo dell'utente sul sito (i visitatori hanno l'ente a null
-                ru = RuoloUtente.objects.create(utente=user, ruolo=gruppo, ente=None)
-                ru.save()
-                messages.success(request, 'Registrazione avvenuta con successo')
-                return HttpResponseRedirect(reverse('albdif:login'))
+                        #@TODO Per adesso si assegna subito il ruolo Titolare ma successivamente sarà fatto all'approvazione
+                        # preleva il gruppo/ruolo dell'utente
+                        gruppo = Group.objects.filter(name="Titolare").first()
+                        # crea il ruolo dell'utente sul sito (i visitatori hanno l'ente a null
+                        ru = RuoloUtente.objects.create(utente=user, ruolo=gruppo, ente=None)
+                        ru.save()
+                        messages.success(request, 'Registrazione avvenuta con successo')
+                        return HttpResponseRedirect(reverse('albdif:login'))
+                    else:
+                        transaction.rollback()
         except Exception as e:
             messages.error(request, "Non è stato possibile creare l'utente, rivolgersi all'assistenza")
             logger.debug(e)

@@ -33,12 +33,11 @@ class RegistrazioneForm(forms.Form):
 
 
 class RegistrazioneTitolareForm(forms.ModelForm):
-    #richiesta_adesione = forms.FileField(required=True)
-    data_richiesta = forms.DateTimeField(widget=HiddenInput())
+    richiesta_adesione = forms.FileField(required=True)
 
     class Meta:
         model = RichiestaAdesione
-        fields = ['richiesta_adesione', 'data_richiesta']
+        fields = ['richiesta_adesione']
 
     def clean(self):
         cleaned_data = super(RegistrazioneTitolareForm, self).clean()
