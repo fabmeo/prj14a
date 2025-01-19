@@ -5,6 +5,7 @@ from venv import logger
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
@@ -157,12 +158,14 @@ class registrazione_titolare(generic.DetailView):
                         messages.success(request, 'Registrazione avvenuta con successo')
                         return HttpResponseRedirect(reverse('albdif:login'))
                     else:
-                        transaction.rollback()
+                        # effettuo la rollback
+                        transaction.set_rollback(True)
         except Exception as e:
-            messages.error(request, "Non è stato possibile creare l'utente, rivolgersi all'assistenza")
+            #messages.error(request, "Non è stato possibile creare l'utente, rivolgersi all'assistenza")
             logger.debug(e)
+            raise ValidationError("Sono presenti degli errori")
 
-        messages.warning(request, 'Sono presenti degli errori')
+        messages.error(request, "Registrazione non avvenuta: verificare gli errori")
         return render(request, self.template_name, {
             'form': registrazione_form,
             'form_richiesta': richiesta_form,
