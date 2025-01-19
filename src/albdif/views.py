@@ -1,9 +1,10 @@
 from datetime import datetime, date
 import json
+from venv import logger
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
@@ -15,10 +16,10 @@ from django.contrib.auth import logout as auth_logout
 from django.db import transaction
 from django.db.models import F, Q
 
-from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm
+from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm, RegistrazioneForm
 from .utils.utility import date_range, calcola_prezzo_totale, to_date
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore, Stagione, \
-    ServizioCamera
+    ServizioCamera, RuoloUtente
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -54,6 +55,54 @@ class logout(View):
         return redirect('albdif:home')
 
 
+# REGISTRAZIONE
+class registrazione(generic.DetailView):
+    """
+    # pagina di registrazione
+    """
+    template_name = "albdif/form_registrazione.html"
+
+    def get(self, request, *args, **kwargs):
+
+        registrazione_form = RegistrazioneForm()
+        return render(request, self.template_name, {
+            'form': registrazione_form,
+        })
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        try:
+            registrazione_form = RegistrazioneForm(request.POST)
+            if registrazione_form.is_valid():
+                user_data = registrazione_form.cleaned_data
+                user = User.objects.create_user(
+                    username=user_data['username'],
+                    email=user_data['email'],
+                    password=user_data['password'],
+                    #first_name=user_data['first_name'],
+                    #last_name=user_data['last_name']
+                )
+                # crea il visitatore legandolo all'utente appena registrato
+                v = Visitatore.objects.create(utente=user, registrazione=datetime.now())
+                # salva l'istanza
+                v.save()
+                # preleva il gruppo/ruolo dell'utente
+                gruppo = Group.objects.filter(name="Visitatore").first()
+                # crea il ruolo dell'utente sul sito (i visitatori hanno l'ente a null
+                ru = RuoloUtente.objects.create(utente=user, ruolo=gruppo, ente=None)
+                ru.save()
+                messages.success(request, 'Registrazione avvenuta con successo')
+                return HttpResponseRedirect(reverse('albdif:login'))
+        except Exception as e:
+            messages.error(request, "Non è stato possibile creare l'utente, rivolgersi all'assistenza")
+            logger.debug(e)
+
+        messages.warning(request, 'Sono presenti degli errori')
+        return render(request, self.template_name, {
+            'form': registrazione_form,
+        })
+
+
 # PAGINA DEI CONTATTI
 class contatti(View):
     """
@@ -63,6 +112,10 @@ class contatti(View):
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Richiesta inviata con successo')
+        return redirect('albdif:home')
 
 
 # PROFILO UTENTE VISITATORE
@@ -93,15 +146,6 @@ class profilo(LoginRequiredMixin, generic.DetailView):
         context['prenotazioni_list'] = prenotazioni
         context['storico_list'] = storico
         return context
-
-
-# REGISTRAZIONE
-class registrazione(generic.DetailView):
-    """
-    # pagina di registrazione
-    """
-    template_name = "albdif/registrazione.html"
-    login_url = "/registrazione/"
 
 
 # PROPRIETA'
@@ -211,11 +255,6 @@ class prenota_camera(generic.DetailView):
         stagioni = Stagione.objects.filter(data_fine__gt=datetime.now()).order_by("data_inizio")
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
-            # TODO su sqlite non è possibile testare questa situazione per il lock è acquisito sull'intero database
-            # Acquisisco un lock esclusivo sulla tabella CalendarioPrenotazione per non consentire
-            # la prenotazione contemporanea da due o più utenti
-            CalendarioPrenotazione.objects.select_for_update().filter(prenotazione__camera__id=camera.id)
-
             prenotazione = prenotazione_form.save()
             calendario = calendario_form.save(commit=False)
             calendario.prenotazione = prenotazione
@@ -304,11 +343,6 @@ class prenota_modifica(generic.DetailView):
         calendario_form = CalendarioPrenotazioneForm(request.POST, instance=calendario)
 
         if prenotazione_form.is_valid() and calendario_form.is_valid():
-            # TODO su sqlite non è possibile testare questa situazione per il lock è acquisito sull'intero database
-            # Acquisisco un lock esclusivo sulla tabella CalendarioPrenotazione per non consentire
-            # la prenotazione contemporanea da due o più utenti
-            CalendarioPrenotazione.objects.select_for_update().filter(prenotazione__camera__id=prenotazione.camera.id)
-
             prenotazione_form.save()
             calendario_form.save()
             messages.success(request, 'Prenotazione modificata con successo')
@@ -360,6 +394,7 @@ class prenota_cancella(generic.DetailView):
     def get(self, request, *args, **kwargs):
         prenotazione = self.get_queryset()
         prenotazione.stato_prenotazione = prenotazione.CANCELLATA
+
         prenotazione.save()
         messages.success(request, 'Prenotazione cancellata con successo')
 

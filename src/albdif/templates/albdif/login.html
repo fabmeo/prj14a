@@ -29,9 +29,7 @@
 {% endif %}
 <hr>
 
-{% if registrazione_classica %}
-    <p>Non hai un account? <a href="/registrazione">Registrati qui oppure usa uno dei canali social di seguito:</a></p>
-{% endif %}
+<p>Non hai un account? <a href="/registrazione">Registrati qui oppure usa uno dei canali social di seguito:</a></p>
 
 <p>Registrazione Github SSO</p>
 <a href="{% url 'social:begin' 'github' %}" class="btn btn-danger">Login con Github</a>

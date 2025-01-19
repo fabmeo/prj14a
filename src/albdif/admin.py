@@ -25,7 +25,8 @@ class CameraAdmin(admin.ModelAdmin):
 class PrenotazioneAdmin(admin.ModelAdmin):
     list_display = ['pk', 'visitatore', 'stato_prenotazione', 'data_prenotazione', 'camera', 'costo_soggiorno']
     search_fields = ['richiesta', 'visitatore']
-    list_filter = ['visitatore', 'camera', 'camera__proprieta', 'stato_prenotazione', 'data_prenotazione']
+    list_filter = ['stato_prenotazione', 'data_stato', 'visitatore', 'camera', 'camera__proprieta', 'data_prenotazione']
+
 
 
 class CalendarioPrenotazioneAdmin(admin.ModelAdmin):
