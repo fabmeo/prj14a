@@ -128,6 +128,5 @@ class PagamentoForm(forms.ModelForm):
         model = Prenotazione
         #fields = '__all__'
         exclude = ['visitatore', 'camera', 'stato_prenotazione', 'data_prenotazione',
-                   'data_pagamento', 'richiesta', 'numero_persone']
-
+                   'data_pagamento', 'richiesta', 'numero_persone', 'data_stato']
 
