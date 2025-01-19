@@ -13,7 +13,7 @@ from factory.django import DjangoModelFactory
 
 from albdif.config import env
 from albdif.models import Visitatore, Proprieta, Camera, Prenotazione, CalendarioPrenotazione, Foto, Stagione, \
-    Servizio, ServizioCamera, PrezzoCamera, RuoloUtente
+    Servizio, ServizioCamera, PrezzoCamera, RuoloUtente, RichiestaAdesione
 
 prefix = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
           "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ")
@@ -205,3 +205,17 @@ class PrezzoCameraFactory(DjangoModelFactory):
 
     class Meta:
         model = PrezzoCamera
+
+
+class RichiestaAdesioneFactory(DjangoModelFactory):
+
+    utente = factory.SubFactory(UserFactory)
+    richiesta_adesione = factory.LazyAttribute(
+        lambda _: ContentFile(b"%PDF-1.4\n%Fake PDF content", name="richiesta_adesione.pdf"))
+    data_richiesta = factory.fuzzy.FuzzyDate(start_date=date.today() - timedelta(days=30),)
+    approvazione_adesione = factory.LazyAttribute(
+        lambda _: ContentFile(b"%PDF-1.4\n%Fake PDF content", name="approvazione_richiesta.pdf"))
+    data_adesione = factory.fuzzy.FuzzyDate(start_date=date.today())
+
+    class Meta:
+        model = RichiestaAdesione
