@@ -24,7 +24,8 @@ services:
     networks:
       - app-network
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   postgres:
     image: postgres:15
@@ -36,12 +37,12 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "db", "-d", "prj14a" ]
+      test: [ "CMD", "pg_isready", "-U", "user", "-d", "prj14a" ]
       start_period: 5s
-      start_interval: 1s
-      interval: 5s
-      timeout: 4s
+      interval: 10s
+      timeout: 5s
       retries: 5
+
 networks:
   app-network:
     driver: bridge
