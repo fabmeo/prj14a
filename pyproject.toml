@@ -16,6 +16,7 @@ dependencies = [
     "pip>=24.3.1",
     "social-auth-app-django>=5.4.2",
     "factory-boy>=3.3.1",
+    "psycopg2-binary>=2.9.10",
 ]
 
 [tool.uv]
@@ -28,7 +29,6 @@ dev-dependencies = [
     "pytest-coverage>=0.0",
     "django-webtest>=1.9.12",
     "django-browser-reload>=1.17.0",
-    "psycopg2-binary>=2.9.10",
 ]
 
 [tool.django-stubs]
