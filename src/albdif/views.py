@@ -5,6 +5,7 @@ from venv import logger
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login as auth_login
@@ -16,18 +17,25 @@ from django.contrib.auth import logout as auth_logout
 from django.db import transaction
 from django.db.models import F, Q
 
-from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm, RegistrazioneForm
+from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm, RegistrazioneForm, \
+    RegistrazioneTitolareForm
 from .utils.utility import date_range, calcola_prezzo_totale, to_date
 from .models import Camera, Proprieta, Prenotazione, PrezzoCamera, CalendarioPrenotazione, Foto, Visitatore, Stagione, \
-    ServizioCamera, RuoloUtente
+    ServizioCamera, RuoloUtente, RichiestaAdesione
 
 
 def home(request: HttpRequest) -> HttpResponse:
+    """
+    Gestisce la home del sito
+    """
     template_name = "albdif/home.html"
     return render(request, template_name)
 
 
 class login(FormView):
+    """
+    Gestisce la pagina che effettua il login
+    """
     template_name = "albdif/login.html"
     form_class = LoginForm
     success_url = reverse_lazy('albdif:home')
@@ -58,7 +66,7 @@ class logout(View):
 # REGISTRAZIONE
 class registrazione(generic.DetailView):
     """
-    # pagina di registrazione
+    # Gestisce la pagina di registrazione dell'utente Visitatore
     """
     template_name = "albdif/form_registrazione.html"
 
@@ -103,10 +111,74 @@ class registrazione(generic.DetailView):
         })
 
 
-# PAGINA DEI CONTATTI
+class registrazione_titolare(generic.DetailView):
+    """
+    # Gestisce la pagina di richiesta registrazione da parte di Titolare altro AD Partner
+    """
+    template_name = "albdif/form_registrazione_titolare.html"
+
+    def get(self, request, *args, **kwargs):
+
+        registrazione_form = RegistrazioneForm()
+        richiesta_form = RegistrazioneTitolareForm()
+        return render(request, self.template_name, {
+            'form': registrazione_form,
+            'form_richiesta': richiesta_form,
+        })
+
+    def post(self, request, *args, **kwargs):
+        try:
+            registrazione_form = RegistrazioneForm(request.POST)
+            richiesta_form = RegistrazioneTitolareForm(request.POST, request.FILES)
+            if registrazione_form.is_valid():
+                user_data = registrazione_form.cleaned_data
+                with transaction.atomic():
+                    user = User.objects.create_user(
+                        username=user_data['username'],
+                        email=user_data['email'],
+                        password=user_data['password'],
+                        #first_name=user_data['first_name'],
+                        #last_name=user_data['last_name']
+                    )
+                    # crea il visitatore legandolo all'utente appena registrato
+                    v = Visitatore.objects.create(utente=user, registrazione=datetime.now())
+                    # salva l'istanza
+                    v.save()
+
+                    #richiesta_form = RegistrazioneTitolareForm(request.POST, request.FILES)
+                    if richiesta_form.is_valid():
+                        # salva la Richiesta Adesione al sito
+                        richiesta_data = richiesta_form.cleaned_data
+                        RichiestaAdesione.objects.create(
+                            utente=user,
+                            richiesta_adesione=richiesta_data['richiesta_adesione'],
+                        )
+
+                        #@TODO Per adesso si assegna subito il ruolo Titolare ma successivamente sarà fatto all'approvazione
+                        # preleva il gruppo/ruolo dell'utente
+                        gruppo = Group.objects.filter(name="Titolare").first()
+                        # crea il ruolo dell'utente sul sito (i visitatori hanno l'ente a null
+                        ru = RuoloUtente.objects.create(utente=user, ruolo=gruppo, ente=None)
+                        ru.save()
+                        messages.success(request, 'Registrazione avvenuta con successo')
+                        return HttpResponseRedirect(reverse('albdif:login'))
+                    else:
+                        # effettuo la rollback per non lasciare l'utente censito parzialmente
+                        transaction.set_rollback(True)
+        except Exception as e:
+            logger.debug(e)
+            raise ValidationError("Sono presenti degli errori")
+
+        messages.error(request, "Registrazione non avvenuta: verificare gli errori")
+        return render(request, self.template_name, {
+            'form': registrazione_form,
+            'form_richiesta': richiesta_form,
+        })
+
+
 class contatti(View):
     """
-    # pagina dei contatti
+    # Gestisce la pagina dei contatti per la richiesta informazioni
     """
     template_name = "albdif/contatti.html"
 
@@ -118,10 +190,9 @@ class contatti(View):
         return redirect('albdif:home')
 
 
-# PROFILO UTENTE VISITATORE
 class profilo(LoginRequiredMixin, generic.DetailView):
     """
-    # pagina dell'utente visitatore
+    # Gestisce la pagina dell'utente
     """
     model = User
     template_name = "albdif/profilo.html"
@@ -148,10 +219,10 @@ class profilo(LoginRequiredMixin, generic.DetailView):
         return context
 
 
-# PROPRIETA'
 class proprieta_detail(generic.ListView):
     """
-    Ritorna la lista delle camere dell'AD selezionato ordinata per descrizione
+    Gestisce la pagina di dettaglio di una Proprietà (Albergo Diffuso)
+    - ritorna la lista delle camere dell'AD selezionato ordinata per descrizione
     """
     template_name = "albdif/proprieta_detail.html"
     context_object_name = "camere_list"
@@ -170,7 +241,8 @@ class proprieta_detail(generic.ListView):
 
 class proprieta_partner(generic.ListView):
     """
-    Ritorna la lista dei partner con le foto della proprietà
+    Gestisce la pagina di dettaglio di una Proprietà Partner (Albergo Diffuso)
+    - ritorna la lista dei partner con le foto della proprietà
     """
     template_name = "albdif/proprieta_list.html"
     context_object_name = "proprieta_list"
@@ -188,10 +260,10 @@ class proprieta_partner(generic.ListView):
         return context
 
 
-# CAMERE
 class camera_detail(generic.DetailView):
     """
-    # estraggo solo i periodi di prenotazione che comprendono la data corrente e i futuri
+    Gestisce le camere di una proprietà
+    - estraggo solo i periodi di prenotazione che comprendono la data corrente e i futuri
     """
     model = Camera
     template_name = "albdif/camera_detail.html"
@@ -403,7 +475,7 @@ class prenota_cancella(generic.DetailView):
 
 class prenota_paga(generic.DetailView):
     """
-    Gestisce il pagamento di una prenotazione
+    Gestisce la conferma / pagamento di una prenotazione
     """
     template_name = "albdif/form_pagamento.html"
 
@@ -467,7 +539,8 @@ class prenota_paga(generic.DetailView):
 
 class camere_list(generic.ListView):
     """
-    Ritorna la lista delle camere dell'AD principale ordinata per descrizione
+    Gestisce le camere della proprietà principale
+    - ritorna la lista delle camere dell'AD principale ordinata per descrizione
     """
     template_name = "albdif/camere_list.html"
     context_object_name = "camere_list"
@@ -477,6 +550,10 @@ class camere_list(generic.ListView):
 
 
 class prezzo_camera_detail(generic.DetailView):
+    """
+    Gestisce il prezzo specifico di una camera:
+    @TODO TBD
+    """
     model = PrezzoCamera
     template_name = "albdif/prezzo_camera_detail.html"
 
@@ -484,76 +561,11 @@ class prezzo_camera_detail(generic.DetailView):
 class prezzi_camera_list(generic.ListView):
     """
     Ritorna la lista dei prezzi di una camera
-    @TODO modificare per accettare parametro ed elencare solo i prezzi di  una camera
+    @TODO TBD - modificare per accettare parametro ed elencare solo i prezzi di una camera
     """
     template_name = "albdif/prezzi_camera_list.html"
     context_object_name = "prezzi_camera_list"
 
     def get_queryset(self):
         return PrezzoCamera.objects.order_by("camera.descrizione")
-
-
-# PRENOTAZIONI
-# class prenotazione_detail(generic.DetailView):
-#     model = Prenotazione
-#     template_name = "albdif/prenotazione_detail.html"
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(prenotazione_detail, self).get_context_data(**kwargs)
-#
-#         gia_prenotate = []
-#         # estraggo solo i periodi che comprendono la data corrente e i futuri
-#         periodi = CalendarioPrenotazione.objects.filter(prenotazione=self.object.pk, data_fine__gte=datetime.today())
-#         for periodo in periodi:
-#             for d in date_range(str(periodo.data_inizio), str(periodo.data_fine)):
-#                 gia_prenotate.append(d)
-#
-#         context['disabled_dates'] = json.dumps(gia_prenotate)
-#         return context
-
-
-class prenotazioni_list(generic.ListView):
-    template_name = "albdif/prenotazioni_list.html"
-    context_object_name = "prenotazioni_list"
-
-    def get_queryset(self):
-        """Ritorna la lista delle prenotazioni ordinata per data più reente"""
-        return Prenotazione.objects.order_by("-data_prenotazione")
-
-
-# class prenotazioni_utente_list(generic.ListView):
-#     template_name = "albdif/prenotazioni_list.html"
-#     context_object_name = "prenotazioni_list"
-#
-#     def dispatch(self, request, *args, **kwargs):
-#         """ La pagina del profilo può essere acceduta solo dal suo utente """
-#         utente = Visitatore.objects.get(utente__pk=self.kwargs.get('pk'))
-#         if utente != request.user:
-#             messages.warning(request, 'Accesso ad altre prenotazioni non consentito!')
-#             return redirect('albdif:home')
-#             #raise PermissionDenied("Accesso ad altre prenotazioni non consentito")
-#         return super().dispatch(request, *args, **kwargs)
-#
-#     def get_queryset(self):
-#         """Ritorna la lista delle prenotazioni di un utente"""
-#         utente_id = self.kwargs.get('pk')
-#         return Prenotazione.objects.filter(visitatore__utente__id=utente_id).order_by("-data_prenotazione")
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(prenotazioni_utente_list, self).get_context_data(**kwargs)
-#         return context
-
-
-class calendario_prenotazione_detail(generic.DetailView):
-    model = CalendarioPrenotazione
-    template_name = "albdif/calendario_prenotazione_detail.html"
-
-
-class calendario_prenotazioni_list(generic.ListView):
-    template_name = "albdif/calendario_prenotazioni_list.html"
-    context_object_name = "calendario_prenotazioni_list"
-
-    def get_queryset(self):
-        """Ritorna la lista delle date di prenotazione ordinata per data"""
-        return CalendarioPrenotazione.objects.order_by("data_inizio")
 

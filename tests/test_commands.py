@@ -10,7 +10,7 @@ def test_crea_dati_test():
     call_command('crea_dati_test', )
     os.chdir('..')
     
-    assert Visitatore.objects.count() == 3
+    assert Visitatore.objects.count() == 6
     assert Proprieta.objects.filter(principale=True).count() == 1
     assert RuoloUtente.objects.all().count() == 5
     assert Stagione.objects.count() == 5
