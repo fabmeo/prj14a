@@ -11,7 +11,7 @@ services:
       - DJANGO_SETTINGS_MODULE=albdif.config.settings
       - PEGASUS_MEDIA_ROOT=/var/app/media/
       - PEGASUS_MEDIA_URL=${PEGASUS_MEDIA_URL}
-      - PEGASUS_STATIC_ROOT=${PEGASUS_STATIC_ROOT}
+      - PEGASUS_STATIC_ROOT=/app/src/static
       - PEGASUS_DATABASE_URL=postgres://user:password@postgres:5432/prj14a
       - PEGASUS_SOCIAL_AUTH_REDIRECT_IS_HTTPS=False
       - PEGASUS_SOCIAL_AUTH_GITHUB_KEY=${PEGASUS_SOCIAL_AUTH_GITHUB_KEY}
