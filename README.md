@@ -69,8 +69,9 @@ Titolo: **Albergo Diffuso Pegasus**
 
 ### Esecuzione del progetto con DOCKER
 
-Con questa configurazione si crea una composizione con due servizi: web e postgres con il primo che aspetta il secondo
-Prerequisiti: DockerDesktop installato sul proprio SO: (https://www.docker.com/products/docker-desktop/)
+Con questa configurazione si crea una composizione con due servizi: **web** e **postgres** 
+
+### Prerequisiti: DockerDesktop installato sul proprio SO: (https://www.docker.com/products/docker-desktop/)
 
 1. dalla directory del progetto (es c:\prj\pw14a) lanciare il comando che segue
 > docker compose up
@@ -85,7 +86,7 @@ Prerequisiti: DockerDesktop installato sul proprio SO: (https://www.docker.com/p
 
 ---
 
-### Per avere un'idea di come è strutturato il progetto
+### Per avere invece un'idea di come è stato strutturato il progetto
 
 [Struttura del progetto](docs/Partecipa.md)
 
