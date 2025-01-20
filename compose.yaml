@@ -35,7 +35,13 @@ services:
       - POSTGRES_USER=user
     networks:
       - app-network
-
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "db", "-d", "prj14a" ]
+      start_period: 5s
+      start_interval: 1s
+      interval: 5s
+      timeout: 4s
+      retries: 5
 networks:
   app-network:
     driver: bridge
