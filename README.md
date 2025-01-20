@@ -7,7 +7,7 @@ Titolo: **Albergo Diffuso Pegasus**
 1. installazione di python versione 3.12 (https://www.python.org/downloads/windows/)  
 2. installazione di uv (https://docs.astral.sh/uv/getting-started/installation/)
 > pip install uv
-3. copia del codice dal repository Github 
+3. clone del codice dal repository Github 
 > posizionarsi su una directory: es c:\prj ed eseguire il comando seguente
 > git clone https://github.com/fabmeo/prj14a.git
 4. accedere alla directory pw14a
@@ -68,26 +68,18 @@ Titolo: **Albergo Diffuso Pegasus**
 ---
 
 ### Esecuzione del progetto con DOCKER
-1. Creazione di un file per le variabili d'ambiente denominato **.env** da posizionare sulla directory del progetto (es c:\prj\pw14a)
-> ```
-> es.
-> PEGASUS_MEDIA_URL=media/
-> PEGASUS_MEDIA_ROOT=media/
-> PEGASUS_DATABASE_URL=sqlite:///db.sqlite3
-> PEGASUS_SOCIAL_AUTH_REDIRECT_IS_HTTPS=0
-> PEGASUS_SOCIAL_AUTH_GITHUB_KEY=<app key github>
-> PEGASUS_SOCIAL_AUTH_GITHUB_SECRET=<app secret github>
-> PEGASUS_SOCIAL_AUTH_GITHUB_REDIRECT_URI=http://localhost:8000/social/complete/github/
-> PEGASUS_STATIC_ROOT=/app/src/static
-> ```
-2. dalla directory del progetto (es c:\prj\pw14a) lanciare il comando che segue
-> docker-compose up --build -d
-3. aprire una finestra sul browser e incollare la seguente url
+
+Con questa configurazione si crea una composizione con due servizi: web e postgres con il primo che aspetta il secondo
+Prerequisiti: DockerDesktop installato sul proprio SO: (https://www.docker.com/products/docker-desktop/)
+
+1. dalla directory del progetto (es c:\prj\pw14a) lanciare il comando che segue
+> docker compose up
+2. aprire una finestra sul browser e incollare la seguente url
 > http://localhost:8000
-4. Il sito è navigabile in modalità anonima ma può essere acceduto anche con le seguenti credenziali:
+3. Il sito è navigabile in modalità anonima ma può essere acceduto anche con le seguenti credenziali:
 > utente: **guest**
 > password: **password**
-5. il sito di amministrazione può essere acceduto dalla seguente url: http://localhost:8000/admin  
+4. il sito di amministrazione può essere acceduto dalla seguente url: http://localhost:8000/admin  
 > utente: **admin**
 > password: **password**
 
