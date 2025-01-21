@@ -56,10 +56,10 @@ class login(FormView):
         return self.form_invalid(form)
 
     def get(self, request, *args, **kwargs):
-        gitub_sso = google_sso = False
-        if hasattr(settings, "SOCIAL_AUTH_GITHUB_KEY"):
+        github_sso = google_sso = False
+        if hasattr(settings, "SOCIAL_AUTH_GITHUB_KEY") and settings.SOCIAL_AUTH_GITHUB_KEY:
             github_sso = True
-        if hasattr(settings, "GOOGLE_CLIENT_ID"):
+        if hasattr(settings, "GOOGLE_CLIENT_ID") and settings.GOOGLE_CLIENT_ID:
             google_sso = True
         context = {"github_sso": github_sso, "google_sso": google_sso}
         return render(request, self.template_name, context)

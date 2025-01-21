@@ -36,6 +36,9 @@
         {% if github_sso %}
             <p>Registrazione con Github (SSO)</p>
             <a href="{% url 'social:begin' 'github' %}" class="btn btn-danger">Login con Github</a>
+        {% else %}
+            <p>Non sono state configurate le chiavi SSO Github</p>
+            <a href="{% url 'social:begin' 'github' %}" class="btn btn-danger disabled" tabindex="-1" aria-disabled="true">Login con Github</a>
         {% endif %}
         {% if google_sso %}
             <hr>
