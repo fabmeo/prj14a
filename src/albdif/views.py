@@ -57,7 +57,7 @@ class login(FormView):
 
     def get(self, request, *args, **kwargs):
         github_sso = google_sso = False
-        if hasattr(settings, "SOCIAL_AUTH_GITHUB_KEY") and settings.SOCIAL_AUTH_GITHUB_KEY:
+        if hasattr(settings, "SOCIAL_AUTH_GITHUB_KEY") and settings.SOCIAL_AUTH_GITHUB_KEY > "":
             github_sso = True
         if hasattr(settings, "GOOGLE_CLIENT_ID") and settings.GOOGLE_CLIENT_ID:
             google_sso = True
