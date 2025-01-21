@@ -5,43 +5,56 @@
 
 <hr>
 
-{% if not user.is_authenticate %}
-    <form action="/login/" method="POST" class="needs-validation" novalidate>
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="username" class="form-label">Username:</label>
-            <input type="text" class="form-control" id="username" name="username" required>
-            <div class="invalid-feedback">
-                Inserisci il tuo username
-            </div>
-        </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Password:</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-            <div class="invalid-feedback">
-                Inserisci la tua password
-            </div>
-        </div>
-        {{ form.non_field_errors }}
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
-{% else %}
-    <h3>Utente: {{ user }} </h3>
-{% endif %}
-<hr>
-
-<p>Non hai un account? <a href="/registrazione">Registrati qui oppure usa uno dei canali social di seguito:</a></p>
-
-<p>Registrazione Github SSO</p>
-<a href="{% url 'social:begin' 'github' %}" class="btn btn-danger">Login con Github</a>
-
-{% if google_sso %}
-    <hr>
-    <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger">Login con Google</a>
-{% endif %}
-<hr>
-
-<h3>Richiesta associazione al nostro sito da parte di Alberghi Diffusi del nostro territorio</h3>
-<a href="{% url 'albdif:registrazione_titolare' %}" class="btn btn-success">Richiesta associazione</a>
+<div class="row">
+    <div class="col-md-7">
+        {% if not user.is_authenticate %}
+            <form action="/login/" method="POST" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                    <div class="invalid-feedback">
+                        Inserisci il tuo username
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <div class="invalid-feedback">
+                        Inserisci la tua password
+                    </div>
+                </div>
+                {{ form.non_field_errors }}
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        {% else %}
+            <h3>Utente: {{ user }} </h3>
+        {% endif %}
+    </div>
+    <div class="col-md-1"></div>
+    <div class="col-md-4">
+        {% if github_sso %}
+            <p>Registrazione con Github (SSO)</p>
+            <a href="{% url 'social:begin' 'github' %}" class="btn btn-danger">Login con Github</a>
+        {% endif %}
+        {% if google_sso %}
+            <hr>
+            <p>Registrazione con Google (SSO)</p>
+            <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger">Login con Google</a>
+        {% endif %}
+    </div>
+    <div class="col-md-12">
+        <hr>
+            <p>Non hai un account?
+                <a href="{% url 'albdif:registrazione' %}">
+                    Registrati qui
+                    {% if github_sso or google_sso %} oppure usa uno dei canali social (pulsanti rossi) {% endif %}:
+                </a>
+            </p>
+        <hr>
+        <h4>Richiesta associazione al nostro sito da parte di Alberghi Diffusi del nostro territorio</h4>
+        <a href="{% url 'albdif:registrazione_titolare' %}" class="btn btn-success">Richiesta associazione</a>
+    </div>
+</div>
 
 {% endblock content %}

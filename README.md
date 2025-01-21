@@ -77,13 +77,16 @@ Con questa configurazione si crea una composizione con due servizi: **web** e **
 > docker compose up
 2. aprire una finestra sul browser e incollare la seguente url
 > http://localhost:8000
-3. Il sito è navigabile in modalità anonima ma può essere acceduto anche con le seguenti credenziali:
+3. Il sito è navigabile in modalità anonima ma può essere acceduto anche con le seguenti credenziali come cliente già registrato:
 > utente: **guest**
 > password: **password**
-4. il sito di amministrazione può essere acceduto dalla seguente url: http://localhost:8000/admin  
+4. oppure con le seguenti credenziali come il Titolare di un Albergo Diffuso Partner:
+> utente: **host**
+> password: **password**
+5. il sito di amministrazione può essere acceduto dalla seguente url: http://localhost:8000/admin  
 > utente: **admin**
 > password: **password**
-
+> come amministratore del sito sul sito di amministrazione (Admin Site Django)
 ---
 
 ### Per avere invece un'idea di come è stato strutturato il progetto

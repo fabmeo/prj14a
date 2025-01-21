@@ -58,9 +58,13 @@ class Command(BaseCommand):
 
         # Creazione altre proprieta
         for _ in range(3):
+            # Creazione di una proprietà partner
             p = ProprietaFactory.create()
             # Creazione il visitatore
             v = VisitatoreFactory.create()
+            if _ == 0:
+                v.utente.username = 'host'
+                v.utente.save()
             # Creazione ruolo Titolare "ru" per il visitatore "v" sulla proprietà "p"
             ru = RuoloUtenteFactory.create(utente=v.utente, ruolo=titolare, ente=p)
             FotoFactory.create(proprieta=p)
