@@ -20,7 +20,9 @@
 ## Esecuzione del progetto in locale
 1. installazione del virtualenv
 > uv sync
-> - alla fine dell'installazione il virtualenv si attiva automaticamente e il prompt è come segue:
+> - alla fine dell'installazione per attivare il virtualenv eseguire il comando che segue: 
+> .venv\Scripts\activate
+> - si attiverà il prompt del virtualenv come nell'esempio che segue:
 > - (pw14a) C:\prj\pw14a>
 2. verifica del progetto con l'esecuzione dei test
 > pytest tests
@@ -28,8 +30,8 @@
 > **NECESSARIE**
 > ```
 > set PEGASUS_MEDIA_URL=media/
-> set PEGASUS_MEDIA_ROOT=c:/prj/pw14a/media/
-> set PEGASUS_DATABASE_URL=sqlite:///C:/prj/pw14a/database/db.sqlite3
+> set PEGASUS_MEDIA_ROOT=./media/
+> set PEGASUS_DATABASE_URL=sqlite:///.db.sqlite3
 > set PEGASUS_SOCIAL_AUTH_REDIRECT_IS_HTTPS=0
 > set PEGASUS_STATIC_ROOT=C:/prj/pw14a/src/static
 > ```
@@ -47,11 +49,14 @@
 > cd src
 > python manage.py migrate
 > ```
-5. creazione dei dati di test (include utente "guest" per navigare il sito come un utente già registrato e l'utente "admin" per accedere all'Admin Site)
+5. verifica che il progetto sia stato installato correttamente
+> python manage.py check
+> ... dovrebbe apparire la scritta: "System check identified no issues (0 silenced)"
+6. creazione dei dati di test (include utente "guest" per navigare il sito come un utente già registrato e l'utente "admin" per accedere all'Admin Site)
 > python manage.py crea_dati_test
-6. avvio del server
+7. avvio del server
 > python manage.py runserver localhost:8000
-7. Click sulla url del sito in esecuzione come nell'esempio sottostante
+8. Click sulla url del sito in esecuzione come nell'esempio sottostante
 > ```
 > <esempio della shell come si dovrebbe vedere con il server online> 
 > ...
@@ -61,13 +66,13 @@
 > Starting development server at http://localhost:8000/
 > Quit the server with CTRL-BREAK.
 > ```
-8. Il sito è navigabile in modalità anonima ma può essere acceduto anche con le seguenti credenziali:
+9. Il sito è navigabile in modalità anonima ma può essere acceduto anche con le seguenti credenziali:
 > utente: **guest**
 > password: **password**
-9. oppure con le seguenti credenziali come il Titolare di un Albergo Diffuso Partner:
+10. oppure con le seguenti credenziali come il Titolare di un Albergo Diffuso Partner:
 > utente: **host**
 > password: **password**
-10. il sito di amministrazione può essere acceduto dalla seguente url: http://localhost:8000/admin  
+11. il sito di amministrazione può essere acceduto dalla seguente url: http://localhost:8000/admin  
 > utente: **admin**
 > password: **password**
 > come amministratore del sito sul sito di amministrazione (Admin Site Django)
