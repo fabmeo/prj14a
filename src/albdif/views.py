@@ -1,5 +1,6 @@
 from datetime import datetime, date
 import json
+from lib2to3.fixes.fix_input import context
 from venv import logger
 
 from django.contrib import messages
@@ -17,6 +18,7 @@ from django.contrib.auth import logout as auth_logout
 from django.db import transaction
 from django.db.models import F, Q
 
+from .config import settings
 from .forms import LoginForm, PrenotazioneForm, CalendarioPrenotazioneForm, PagamentoForm, RegistrazioneForm, \
     RegistrazioneTitolareForm
 from .utils.utility import date_range, calcola_prezzo_totale, to_date
@@ -52,6 +54,15 @@ class login(FormView):
 
         form.add_error(None, "Username o password errate!")
         return self.form_invalid(form)
+
+    def get(self, request, *args, **kwargs):
+        github_sso = google_sso = False
+        if hasattr(settings, "SOCIAL_AUTH_GITHUB_KEY") and settings.SOCIAL_AUTH_GITHUB_KEY > "":
+            github_sso = True
+        if hasattr(settings, "GOOGLE_CLIENT_ID") and settings.GOOGLE_CLIENT_ID:
+            google_sso = True
+        context = {"github_sso": github_sso, "google_sso": google_sso}
+        return render(request, self.template_name, context)
 
 
 class logout(View):
