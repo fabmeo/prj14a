@@ -1,6 +1,6 @@
-# Benvenuti, in questa pagina trovate le informazioni per scaricare ed eseguire il progetto 
-
-Titolo: **Albergo Diffuso Pegasus**
+# Benvenuti nel progetto   
+## **Albergo Diffuso Pegasus**
+### Informazioni per scaricare ed eseguire il progetto
 
 ---
 ### Prerequisiti per l'avvio del progetto in locale (SO Windows)
@@ -17,7 +17,7 @@ Titolo: **Albergo Diffuso Pegasus**
    * [Esecuzione del progetto in locale](#esecuzione-del-progetto-in-locale)
    * [Esecuzione del progetto con Docker](#esecuzione-del-progetto-con-docker)
 
-### Esecuzione del progetto in locale
+## Esecuzione del progetto in locale
 1. installazione del virtualenv
 > uv sync
 > - alla fine dell'installazione il virtualenv si attiva automaticamente e il prompt è come segue:
@@ -64,10 +64,17 @@ Titolo: **Albergo Diffuso Pegasus**
 8. Il sito è navigabile in modalità anonima ma può essere acceduto anche con le seguenti credenziali:
 > utente: **guest**
 > password: **password**
+9. oppure con le seguenti credenziali come il Titolare di un Albergo Diffuso Partner:
+> utente: **host**
+> password: **password**
+10. il sito di amministrazione può essere acceduto dalla seguente url: http://localhost:8000/admin  
+> utente: **admin**
+> password: **password**
+> come amministratore del sito sul sito di amministrazione (Admin Site Django)
 
 ---
 
-### Esecuzione del progetto con DOCKER
+## Esecuzione del progetto con DOCKER
 
 Con questa configurazione si crea una composizione con due servizi: **web** e **postgres** 
 
