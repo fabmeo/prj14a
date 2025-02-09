@@ -10,8 +10,8 @@
 3. clone del codice dal repository Github 
 > posizionarsi su una directory: es c:\prj ed eseguire il comando seguente
 > git clone https://github.com/fabmeo/prj14a.git
-4. accedere alla directory pw14a
-> cd pw14a
+4. accedere alla directory del progetto
+> cd prj14a
 5. sono presenti le seguenti due opzioni: 
 
    * [Esecuzione del progetto in locale](#esecuzione-del-progetto-in-locale)
@@ -23,7 +23,7 @@
 > - alla fine dell'installazione per attivare il virtualenv eseguire il comando che segue: 
 > .venv\Scripts\activate
 > - si attiverà il prompt del virtualenv come nell'esempio che segue:
-> - (pw14a) C:\prj\pw14a>
+> - (prj14a) C:\prj\prj14a>
 2. verifica del progetto con l'esecuzione dei test
 > pytest tests
 3. impostazione delle variabili d'ambiente
@@ -33,7 +33,7 @@
 > set PEGASUS_MEDIA_ROOT=./media/
 > set PEGASUS_DATABASE_URL=sqlite:///.db.sqlite3
 > set PEGASUS_SOCIAL_AUTH_REDIRECT_IS_HTTPS=0
-> set PEGASUS_STATIC_ROOT=C:/prj/pw14a/src/static
+> set PEGASUS_STATIC_ROOT=C:/prj/prj14a/src/static
 > ```
 > **OPZIONALI**
 > ```
@@ -85,7 +85,7 @@ Con questa configurazione si crea una composizione con due servizi: **web** e **
 
 ### Prerequisiti: DockerDesktop installato sul proprio SO: (https://www.docker.com/products/docker-desktop/)
 
-1. dalla directory del progetto (es c:\prj\pw14a) lanciare il comando che segue
+1. dalla directory del progetto (es c:\prj\prj14a) lanciare il comando che segue
 > docker compose up
 2. aprire una finestra sul browser e incollare la seguente url
 > http://localhost:8000
